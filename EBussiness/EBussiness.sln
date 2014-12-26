@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EBussiness", "EBussiness\EBussiness.vcproj", "{C20BBC07-9425-4CC9-8955-433031C9B444}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E2A01220-7187-4FC1-AE17-B3054DB0AD50} = {E2A01220-7187-4FC1-AE17-B3054DB0AD50}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EKeyHook", "EKeyHook\EKeyHook.vcproj", "{E2A01220-7187-4FC1-AE17-B3054DB0AD50}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "public", "public", "{F74284F5-237E-4E42-8A83-E3FDD665F4A4}"
+	ProjectSection(SolutionItems) = preProject
+		public\BaseDefine.h = public\BaseDefine.h
+		public\Log\CommLog.cpp = public\Log\CommLog.cpp
+		public\Log\CommLog.h = public\Log\CommLog.h
+		public\IKeyboardSink.h = public\IKeyboardSink.h
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C20BBC07-9425-4CC9-8955-433031C9B444}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C20BBC07-9425-4CC9-8955-433031C9B444}.Debug|Win32.Build.0 = Debug|Win32
+		{C20BBC07-9425-4CC9-8955-433031C9B444}.Release|Win32.ActiveCfg = Release|Win32
+		{C20BBC07-9425-4CC9-8955-433031C9B444}.Release|Win32.Build.0 = Release|Win32
+		{E2A01220-7187-4FC1-AE17-B3054DB0AD50}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E2A01220-7187-4FC1-AE17-B3054DB0AD50}.Debug|Win32.Build.0 = Debug|Win32
+		{E2A01220-7187-4FC1-AE17-B3054DB0AD50}.Release|Win32.ActiveCfg = Release|Win32
+		{E2A01220-7187-4FC1-AE17-B3054DB0AD50}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

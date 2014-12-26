@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZLib_Test", "ZLib_Test.vcproj", "{A5B9434A-43E9-47F7-811A-6428E2D74A88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug_unicode|Win32 = debug_unicode|Win32
+		Debug_UnicodeMT|Win32 = Debug_UnicodeMT|Win32
+		Debug|Win32 = Debug|Win32
+		DebugMT|Win32 = DebugMT|Win32
+		release_unicode|Win32 = release_unicode|Win32
+		Release_UnicodeMT|Win32 = Release_UnicodeMT|Win32
+		Release|Win32 = Release|Win32
+		ReleaseMT|Win32 = ReleaseMT|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.debug_unicode|Win32.ActiveCfg = debug_unicode|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.debug_unicode|Win32.Build.0 = debug_unicode|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Debug_UnicodeMT|Win32.ActiveCfg = Debug_UnicodeMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Debug_UnicodeMT|Win32.Build.0 = Debug_UnicodeMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Debug|Win32.Build.0 = Debug|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.DebugMT|Win32.ActiveCfg = DebugMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.DebugMT|Win32.Build.0 = DebugMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.release_unicode|Win32.ActiveCfg = release_unicode|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.release_unicode|Win32.Build.0 = release_unicode|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Release_UnicodeMT|Win32.ActiveCfg = Release_UnicodeMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Release_UnicodeMT|Win32.Build.0 = Release_UnicodeMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Release|Win32.ActiveCfg = Release|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.Release|Win32.Build.0 = Release|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.ReleaseMT|Win32.ActiveCfg = ReleaseMT|Win32
+		{A5B9434A-43E9-47F7-811A-6428E2D74A88}.ReleaseMT|Win32.Build.0 = ReleaseMT|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

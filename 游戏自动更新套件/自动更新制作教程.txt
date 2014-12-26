@@ -1,0 +1,11 @@
+1.更新Fish_Resource资源为最新
+2.进入MakeAutoUpdateList目录，将最新的资源放入Fish目录下
+3.找出需要zip中单个文件传送的zip包，将其剪切到Fish/zip目录下
+4.新建目录，注意目录名称要和最终的zip包名称一模一样，zip必须带后缀比如.zip
+5.解压zip包，将里面的内容全部拷贝到对应名称的目录下，注意目录下的目录结构必须和zip目录结构一模一样，需要去掉第一层目录
+6.删除zip包，和加压出来的目录
+7.回到MakeAutoUpdateList下运行MakeUpdateList.exe提示生成成功
+8.将产生的DownLoad.xml拷贝到autoupdate\updateSvr\XML下
+9.转到目录autoupdatem\update0701目录下把刚才所有的资源拷贝到这，注意：需要拷贝zip中的目录下所有文件但是不能包含任何目录
+10.转到autoupdate\updateSvr目录下运行vs.exe选择目录autoupdatem\update0701生成列表
+11.将autoupdatem\update0701下的文件全部拷贝到download即可测试

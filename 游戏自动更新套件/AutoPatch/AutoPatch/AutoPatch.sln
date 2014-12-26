@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VersionControl", "VersionControl\VersionControl.vcproj", "{E00160C2-F205-4D66-AFD8-2688B85393BE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoUpdateClient", "AutoUpdateClient\AutoUpdateClient.vcproj", "{4EE1D285-15EB-48B9-9B82-B3A1F75D4B0B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64938816-08D5-44B5-B730-C955F6D8A197} = {64938816-08D5-44B5-B730-C955F6D8A197}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AutoPatchMfcDll", "AutoPatchMfcDll\AutoPatchMfcDll.vcproj", "{64938816-08D5-44B5-B730-C955F6D8A197}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E00160C2-F205-4D66-AFD8-2688B85393BE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E00160C2-F205-4D66-AFD8-2688B85393BE}.Debug|Win32.Build.0 = Debug|Win32
+		{E00160C2-F205-4D66-AFD8-2688B85393BE}.Release|Win32.ActiveCfg = Release|Win32
+		{E00160C2-F205-4D66-AFD8-2688B85393BE}.Release|Win32.Build.0 = Release|Win32
+		{4EE1D285-15EB-48B9-9B82-B3A1F75D4B0B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4EE1D285-15EB-48B9-9B82-B3A1F75D4B0B}.Debug|Win32.Build.0 = Debug|Win32
+		{4EE1D285-15EB-48B9-9B82-B3A1F75D4B0B}.Release|Win32.ActiveCfg = Release|Win32
+		{4EE1D285-15EB-48B9-9B82-B3A1F75D4B0B}.Release|Win32.Build.0 = Release|Win32
+		{64938816-08D5-44B5-B730-C955F6D8A197}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64938816-08D5-44B5-B730-C955F6D8A197}.Debug|Win32.Build.0 = Debug|Win32
+		{64938816-08D5-44B5-B730-C955F6D8A197}.Release|Win32.ActiveCfg = Release|Win32
+		{64938816-08D5-44B5-B730-C955F6D8A197}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

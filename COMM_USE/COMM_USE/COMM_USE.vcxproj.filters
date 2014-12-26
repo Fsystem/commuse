@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="MemPool">
+      <UniqueIdentifier>{ce56c4f9-7bd0-4a8e-8751-d28f80fe759b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThreadPool">
+      <UniqueIdentifier>{49c3ff0a-8524-44f3-8b85-234f281487b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Timer">
+      <UniqueIdentifier>{58e377c5-7a66-4da7-b0d3-685c3504313f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SafeList">
+      <UniqueIdentifier>{d75432bc-1bd3-4bbe-8046-cef774eed608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SafeMap">
+      <UniqueIdentifier>{2d4ce5e9-7567-46f1-9c97-516d07def0b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ShareMem">
+      <UniqueIdentifier>{6ce178d5-53de-48c0-a5d5-4dc5cf4e6da6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TcpSocket">
+      <UniqueIdentifier>{6ec91446-72b6-409c-bd65-8a935d52c0dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UdpSocket">
+      <UniqueIdentifier>{da4a2038-f6ed-4b23-9608-0761435ff0fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MySqlDBBase">
+      <UniqueIdentifier>{bab7c298-a5aa-4c6d-816f-0687e5e6b2c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SafeCriticalSection">
+      <UniqueIdentifier>{b2a73b4f-88f1-4e75-a963-f48823eececf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Log">
+      <UniqueIdentifier>{0cd05c2f-d6e6-430d-938b-2c893758781f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MD5-16">
+      <UniqueIdentifier>{32ae4ea8-a7dc-432e-94d0-b7f40ad10e76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MD5-32">
+      <UniqueIdentifier>{c7478c78-1f87-4c50-b709-e8ee837a0734}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XBASE64">
+      <UniqueIdentifier>{822708dd-6aca-4092-bc6c-cb9bec9bf7fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TEA">
+      <UniqueIdentifier>{8b55fb19-f308-4fa2-aad4-34d5811da182}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UTF8-ANSI-UNICODE">
+      <UniqueIdentifier>{3f6b3d82-aaa9-479a-8067-01d0dd10a129}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ProcessLock">
+      <UniqueIdentifier>{8a73d2f4-a2ee-4b39-89a7-165cf14242a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SafeVector">
+      <UniqueIdentifier>{d6a22ece-ac8a-4a90-92c3-7cd14ca67bf2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MemPool\AweMemory.cpp">
+      <Filter>MemPool</Filter>
+    </ClCompile>
+    <ClCompile Include="ThreadPool\ThreadPool.cpp">
+      <Filter>ThreadPool</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer\UXTimerQueue.cpp">
+      <Filter>Timer</Filter>
+    </ClCompile>
+    <ClCompile Include="SafeList\SafeList.cpp">
+      <Filter>SafeList</Filter>
+    </ClCompile>
+    <ClCompile Include="SafeMap\SafeMap.cpp">
+      <Filter>SafeMap</Filter>
+    </ClCompile>
+    <ClCompile Include="ShareMem\ShareMemry.cpp">
+      <Filter>ShareMem</Filter>
+    </ClCompile>
+    <ClCompile Include="MySqlDBBase\TMy_Sql_Pool.cpp">
+      <Filter>MySqlDBBase</Filter>
+    </ClCompile>
+    <ClCompile Include="SafeCriticalSection\SafeCriticalSection.cpp">
+      <Filter>SafeCriticalSection</Filter>
+    </ClCompile>
+    <ClCompile Include="Log\uxilog.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="MD5-16\MD5.cpp">
+      <Filter>MD5-16</Filter>
+    </ClCompile>
+    <ClCompile Include="MD5-32\XMd5.cpp">
+      <Filter>MD5-32</Filter>
+    </ClCompile>
+    <ClCompile Include="XBASE64\XBase64.cpp">
+      <Filter>XBASE64</Filter>
+    </ClCompile>
+    <ClCompile Include="TEA\XXTEA.cpp">
+      <Filter>TEA</Filter>
+    </ClCompile>
+    <ClCompile Include="UTF8-ANSI-UNICODE\UTF_8.cpp">
+      <Filter>UTF8-ANSI-UNICODE</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessLock\ProcessLock.cpp">
+      <Filter>ProcessLock</Filter>
+    </ClCompile>
+    <ClCompile Include="SafeVector\SafeVector.cpp">
+      <Filter>SafeVector</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MemPool\AweMemory.h">
+      <Filter>MemPool</Filter>
+    </ClInclude>
+    <ClInclude Include="MemPool\MEMPool.h">
+      <Filter>MemPool</Filter>
+    </ClInclude>
+    <ClInclude Include="ThreadPool\ThreadPool.h">
+      <Filter>ThreadPool</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer\UXTimerQueue.h">
+      <Filter>Timer</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeList\SafeList.h">
+      <Filter>SafeList</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeMap\SafeMap.h">
+      <Filter>SafeMap</Filter>
+    </ClInclude>
+    <ClInclude Include="ShareMem\ShareMemry.h">
+      <Filter>ShareMem</Filter>
+    </ClInclude>
+    <ClInclude Include="MySqlDBBase\TMy_Sql_Pool.h">
+      <Filter>MySqlDBBase</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeCriticalSection\SafeCriticalSection.h">
+      <Filter>SafeCriticalSection</Filter>
+    </ClInclude>
+    <ClInclude Include="Log\uxilog.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="MD5-16\MD5.h">
+      <Filter>MD5-16</Filter>
+    </ClInclude>
+    <ClInclude Include="MD5-32\XMd5.h">
+      <Filter>MD5-32</Filter>
+    </ClInclude>
+    <ClInclude Include="XBASE64\XBase64.h">
+      <Filter>XBASE64</Filter>
+    </ClInclude>
+    <ClInclude Include="TEA\XXTEA.h">
+      <Filter>TEA</Filter>
+    </ClInclude>
+    <ClInclude Include="UTF8-ANSI-UNICODE\UTF_8.h">
+      <Filter>UTF8-ANSI-UNICODE</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessLock\ProcessLock.h">
+      <Filter>ProcessLock</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeVector\SafeVector.h">
+      <Filter>SafeVector</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,41 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyXmlTest", "tinyXmlTest.vcproj", "{3BFB69E9-D832-4433-AFF4-1A74C4607E9D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B118F99-9DFE-4E7A-A4BF-9057A65A7537} = {4B118F99-9DFE-4E7A-A4BF-9057A65A7537}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyXmlTestSTL", "tinyXmlTestSTL.vcproj", "{1122F6F4-C95C-4832-A577-2AB39152BCE4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DA11FE98-78DF-431C-B06A-F85D137F40D0} = {DA11FE98-78DF-431C-B06A-F85D137F40D0}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyxml", "tinyxml_lib.vcproj", "{4B118F99-9DFE-4E7A-A4BF-9057A65A7537}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tinyxmlSTL", "tinyxmlSTL.vcproj", "{DA11FE98-78DF-431C-B06A-F85D137F40D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3BFB69E9-D832-4433-AFF4-1A74C4607E9D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3BFB69E9-D832-4433-AFF4-1A74C4607E9D}.Debug|Win32.Build.0 = Debug|Win32
+		{3BFB69E9-D832-4433-AFF4-1A74C4607E9D}.Release|Win32.ActiveCfg = Release|Win32
+		{3BFB69E9-D832-4433-AFF4-1A74C4607E9D}.Release|Win32.Build.0 = Release|Win32
+		{1122F6F4-C95C-4832-A577-2AB39152BCE4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1122F6F4-C95C-4832-A577-2AB39152BCE4}.Debug|Win32.Build.0 = Debug|Win32
+		{1122F6F4-C95C-4832-A577-2AB39152BCE4}.Release|Win32.ActiveCfg = Release|Win32
+		{1122F6F4-C95C-4832-A577-2AB39152BCE4}.Release|Win32.Build.0 = Release|Win32
+		{4B118F99-9DFE-4E7A-A4BF-9057A65A7537}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4B118F99-9DFE-4E7A-A4BF-9057A65A7537}.Release|Win32.ActiveCfg = Release|Win32
+		{DA11FE98-78DF-431C-B06A-F85D137F40D0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DA11FE98-78DF-431C-B06A-F85D137F40D0}.Debug|Win32.Build.0 = Debug|Win32
+		{DA11FE98-78DF-431C-B06A-F85D137F40D0}.Release|Win32.ActiveCfg = Release|Win32
+		{DA11FE98-78DF-431C-B06A-F85D137F40D0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

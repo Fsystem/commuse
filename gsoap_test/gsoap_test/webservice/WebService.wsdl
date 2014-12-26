@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="WebService"
+ targetNamespace="http://xaobama.eicp.net:10010/WebService.wsdl"
+ xmlns:tns="http://xaobama.eicp.net:10010/WebService.wsdl"
+ xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+ xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:ns="urn:WebService"
+ xmlns:SOAP="http://schemas.xmlsoap.org/wsdl/soap/"
+ xmlns:MIME="http://schemas.xmlsoap.org/wsdl/mime/"
+ xmlns:DIME="http://schemas.xmlsoap.org/ws/2002/04/dime/wsdl/"
+ xmlns:WSDL="http://schemas.xmlsoap.org/wsdl/"
+ xmlns="http://schemas.xmlsoap.org/wsdl/">
+
+<types>
+
+ <schema targetNamespace="urn:WebService"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:ns="urn:WebService"
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="unqualified"
+  attributeFormDefault="unqualified">
+  <import namespace="http://schemas.xmlsoap.org/soap/encoding/"/>
+ </schema>
+
+</types>
+
+<message name="paynotifyRequest">
+ <part name="szAccount" type="xsd:string"/><!-- ns__paynotify::szAccount -->
+ <part name="nKindID" type="xsd:int"/><!-- ns__paynotify::nKindID -->
+ <part name="nServerID" type="xsd:int"/><!-- ns__paynotify::nServerID -->
+</message>
+
+<message name="paynotifyResponse">
+ <part name="nRes" type="xsd:int"/><!-- ns__paynotify::nRes -->
+</message>
+
+<portType name="WebServicePortType">
+ <operation name="paynotify">
+  <documentation>Service definition of function ns__paynotify</documentation>
+  <input message="tns:paynotifyRequest"/>
+  <output message="tns:paynotifyResponse"/>
+ </operation>
+</portType>
+
+<binding name="WebService" type="tns:WebServicePortType">
+ <SOAP:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+ <operation name="paynotify">
+  <SOAP:operation style="rpc" soapAction=""/>
+  <input>
+     <SOAP:body use="encoded" namespace="urn:WebService" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </input>
+  <output>
+     <SOAP:body use="encoded" namespace="urn:WebService" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
+  </output>
+ </operation>
+</binding>
+
+<service name="WebService">
+ <documentation>gSOAP 2.8.14 generated service definition</documentation>
+ <port name="WebService" binding="tns:WebService">
+  <SOAP:address location="http://xaobama.eicp.net:10010/"/>
+ </port>
+</service>
+
+</definitions>

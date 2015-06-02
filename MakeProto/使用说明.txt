@@ -1,0 +1,21 @@
+目录介绍：
+	ProtoFiles 	存放proto定义的消息源文件
+	CShape 		存放proto源文件编译出来的c#源文件
+	CPlusPlus	存放proto源文件编译出来的c++源文件	
+	src		google_protobuf v 2.41的src文件
+
+环境配置：
+c++部分
+	1.将google_protobuf v 2.41源码编译生成对应的debug和release
+	2.包含目录google_protobuf v 2.41下src
+	3.包含链接目录google_protobuf v 2.41编译出来的debug或release
+	4.工程中添加lib的引用
+		#pragma comment(lib, "libprotobuf.lib"
+		#pragma comment(lib, "libprotoc.lib") 
+		using namespace google::protobuf;
+	5.通过MakeC_Plus_Plus_For.bat生成的头文件和源文件包含到工程
+	
+
+c#部分
+	1.添加Google.ProtocolBuffers.dll的类库引用
+	2.添加通过MakeC_Shap_For.bat生成的对应cs类文件

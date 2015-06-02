@@ -1,0 +1,3 @@
+message Common {
+ required string TypeName = 1 [default=""];
+}

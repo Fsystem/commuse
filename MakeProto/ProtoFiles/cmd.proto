@@ -1,0 +1,29 @@
+enum CmdType
+{
+	INVALID_CMD=0;
+}
+enum MainCmd
+{
+	GM_LOGIN=1;
+	GM_WORLD=2;
+	GM_GAME=3;
+}
+
+enum SubCmdLogin
+{
+	SUB_LOGIN=1;
+	SUB_LOGINOK=2;
+	SUB_LOGINFAID=2;
+}
+
+enum SubCmdWorld
+{
+	SUB_USERINFO=1;
+	SUB_USERINFOOK=2;
+	SUB_USERINFOFAID=3;
+}
+
+enum SubCmdGame
+{
+	SUB_SHOOT=1;
+}

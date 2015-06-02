@@ -1,0 +1,6 @@
+message PlayerInfo {
+	required string TypeName = 1 [default="PlayerInfo"];
+	optional string Name=2;
+	optional string Email=3;
+	optional int32 CheckSum=4;
+}

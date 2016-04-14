@@ -86,9 +86,9 @@ BOOL ProtectorEngine::LoadProtectDriver()
 	return TRUE;
 }
 
-BOOL ProtectorEngine::OnHandleResultByStagety(const ActionOperateResult* pResult, BOOL bReport)
+BOOL ProtectorEngine::OnHandleResultByStagety(ActionOperateResult* pResult)
 {
-	if(bReport) ReportOper(*pResult);
+	ReportOper(*pResult);
 
 	return TRUE;
 }

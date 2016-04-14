@@ -248,21 +248,16 @@ void StagetyManager::PostProcessResult(NotifyStagety* pNotify)
 //同步通知结果，影响驱动结果
 BOOL StagetyManager::SendProcessResult(NotifyStagety* pNotify)
 {
-	BOOL bCanRun = FALSE;
-
 	LOGEVEN(TEXT("SEND\r\n%s"),pNotify->GetActionResult().szDescriber);
 
-	OnHandleQueueData(pNotify,sizeof(NotifyStagety));
-
+	//告知需要处理结果的调用者
+	mActionResultDelegate->OnHandleResultByStagety(&pNotify->GetActionResult());
 	//记录操作
 	BOOL bReport = ActionOperateRecord::Instance().RecordProcessOperate(pNotify->GetActionResult());
 
-	//告知需要处理结果的调用者
-	bCanRun = mActionResultDelegate->OnHandleResultByStagety(&pNotify->GetActionResult(),bReport);
-
 	pNotify->Release();
 
-	return bCanRun;
+	return TRUE;
 }
 
 ProcessInfoStagety* StagetyManager::GetProcessInfo(DWORD dwProcessId, bool bCreate)
@@ -379,11 +374,11 @@ void StagetyManager::OnHandleQueueData(LPVOID pData,UINT uDataSize)
 		LOGEVEN(TEXT("error:pNotify为NULL\n"));
 		return;
 	}
+	
+	//告知需要处理结果的调用者
+	mActionResultDelegate->OnHandleResultByStagety(&pNotify->GetActionResult());
 	//记录操作
 	BOOL bReport = ActionOperateRecord::Instance().RecordProcessOperate(pNotify->GetActionResult());
-
-	//告知需要处理结果的调用者
-	mActionResultDelegate->OnHandleResultByStagety(&pNotify->GetActionResult(),bReport);
 
 	pNotify->Release();
 }

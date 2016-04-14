@@ -195,6 +195,7 @@ typedef struct ActionOperateResult
 	ActionType				actionType;			//参考ActionType枚举
 	OperateType				operateType;		//参考OperateType枚举
 	TCHAR					szDescriber[1024];	//描述信息
+	int						nTrusted;			//0-系统放行 1-系统阻止 2-用户放行
 	ActionOperateResult()
 	{
 		parantProcess.cbVerifyResult=enTrustNull;
@@ -205,6 +206,7 @@ typedef struct ActionOperateResult
 		dwTimeStamp = GetTickCount();
 		actionType = enActionNull;
 		operateType = enOperateNull;
+		nTrusted = 1;
 		memset(szDescriber,0,1024);
 	}
 }ActionOperateResult;
@@ -274,7 +276,7 @@ public:
 	void Release();
 
 	void SetActionResult(const ActionOperateResult& result){mActionResult = result;};
-	inline const ActionOperateResult& GetActionResult(){return mActionResult;};
+	inline ActionOperateResult& GetActionResult(){return mActionResult;};
 	inline void SetAtionOperate(ActionType action,OperateType opt){mActionType=action;mOperateType=opt;}
 	inline ActionType GetActionType(){return mActionType;}
 	inline OperateType GetOperateType(){return mOperateType;}
@@ -293,7 +295,7 @@ private:
 //行为处理结果相应接口
 struct IActionResultDelegate
 {
-	virtual BOOL OnHandleResultByStagety(const ActionOperateResult* pResult,BOOL bReport) = 0;
+	virtual BOOL OnHandleResultByStagety(ActionOperateResult* pResult) = 0;
 };
  
 

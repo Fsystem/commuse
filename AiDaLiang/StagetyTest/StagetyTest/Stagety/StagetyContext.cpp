@@ -87,6 +87,7 @@ PRINT:
 	Result.operateType = optType;
 	Result.parantProcess = *parant;
 	Result.childProcess = *child;
+	Result.nTrusted = nRet;
 	//打印基础信息
 	TCHAR szDes[1024] = {0};
 
@@ -113,6 +114,7 @@ PRINT:
 
 	//-------------------------------------------------------------------------------
 	//如果都不信任，放行
+	nRet = (Result.nTrusted == 0 || Result.nTrusted == 2)?0:1;
 	return nRet;
 }
 

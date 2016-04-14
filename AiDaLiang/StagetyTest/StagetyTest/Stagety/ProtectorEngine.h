@@ -34,7 +34,7 @@ protected:
 
 	//实现接口
 protected:
-	virtual BOOL OnHandleResultByStagety(const ActionOperateResult* pResult, BOOL bReport);
+	virtual BOOL OnHandleResultByStagety(ActionOperateResult* pResult);
 
 protected:
 	BOOL LoadProtectDriver();

@@ -106,7 +106,7 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 			_sntprintf(Result.szDescriber,1024,TEXT("加载驱动[路径:%s][新路径:%s]\r\n"),
 				A2T((LPSTR)szOldDriverPath.c_str()),A2T((LPSTR)szNewDriverPath.c_str()) );
 
-			PostProcessResult( NotifyStagety::Builder(Result,Result.actionType,Result.operateType) );
+			SendProcessResult( NotifyStagety::Builder(Result,Result.actionType,Result.operateType) );
 
 			break;
 		}
@@ -141,7 +141,7 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 				);
 
 			
-			PostProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
+			SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
 
 
 			if(wOperation == enTerminateProcess) RemoveProcessInfo(pprocess_info->ProcessId);
@@ -190,7 +190,7 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 				pprotected_info->ProcessId, pProcessChild?A2T((LPSTR)pProcessChild->szProcessPath.c_str()):TEXT("")
 				);
 			
-			PostProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
+			SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
 			
 			break;
 		}
@@ -200,8 +200,12 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 
 			LOGEVEN(TEXT("error:错误代码[%d]文件行[%d],%s[%s]"),perror_info->error,perror_info->file_line,perror_info->error_str,perror_info->file_name);
 
+			JKThread::Start(&StagetyManager::ProcessDriverErrorThread,this);
+
 			break;
 		}
+	default:
+		return true;
 	}
 
 	//是否再需要进入策略判断
@@ -227,7 +231,7 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 	Result.operateType = enOperateNull;
 	_sntprintf(Result.szDescriber,1024,TEXT("=================================================\r\n"));
 
-	PostProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
+	SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
 
 	return bRet;
 }
@@ -236,6 +240,11 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 bool StagetyManager::VerifyPrantPidIsOurs(DWORD dwParantPid)
 {
 	return ( dwParantPid==mCurProcessId || dwParantPid == mClientPid || dwParantPid == mSuspensionWindowPid );
+}
+
+void StagetyManager::ProcessDriverErrorThread(void * pThis)
+{
+	PROTECTOR_ENGINE.ReloadProtectDriver();
 }
 
 void StagetyManager::PostProcessResult(NotifyStagety* pNotify)

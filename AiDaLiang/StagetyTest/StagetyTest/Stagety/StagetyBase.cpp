@@ -302,14 +302,18 @@ TrustKind IStagety::VerifyByUserApp(ProcessInfoStagety* pProcessInfo)
 {
 	TrustKind trustInfo = enTrustNull;
 
-	for (AppStageList::iterator it = mListAppUserStagetyData.begin(); it != mListAppUserStagetyData.end(); ++it)
+	if (pProcessInfo->szMd5.size()>0)
 	{
-		if(stricmp( it->md5.c_str(),  pProcessInfo->szMd5.c_str() )==0) 
+		for (AppStageList::iterator it = mListAppUserStagetyData.begin(); it != mListAppUserStagetyData.end(); ++it)
 		{
-			it->is_trust==1?trustInfo = enTrustByMd5AppUser:trustInfo=enTrustNotByMd5AppUser;
-			break;
+			if(stricmp( it->md5.c_str(),  pProcessInfo->szMd5.c_str() )==0) 
+			{
+				it->is_trust==1?trustInfo = enTrustByMd5AppUser:trustInfo=enTrustNotByMd5AppUser;
+				break;
+			}
 		}
 	}
+	
 // 	POSITION pos = mListAppUserStagetyData.GetHeadPosition();
 // 
 // 	while(pos != NULL)
@@ -333,15 +337,18 @@ TrustKind IStagety::VerifyBySysApp(ProcessInfoStagety* pProcessInfo)
 	TrustKind trustInfo = enTrustNull;
 	if(pProcessInfo==NULL) return trustInfo;
 
-	for (AppStageList::iterator it = mListAppStagetyData.begin(); it != mListAppStagetyData.end(); ++it)
+	if (pProcessInfo->szMd5.size()>0)
 	{
-		if(stricmp( it->md5.c_str(),  pProcessInfo->szMd5.c_str() )==0) 
+		for (AppStageList::iterator it = mListAppStagetyData.begin(); it != mListAppStagetyData.end(); ++it)
 		{
-			it->is_trust==1?trustInfo = enTrustByMd5AppSys:trustInfo=enTrustNotByMd5AppSys;
-			break;
+			if(stricmp( it->md5.c_str(),  pProcessInfo->szMd5.c_str() )==0) 
+			{
+				it->is_trust==1?trustInfo = enTrustByMd5AppSys:trustInfo=enTrustNotByMd5AppSys;
+				break;
+			}
 		}
 	}
-
+	
 // 	POSITION pos = mListAppStagetyData.GetHeadPosition();
 // 
 // 	while(pos != NULL)
@@ -365,12 +372,15 @@ TrustKind IStagety::VerifyByUserCompany(ProcessInfoStagety* pProcessInfo)
 	TrustKind trustInfo = enTrustNull;
 	if(pProcessInfo==NULL) return trustInfo;
 
-	for (CompanyStageList::iterator it = mListCompanyUserStagetyData.begin(); it != mListCompanyUserStagetyData.end(); ++it)
+	if (pProcessInfo->szSign.size()>0)
 	{
-		if(stricmp( it->name.c_str(), pProcessInfo->szSign.c_str()) == 0 ) 
+		for (CompanyStageList::iterator it = mListCompanyUserStagetyData.begin(); it != mListCompanyUserStagetyData.end(); ++it)
 		{
-			it->is_trust==1?trustInfo = enTrustByCompanyUser:trustInfo = enTrustNotByCompanyUser;
-			break;
+			if(stricmp( it->name.c_str(), pProcessInfo->szSign.c_str()) == 0 ) 
+			{
+				it->is_trust==1?trustInfo = enTrustByCompanyUser:trustInfo = enTrustNotByCompanyUser;
+				break;
+			}
 		}
 	}
 
@@ -397,15 +407,18 @@ TrustKind IStagety::VerifyBySysCompany(ProcessInfoStagety* pProcessInfo)
 	TrustKind trustInfo = enTrustNull;
 	if(pProcessInfo==NULL) return trustInfo;
 
-	for (CompanyStageList::iterator it = mListCompanyStagetyData.begin(); it != mListCompanyStagetyData.end(); ++it)
+	if (pProcessInfo->szSign.size()>0)
 	{
-		if(stricmp( it->name.c_str(), pProcessInfo->szSign.c_str()) == 0 ) 
+		for (CompanyStageList::iterator it = mListCompanyStagetyData.begin(); it != mListCompanyStagetyData.end(); ++it)
 		{
-			it->is_trust==1?trustInfo = enTrustByCompanySys:trustInfo = enTrustNotByCompanySys;
-			break;
+			if(stricmp( it->name.c_str(), pProcessInfo->szSign.c_str()) == 0 ) 
+			{
+				it->is_trust==1?trustInfo = enTrustByCompanySys:trustInfo = enTrustNotByCompanySys;
+				break;
+			}
 		}
 	}
-
+	
 // 	POSITION pos = mListCompanyStagetyData.GetHeadPosition();
 // 
 // 	while(pos != NULL)

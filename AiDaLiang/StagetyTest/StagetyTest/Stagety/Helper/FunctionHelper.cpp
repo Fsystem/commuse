@@ -85,6 +85,18 @@ bool SetPrivilege()
 	return true;
 }
 
+//获取操作Key
+unsigned int GetActionKey(LPCSTR pParantPath,LPCSTR pChildPath,WORD operate)
+{
+	if(operate == enOperateNull) return 0;
+
+	char szRandKey[1024]={0};
+	sprintf(szRandKey,"%s%s%d",pParantPath, pChildPath, operate);
+
+	CCRC crc;
+	return crc.GetStrCrc_Key(szRandKey,strlen(szRandKey));
+}
+
 //-------------------------------------------------------------------------------
 //微软数字签名
 // typedef struct WINTRUST_FILE_INFO_  

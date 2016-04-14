@@ -40,4 +40,8 @@ std::string GetXPProcessName(HANDLE handle);
 //翻译驱动路径
 std::string change_dirver_path(std::string path);
 
+//-------------------------------------------------------------------------------
+//获取操作Key
+unsigned int GetActionKey(LPCSTR pParantPath,LPCSTR pChildPath,WORD operate);
+
 #endif //__FunctionHelper_H

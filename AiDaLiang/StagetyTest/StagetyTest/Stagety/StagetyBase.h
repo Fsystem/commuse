@@ -295,7 +295,7 @@ private:
 //行为处理结果相应接口
 struct IActionResultDelegate
 {
-	virtual BOOL OnHandleResultByStagety(ActionOperateResult* pResult) = 0;
+	virtual void OnHandleResultByStagety(ActionOperateResult* pResult) = 0;
 };
  
 

@@ -40,6 +40,12 @@
 
 //-------------------------------------------------------------------------------
 #define MARKUP_STL
+#include "sysio.h"
+#include "Tools/Md5.h"
+#include "Tools/Markup.h"
+#include "Tools/DigitSign.h"
+#include "Tools/CRC.h"
+
 #include "Stagety/StagetyInclude.h"
 
 

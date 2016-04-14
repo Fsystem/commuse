@@ -133,12 +133,11 @@ BOOL CStagetyTestDlg::OnInitDialog()
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-BOOL CStagetyTestDlg::OnHandleResultByStagety(ActionOperateResult* pResult)
+void CStagetyTestDlg::OnHandleResultByStagety(ActionOperateResult* pResult)
 {
 	ActionOperateResult result = *pResult;
 	mResultList.AddTail(result);
 
-	return TRUE;
 }
 
 void CStagetyTestDlg::OnTimer(UINT uId)

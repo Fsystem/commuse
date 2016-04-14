@@ -19,10 +19,17 @@ ProtectorEngine::ProtectorEngine()
 	_tcsrchr(mModulePath,'\\')[0]=0;
 
 	mHDllModule = NULL;
+	mEngineSink = NULL;
+	
 }
 
-void ProtectorEngine::StartEngine()
+void ProtectorEngine::StartEngine(IActionResultDelegate* pEngineSink)
 {
+	mEngineSink = pEngineSink;
+
+	mEventBlock = CreateEvent(NULL,FALSE,FALSE,NULL);
+	ResetEvent(mEventBlock);
+
 	//初始化策略管理器
 	StagetyManager::Instance().BuildAllStagety(this);
 
@@ -41,6 +48,9 @@ void ProtectorEngine::StopEngine()
 {
 	StagetyManager::Instance().ResetData();
 
+	SetEvent(mEventBlock);
+	CloseHandle(mEventBlock);
+
 	if (mHDllModule)
 	{
 		mOperMsgFilter(FALSE);
@@ -51,6 +61,17 @@ void ProtectorEngine::StopEngine()
 		mHDllModule = NULL;
 	}
 }
+
+void ProtectorEngine::Block()
+{
+	WaitForSingleObject(mEventBlock,INFINITE);
+}
+
+void ProtectorEngine::UnBlock()
+{
+	SetEvent(mEventBlock);
+}
+
 
 BOOL ProtectorEngine::LoadProtectDriver()
 {
@@ -86,11 +107,36 @@ BOOL ProtectorEngine::LoadProtectDriver()
 	return TRUE;
 }
 
-BOOL ProtectorEngine::OnHandleResultByStagety(ActionOperateResult* pResult)
+void ProtectorEngine::ReloadProtectDriver()
 {
+	if( NULL == mRegCallBackFun) return;
+
+	mRegCallBackFun(NULL);
+	mOperMsgFilter(FALSE);
+	mOperSysFilter(FALSE);
+	mOperPorcessStatus(FALSE);
+	Sleep(1000);
+	mRegCallBackFun(Sys_Filter_fun);
+	mOperPorcessStatus(TRUE);
+	mOperMsgFilter(TRUE);
+	mOperSysFilter(TRUE);
+	LOGEVEN(TEXT("重新加载驱动" ));
+}
+
+void ProtectorEngine::OnHandleResultByStagety(ActionOperateResult* pResult)
+{
+	//放行的不需要客户端干预
+	if (pResult->nTrusted==0) return;
+
+	//无操作的表示打印日志
+	if (pResult->actionType == enActionNull || pResult->operateType == enOperateNull ) return;
+
+	//1.调用客户端结果及操作结果
+	if(mEngineSink) mEngineSink->OnHandleResultByStagety(pResult);
+
+	//2.上报
 	ReportOper(*pResult);
 
-	return TRUE;
 }
 
 void ProtectorEngine::ReportOper(const ActionOperateResult& pResult)

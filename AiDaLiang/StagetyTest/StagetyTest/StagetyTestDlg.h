@@ -56,7 +56,7 @@ public:
 	bool mStopOut;
 
 public:
-	virtual BOOL OnHandleResultByStagety(ActionOperateResult* pResult);
+	virtual void OnHandleResultByStagety(ActionOperateResult* pResult);
 
 protected:
 	afx_msg void OnBnClickedOk();

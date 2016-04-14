@@ -59,6 +59,15 @@ private:
 	*   @Date     :	2016-4-8
 	*/
 	bool VerifyPrantPidIsOurs(DWORD dwParantPid);
+
+	/** 驱动返回错误处理线程 
+	*   @Author   : Double sword
+	*   @Params   : 	
+			
+	*   @Return   :				
+	*   @Date     :	2016-4-14
+	*/
+	void ProcessDriverErrorThread(void * pThis);
 	
 	//实现接口
 public:

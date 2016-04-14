@@ -13,6 +13,8 @@
 
 #define PROTECTOR_ENGINE (ProtectorEngine::Instance())
 
+#define STAGETY_NOTIFY_PROCESS_RESULT	WM_USER+1212
+
 using std::map;
 
 class ProtectorEngine : public IActionResultDelegate
@@ -26,15 +28,19 @@ public:
 	static ProtectorEngine& Instance(){static ProtectorEngine e;return e;};
 
 public:
-	void StartEngine();
+	void StartEngine(IActionResultDelegate* pEngineSink);
 	void StopEngine();
+	void Block();
+	void UnBlock();
+
+	void ReloadProtectDriver();
 
 protected:
 	ProtectorEngine();
 
 	//实现接口
 protected:
-	virtual BOOL OnHandleResultByStagety(ActionOperateResult* pResult);
+	virtual void OnHandleResultByStagety(ActionOperateResult* pResult);
 
 protected:
 	BOOL LoadProtectDriver();
@@ -48,5 +54,8 @@ protected:
 	SYS_OperSysFilter		mOperSysFilter;
 	SYS_OperMsgFilter		mOperMsgFilter;
 	SYS_OperPorcessStatus   mOperPorcessStatus;
+	//消息
+	HANDLE					mEventBlock;
+	IActionResultDelegate*	mEngineSink;
 };
 #endif //__ProtectorEngine_H

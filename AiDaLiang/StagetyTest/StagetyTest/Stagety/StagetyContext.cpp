@@ -24,7 +24,8 @@ int StagetyProcess::HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName) //处理驱动
 	return 0;
 }
 
-int StagetyProcess::HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)//处理进程 0-信任 其他为不信任
+//处理进程 0-信任 其他为不信任
+int StagetyProcess::HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)
 {
 	int nRet = 0;
 	mActionType = action;
@@ -45,10 +46,10 @@ int StagetyProcess::HandleProcess(ActionType action,OperateType optType, Process
 	/*! 已验证过的进程 */
 	/************************************************************************/
 	//1.父进程可信，放行
-	if(VerifyTrust(parant->cbVerifyResult) && child->cbVerifyResult != enTrustNull) {nRet = 0; goto PRINT;}
+	if(VerifyTrust(parant->cbVerifyResult) && child->cbVerifyResult != enTrustNull) {nRet = 0; goto PROCESS_RESULT;}
 
 	//2.子进程可信且父进程已经验证过，阻止
-	if(parant->cbVerifyResult != enTrustNull && VerifyTrust(child->cbVerifyResult)) {nRet = 1; goto PRINT;}
+	if(parant->cbVerifyResult != enTrustNull && VerifyTrust(child->cbVerifyResult)) {nRet = 1; goto PROCESS_RESULT;}
 
 	/************************************************************************/
 	/*! 未验证过的进程,填充必要信息 */
@@ -62,6 +63,10 @@ int StagetyProcess::HandleProcess(ActionType action,OperateType optType, Process
 	//获取MD5
 	parant->szMd5=GetFileMd5(parant->szProcessPath.c_str());
 	child->szMd5=GetFileMd5(child->szProcessPath.c_str());
+
+	//获取CRC
+	parant->unCrc = GetFileCrc(parant->szProcessPath.c_str());
+	parant->unCrc = GetFileCrc(child->szProcessPath.c_str());
 	
 	//-------------------------------------------------------------------------------
 	//获取父进程验证信息
@@ -70,18 +75,13 @@ int StagetyProcess::HandleProcess(ActionType action,OperateType optType, Process
 	//-------------------------------------------------------------------------------
 	//获取子进程验证信息
 	VerifyProcess(child);
-// 	if(optType == enTerminateProcess) return nRet;
-// 	StartVerify(parant,child);
-// 	if(optType == enCreateProcess) return nRet;
-
-	//while(parant->cbVerifyResult == enTrustNull || child->cbVerifyResult == enTrustNull) Sleep(1);
 
 	if ( VerifyTrust(parant->cbVerifyResult) ) nRet = 0;
 	else if ( VerifyTrust(child->cbVerifyResult) ) nRet = 1;
 	else nRet = 0;
 	
 	//-------------------------------------------------------------------------------
-PRINT:
+PROCESS_RESULT:
 	ActionOperateResult Result;
 	Result.actionType = action;
 	Result.operateType = optType;

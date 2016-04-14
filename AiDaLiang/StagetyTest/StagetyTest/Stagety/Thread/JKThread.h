@@ -16,7 +16,7 @@ class JKThread
 public:
 	
 	template<class T>
-	static uintptr_t Start(void (T::*func)(void *),T* pDelegateThis)
+	static uintptr_t Start(void (T::*func)(void *),void* pDelegateThis)
 	{
 		union {                                // 联合类，用于转换类成员方法指针到普通函数指针（试过编译器不允许在这两种函数之间强制转换），不知道有没有更好的方法。
 			void ( *ThreadProc)(void *);

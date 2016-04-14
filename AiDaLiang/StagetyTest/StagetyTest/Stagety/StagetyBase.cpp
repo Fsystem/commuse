@@ -32,6 +32,8 @@ bool VerifyNoTrust(TrustKind trust_kind)
 #define StagetyFile_Game			TEXT("game.dat")
 #define StagetyFile_GameUser		TEXT("game_user.dat")
 
+#define	StagetyFileADL				TEXT("adl_auto_rule.dat")	//系统wintrustfile上报的结果记录
+
 
 bool LoadAppStagety(LPCTSTR pszFileName,AppStageList& returnList)
 {
@@ -177,6 +179,51 @@ bool LoadDriverStagety(LPCTSTR pszFileName,OUT DriverStageList& returnList)
 	return false;
 }
 
+bool LoadADLStagety(LPCTSTR pszFileName,OUT ADLStagetyList& returnList)
+{
+	USES_CONVERSION;
+
+	returnList.clear();
+
+	TCHAR szAppDataFilePath[MAX_PATH]={0};
+	::GetModuleFileName(NULL,szAppDataFilePath,MAX_PATH);
+	_tcsrchr(szAppDataFilePath,'\\')[1]=0;
+#pragma warning (push)
+#pragma warning(disable : 4996)
+	_sntprintf(szAppDataFilePath,MAX_PATH,TEXT("%setc\\%s"),szAppDataFilePath,pszFileName);
+#pragma warning (pop)
+
+	//判断文件是否存在
+	if (_taccess(szAppDataFilePath,0) == -1)
+	{
+		return true;
+	}
+
+	CMarkup parse;
+	if (parse.Load(szAppDataFilePath))
+	{
+		if (parse.FindElem(_T("r")))
+		{
+			parse.IntoElem();
+			while (parse.FindElem(_T("s")))
+			{
+				ADLStagetyData xmlData;
+				xmlData.unCrcPath			= (unsigned int)_ttoi64( parse.GetAttrib(_T("crcpath")).c_str()  );
+				xmlData.unCrcContent		= (unsigned int)_ttoi64( parse.GetAttrib(_T("crccontent")).c_str()  );
+				if (xmlData.unCrcPath==0 || xmlData.unCrcContent==0) continue;
+				xmlData.szName				= string( T2A(parse.GetAttrib(_T("name")).c_str() ) );
+				xmlData.cbTrustKind			= (TrustKind)_ttoi(parse.GetAttrib(_T("trust_sign")).c_str() ) ;
+				xmlData.szCompany			= string( T2A(parse.GetAttrib(_T("company")).c_str() ) );
+
+				returnList.push_back(xmlData);
+			}
+
+			return true;
+		}//end if parse.FindElem
+	}//end if parse.Load
+
+	return false;
+}
 
 //-------------------------------------------------------------------------------
 
@@ -193,6 +240,8 @@ IStagety::IStagety()
 		
 		bRet &= LoadDriverStagety(StagetyFile_Driver,mListDriverStagetyData);
 		bRet &= LoadDriverStagety(StagetyFile_DriverUser,mListDriverUserStagetyData);
+
+		bRet &= LoadADLStagety(StagetyFileADL,mListADLStagetyData);
 
 		//bLoadedStagetyFile = bRet;
 	}
@@ -259,6 +308,8 @@ std::string IStagety::GetOperateInfoDescribe(DWORD dwActionOperate)
 //验证进程，通过以下策略
 bool IStagety::VerifyProcess(ProcessInfoStagety* pProcessInfo)
 {
+	bool bRet = false;
+
 	if(pProcessInfo->cbVerifyResult != enTrustNull) return VerifyTrust(pProcessInfo->cbVerifyResult);
 
 	//1.用户应用策略验证
@@ -271,29 +322,37 @@ bool IStagety::VerifyProcess(ProcessInfoStagety* pProcessInfo)
 	if ( VerifyTrust( trustKind ) ) { return true;}
 	if ( VerifyNoTrust( trustKind ) ) { return false;} 
 
-	//3.操作系统信任验证
-	trustKind = VerifyByOS(pProcessInfo);
-	//if ( VerifyTrust( trustKind ) ) { return true;}
-	if ( VerifyNoTrust( trustKind ) ) { return false;} 
+	//3云信任,是否有结果，无结果再进行系统信任检测
+	trustKind = VerifyByADL(pProcessInfo);
+	if(pProcessInfo->cbVerifyResult != enTrustNull) return VerifyNoTrust( trustKind );
 
-	//4.用户公司策略验证
-	trustKind = VerifyByUserCompany(pProcessInfo);
-	if ( VerifyTrust( trustKind ) ) { return true;}   
-	if ( VerifyNoTrust( trustKind ) ) { return false;} 
+	do 
+	{
+		//4.操作系统信任验证
+		trustKind = VerifyByOS(pProcessInfo);
+		//if ( VerifyTrust( trustKind ) ) { return true;}
+		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
 
-	//5.默认公司策略验证
-	trustKind = VerifyBySysCompany(pProcessInfo);
-	if ( VerifyTrust( trustKind ) ) { return true;}
-	if ( VerifyNoTrust( trustKind ) ) { return false;} 
+		//5.用户公司策略验证
+		trustKind = VerifyByUserCompany(pProcessInfo);
+		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}   
+		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
 
-	//6.判断是否有厂商，有返回厂商不信任，无操作系统信任
-	trustKind = VerifyBySysCompanyName(pProcessInfo);
-	if ( VerifyTrust( trustKind ) ) { return true;}
-	if ( VerifyNoTrust( trustKind ) ) { return false;} 
+		//6.默认公司策略验证
+		trustKind = VerifyBySysCompany(pProcessInfo);
+		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}
+		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
 
+		//7.判断是否有厂商，有返回厂商不信任，无操作系统信任
+		trustKind = VerifyBySysCompanyName(pProcessInfo);
+		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}
+		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
+	} while (0);
+
+	//需要上报
+	ActionOperateRecord::Instance().ReportWinTrustFile(pProcessInfo);
 	
-
-	return false;
+	return bRet;
 
 }
 
@@ -513,6 +572,28 @@ TrustKind IStagety::VerifyByOS(ProcessInfoStagety* pProcessInfo)
 	else
 	{
 		trustInfo = enTrustNotByOS;
+	}
+
+	pProcessInfo->cbVerifyResult = trustInfo;
+
+	return trustInfo;
+}
+
+//通过WinTrustFile之后的判断
+TrustKind IStagety::VerifyByADL(ProcessInfoStagety* pProcessInfo)
+{
+	TrustKind trustInfo = enTrustNull;
+
+	if (pProcessInfo->unCrc != 0)
+	{
+		for (ADLStagetyList::iterator it = mListADLStagetyData.begin(); it != mListADLStagetyData.end(); ++it)
+		{
+			if(it->unCrcContent == pProcessInfo->unCrc) 
+			{
+				trustInfo = pProcessInfo->cbVerifyResult;
+				break;
+			}
+		}
 	}
 
 	pProcessInfo->cbVerifyResult = trustInfo;

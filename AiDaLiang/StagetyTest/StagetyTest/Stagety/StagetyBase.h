@@ -168,6 +168,18 @@ typedef struct GameStagetyData
 
 }GameStagetyData;
 
+/*!
+* 操作系统策略数据原型
+*/
+typedef struct ADLStagetyData
+{
+	unsigned int unCrcPath;
+	unsigned int unCrcContent;
+	std::string szName;
+	TrustKind cbTrustKind;
+	std::string szCompany;
+}ADLStagetyData;
+
 //-------------------------------------------------------------------------------
 // 以下为程序需要使用的数据结构
 //-------------------------------------------------------------------------------
@@ -179,6 +191,7 @@ typedef struct ProcessInfoStagety
 {
 	DWORD					dwPid;				//进程ID
 	TrustKind				cbVerifyResult;		//参考TrustKind
+	unsigned int			unCrc;				//文件的CRC
 	std::string				szProcessPath;		//进程路径
 	std::string				szSign;				//文件签名
 	std::string				szMd5;				//md5
@@ -219,6 +232,7 @@ typedef struct ActionOperateResult
 typedef std::list<AppStagetyData> AppStageList;
 typedef std::list<CompanyStagetyData> CompanyStageList;
 typedef std::list<DriverStagetyData> DriverStageList;
+typedef std::list<ADLStagetyData> ADLStagetyList;
 // typedef CList<AppStagetyData,AppStagetyData&> AppStageList;
 // typedef CList<CompanyStagetyData,CompanyStagetyData&> CompanyStageList;
 // typedef CList<DriverStagetyData,DriverStagetyData&> DriverStageList;
@@ -234,7 +248,7 @@ public:
 	virtual int HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)=0;//处理进程 0-信任 其他为不信任
 protected:
 	virtual std::string GetOperateInfoDescribe(DWORD dwActionOperate);
-	virtual bool VerifyProcess(ProcessInfoStagety* pProcessInfo);			//验证进程，通过以下策略
+	virtual bool VerifyProcess(ProcessInfoStagety* pProcessInfo);				//验证进程，通过以下策略
 	virtual TrustKind VerifyByUserApp(ProcessInfoStagety* pProcessInfo);		//验证用户App策略
 	virtual TrustKind VerifyBySysApp(ProcessInfoStagety* pProcessInfo);			//验证系统App策略
 	virtual TrustKind VerifyByUserCompany(ProcessInfoStagety* pProcessInfo);	//验证用户厂商策略
@@ -245,7 +259,9 @@ protected:
 	//virtual TrustKind VerifyBySysGame(ProcessInfoStagety* pProcessInfo);		//验证系统游戏策略
 	virtual TrustKind VerifyByDigitSign(ProcessInfoStagety* pProcessInfo);		//验证数字签名
 	virtual TrustKind VerifyByOS(ProcessInfoStagety* pProcessInfo);				//操作系统信任
+	virtual TrustKind VerifyByADL(ProcessInfoStagety* pProcessInfo);			//通过WinTrustFile之后的判断
 	virtual TrustKind VerifyBySysCompanyName(ProcessInfoStagety* pProcessInfo);	//最后通过是否有厂商名称验证
+
 protected:
 	ActionType						mActionType;					//行为类型
 	OperateType						mOperateType;					//操作类型
@@ -258,6 +274,8 @@ protected:
 	//驱动策略
 	DriverStageList					mListDriverStagetyData;			//驱动策略
 	DriverStageList					mListDriverUserStagetyData;		//用户驱动策略
+	//ADL策略
+	ADLStagetyList					mListADLStagetyData;			//ADL策略
 };
 
 

@@ -18,6 +18,8 @@ BOOL GetWOW64PlatformSupport();
 //获取文件MD5
 std::string GetFileMd5(const char * filename);
 
+unsigned int GetFileCrc(const char * filename);
+
 //提升权限
 bool SetPrivilege();
 

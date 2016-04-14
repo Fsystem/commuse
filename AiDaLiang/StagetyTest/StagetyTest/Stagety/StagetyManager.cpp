@@ -288,6 +288,7 @@ ProcessInfoStagety* StagetyManager::GetProcessInfo(DWORD dwProcessId, bool bCrea
 				processInfo->cbVerifyResult = enTrustNull;
 				processInfo->szMd5="";
 				processInfo->szSign="";
+				processInfo->unCrc = 0;
 
 				mProcessMap[dwProcessId]=processInfo;
 			}
@@ -311,6 +312,7 @@ ProcessInfoStagety* StagetyManager::GetProcessInfo(DWORD dwProcessId, bool bCrea
 						processInfo->cbVerifyResult = enTrustNull;
 						processInfo->szMd5="";
 						processInfo->szSign="";
+						processInfo->unCrc = 0;
 					}
 				}
 				else

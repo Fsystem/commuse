@@ -529,6 +529,44 @@ std::string GetFileMd5(const char * filename)
 	return strRet;
 }
 
+unsigned int GetFileCrc(const char * filename)
+{
+	unsigned int unRet = 0;
+
+	HANDLE hand;///句柄
+	hand=CreateFileA(filename,GENERIC_READ,///打开方式，可读
+		FILE_SHARE_READ,//共享读
+		NULL,OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	//没有打开
+	if (hand==INVALID_HANDLE_VALUE) return 0;
+
+	LARGE_INTEGER m_file_len;
+	BY_HANDLE_FILE_INFORMATION m_file_info;
+	::GetFileInformationByHandle(hand,&m_file_info);
+	m_file_len.LowPart=m_file_info.nFileSizeLow;
+	m_file_len.HighPart=m_file_info.nFileSizeHigh;
+		
+	ULONG re;
+	char buf[1024*8];
+	CCRC crc;
+	while(m_file_len.QuadPart)
+	{
+		memset(buf,0,1024*8);
+		if(!ReadFile(hand,buf,1024*8,&re,0))
+		{
+			///读取文件失败
+			return 0;
+		}
+		m_file_len.QuadPart=m_file_len.QuadPart-re;
+		unRet = crc.GetStrCrc_Key((char*)buf,re);
+	}
+	CloseHandle(hand);
+	
+	return unRet;
+}
+
 
 BOOL ExtractFile(LPCTSTR restype, int resid, LPCTSTR destpath,HMODULE hModule)
 {

@@ -109,7 +109,7 @@ PRINT:
 
 	_tcsncpy(Result.szDescriber,szDes,1024);
 	
-	StagetyManager::Instance().PostProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));	
+	StagetyManager::Instance().SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));	
 	//LOGEVEN(TEXT("StagetyProcess::HandleProcess end\n"));
 
 	//-------------------------------------------------------------------------------

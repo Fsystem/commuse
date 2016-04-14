@@ -253,7 +253,7 @@ BOOL StagetyManager::SendProcessResult(NotifyStagety* pNotify)
 	//告知需要处理结果的调用者
 	mActionResultDelegate->OnHandleResultByStagety(&pNotify->GetActionResult());
 	//记录操作
-	BOOL bReport = ActionOperateRecord::Instance().RecordProcessOperate(pNotify->GetActionResult());
+	ActionOperateRecord::Instance().RecordProcessOperate(pNotify->GetActionResult());
 
 	pNotify->Release();
 

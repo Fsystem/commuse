@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Stagety">
+      <UniqueIdentifier>{ad2a0328-3506-4b60-850b-6fbd2ca01ced}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{f0ca8304-64e7-4cb6-bd99-4586b42d71aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\SafeCriticalSection">
+      <UniqueIdentifier>{7d967726-7ff2-481a-b2d8-2f8bbf391120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\Thread">
+      <UniqueIdentifier>{f9662370-a4ae-47a0-a987-91d7b8195ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\Log">
+      <UniqueIdentifier>{df083113-92d8-4ea9-adc3-b87997ee6595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\Helper">
+      <UniqueIdentifier>{2952cd90-b2e5-43a4-9c84-77e3f1af9737}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\QueueService">
+      <UniqueIdentifier>{bc8a3076-a5ff-4315-a914-e2ec7796b443}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\StagetyTest.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\StagetyTest.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\SysIo.dll">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StagetyTest.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StagetyTestDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\DigitSign.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Markup.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\Md5.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\ActionOperateRecord.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\StagetyBase.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\StagetyContext.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\StagetyInclude.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\StagetyManager.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="sysio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\SafeCriticalSection\SafeCriticalSection.h">
+      <Filter>Stagety\SafeCriticalSection</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\Thread\JKThread.h">
+      <Filter>Stagety\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\Log\CommLog.h">
+      <Filter>Stagety\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\Helper\FunctionHelper.h">
+      <Filter>Stagety\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\QueueService\QueueService.h">
+      <Filter>Stagety\QueueService</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\ProtectorEngine.h">
+      <Filter>Stagety</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools\CRC.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="StagetyTest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StagetyTestDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\DigitSign.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\Markup.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\Md5.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\ActionOperateRecord.cpp">
+      <Filter>Stagety</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\StagetyBase.cpp">
+      <Filter>Stagety</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\StagetyContext.cpp">
+      <Filter>Stagety</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\StagetyManager.cpp">
+      <Filter>Stagety</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\SafeCriticalSection\SafeCriticalSection.cpp">
+      <Filter>Stagety\SafeCriticalSection</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\Thread\JKThread.cpp">
+      <Filter>Stagety\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\Log\CommLog.cpp">
+      <Filter>Stagety\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\Helper\FunctionHelper.cpp">
+      <Filter>Stagety\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\QueueService\QueueService.cpp">
+      <Filter>Stagety\QueueService</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\ProtectorEngine.cpp">
+      <Filter>Stagety</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools\CRC.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="StagetyTest.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -66,7 +66,7 @@ int StagetyProcess::HandleProcess(ActionType action,OperateType optType, Process
 
 	//获取CRC
 	parant->unCrc = GetFileCrc(parant->szProcessPath.c_str());
-	parant->unCrc = GetFileCrc(child->szProcessPath.c_str());
+	child->unCrc = GetFileCrc(child->szProcessPath.c_str());
 	
 	//-------------------------------------------------------------------------------
 	//获取父进程验证信息
@@ -94,6 +94,7 @@ PROCESS_RESULT:
 	//父进程
 	_sntprintf(szDes,1024,TEXT("  ┗父进程[PID:%u]-%s"), parant->dwPid,A2T((LPSTR)parant->szProcessPath.c_str()) );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗md5:[%s]"),szDes, A2T((LPSTR)parant->szMd5.c_str()) );
+	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗CRC:[%u]"),szDes, parant->unCrc );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗公司签名:[%s]"),szDes, A2T((LPSTR)parant->szSign.c_str()) );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗序列号:[%s]"),szDes, szSerial);
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗颁发者:[%s]"),szDes, szIssUser);
@@ -101,6 +102,7 @@ PROCESS_RESULT:
 	//子进程
 	_sntprintf(szDes,1024,TEXT("%s\r\n  ┗子进程[PID:%u]-%s"),szDes, child->dwPid, A2T((LPSTR)child->szProcessPath.c_str()) );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗md5:[%s]"),szDes, A2T((LPSTR)child->szMd5.c_str()) );
+	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗CRC:[%u]"),szDes, child->unCrc );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗公司签名:[%s]"),szDes, A2T((LPSTR)child->szSign.c_str()) );
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗序列号:[%s]"),szDes,szChildSerial);
 	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗颁发者:[%s]"),szDes,szChildIssUser);

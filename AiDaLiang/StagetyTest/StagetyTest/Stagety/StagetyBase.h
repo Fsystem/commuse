@@ -208,7 +208,7 @@ typedef struct ActionOperateResult
 	ActionType				actionType;			//参考ActionType枚举
 	OperateType				operateType;		//参考OperateType枚举
 	TCHAR					szDescriber[1024];	//描述信息
-	int						nTrusted;			//0-系统放行 1-系统阻止 2-用户放行
+	int						nTrusted;			//0-系统放行 1-系统阻止 2-用户放行 3-用户阻止
 	ActionOperateResult()
 	{
 		parantProcess.cbVerifyResult=enTrustNull;

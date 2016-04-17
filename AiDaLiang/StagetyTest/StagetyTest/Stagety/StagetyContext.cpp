@@ -70,11 +70,11 @@ int StagetyProcess::HandleProcess(ActionType action,OperateType optType, Process
 	
 	//-------------------------------------------------------------------------------
 	//获取父进程验证信息
-	VerifyProcess(parant);
+	if(parant->cbVerifyResult == enTrustNull) VerifyProcess(parant);
 	
 	//-------------------------------------------------------------------------------
 	//获取子进程验证信息
-	VerifyProcess(child);
+	if(child->cbVerifyResult == enTrustNull) VerifyProcess(child);
 
 	if ( VerifyTrust(parant->cbVerifyResult) ) nRet = 0;
 	else if ( VerifyTrust(child->cbVerifyResult) ) nRet = 1;
@@ -88,28 +88,20 @@ PROCESS_RESULT:
 	Result.parantProcess = *parant;
 	Result.childProcess = *child;
 	Result.nTrusted = nRet;
+
 	//打印基础信息
-	TCHAR szDes[1024] = {0};
-
-	//父进程
-	_sntprintf(szDes,1024,TEXT("  ┗父进程[PID:%u]-%s"), parant->dwPid,A2T((LPSTR)parant->szProcessPath.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗md5:[%s]"),szDes, A2T((LPSTR)parant->szMd5.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗CRC:[%u]"),szDes, parant->unCrc );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗公司签名:[%s]"),szDes, A2T((LPSTR)parant->szSign.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗序列号:[%s]"),szDes, szSerial);
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗颁发者:[%s]"),szDes, szIssUser);
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗可信:[%s]"),szDes,gszTrustDescrier[parant->cbVerifyResult]);
-	//子进程
-	_sntprintf(szDes,1024,TEXT("%s\r\n  ┗子进程[PID:%u]-%s"),szDes, child->dwPid, A2T((LPSTR)child->szProcessPath.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗md5:[%s]"),szDes, A2T((LPSTR)child->szMd5.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗CRC:[%u]"),szDes, child->unCrc );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗公司签名:[%s]"),szDes, A2T((LPSTR)child->szSign.c_str()) );
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗序列号:[%s]"),szDes,szChildSerial);
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗颁发者:[%s]"),szDes,szChildIssUser);
-	_sntprintf(szDes,1024,TEXT("%s\r\n    ┗可信:[%s]"),szDes,gszTrustDescrier[child->cbVerifyResult]);
-	_sntprintf(szDes,1024,TEXT("%s\r\n  ┗行为结果:[%s]\r\n"),szDes,nRet==0?TEXT("放行"):TEXT("阻止"));
-
-	_tcsncpy(Result.szDescriber,szDes,1024);
+	_sntprintf(Result.szDescriber,1024,
+		TEXT("\t┗父进程[PID:%u]-%s\r\n\t\t┗md5:[%s]\r\n\t\t┗CRC:[%u]\r\n\t\t┗公司签名:[%s]\r\n\t\t┗序列号:[%s]\r\n\t\t┗颁发者:[%s]\r\n\t\t┗可信:[%s]\r\n")
+		TEXT("\t┗子进程[PID:%u]-%s\r\n\t\t┗md5:[%s]\r\n\t\t┗CRC:[%u]\r\n\t\t┗公司签名:[%s]\r\n\t\t┗序列号:[%s]\r\n\t\t┗颁发者:[%s]\r\n\t\t┗可信:[%s]\r\n")
+		TEXT("\t┗行为结果:[%s]\r\n"),
+		parant->dwPid,A2T((LPSTR)parant->szProcessPath.c_str()) , A2T((LPSTR)parant->szMd5.c_str()),
+		parant->unCrc,A2T((LPSTR)parant->szSign.c_str()),szSerial,szIssUser,
+		gszTrustDescrier[parant->cbVerifyResult],
+		child->dwPid,A2T((LPSTR)child->szProcessPath.c_str()) , A2T((LPSTR)child->szMd5.c_str()),
+		child->unCrc,A2T((LPSTR)child->szSign.c_str()),szSerial,szIssUser,
+		gszTrustDescrier[child->cbVerifyResult],
+		nRet==0?TEXT("放行"):TEXT("阻止")
+		);
 	
 	StagetyManager::Instance().SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));	
 	//LOGEVEN(TEXT("StagetyProcess::HandleProcess end\n"));
@@ -118,25 +110,6 @@ PROCESS_RESULT:
 	//如果都不信任，放行
 	nRet = (Result.nTrusted == 0 || Result.nTrusted == 2)?0:1;
 	return nRet;
-}
-
-void StagetyProcess::VerifyThread(void* p)
-{
-	//-------------------------------------------------------------------------------
-	//获取父进程验证信息
-	VerifyProcess(mParant);
-
-	//-------------------------------------------------------------------------------
-	//获取子进程验证信息
-	VerifyProcess(mChild);
-}
-
-void StagetyProcess::StartVerify(ProcessInfoStagety* parant, ProcessInfoStagety* child)
-{
-	mParant = parant;
-	mChild = child;
-
-	JKThread::Start(&StagetyProcess::VerifyThread,this);
 }
 
 //-------------------------------------------------------------------------------

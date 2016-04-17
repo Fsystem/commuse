@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="res\aqCheck.exe" />
     <None Include="res\StagetyTest.ico" />
     <None Include="res\StagetyTest.rc2" />
     <None Include="res\SysIo.dll" />
@@ -105,10 +106,12 @@
     <ClInclude Include="StagetyTest.h" />
     <ClInclude Include="StagetyTestDlg.h" />
     <ClInclude Include="Stagety\ActionOperateRecord.h" />
+    <ClInclude Include="Stagety\GuardDriver\GuardProtectDriver.h" />
     <ClInclude Include="Stagety\Helper\FunctionHelper.h" />
     <ClInclude Include="Stagety\Log\CommLog.h" />
     <ClInclude Include="Stagety\ProtectorEngine.h" />
     <ClInclude Include="Stagety\QueueService\QueueService.h" />
+    <ClInclude Include="Stagety\Report\ReportManager.h" />
     <ClInclude Include="Stagety\SafeCriticalSection\SafeCriticalSection.h" />
     <ClInclude Include="Stagety\StagetyBase.h" />
     <ClInclude Include="Stagety\StagetyContext.h" />
@@ -127,10 +130,12 @@
     <ClCompile Include="StagetyTest.cpp" />
     <ClCompile Include="StagetyTestDlg.cpp" />
     <ClCompile Include="Stagety\ActionOperateRecord.cpp" />
+    <ClCompile Include="Stagety\GuardDriver\GuardProtectDriver.cpp" />
     <ClCompile Include="Stagety\Helper\FunctionHelper.cpp" />
     <ClCompile Include="Stagety\Log\CommLog.cpp" />
     <ClCompile Include="Stagety\ProtectorEngine.cpp" />
     <ClCompile Include="Stagety\QueueService\QueueService.cpp" />
+    <ClCompile Include="Stagety\Report\ReportManager.cpp" />
     <ClCompile Include="Stagety\SafeCriticalSection\SafeCriticalSection.cpp" />
     <ClCompile Include="Stagety\StagetyBase.cpp" />
     <ClCompile Include="Stagety\StagetyContext.cpp" />

@@ -24,5 +24,6 @@
 #include "Thread/JKThread.h"
 #include "QueueService/QueueService.h"
 #include "ProtectorEngine.h"
+#include "Report/ReportManager.h"
 
 #endif //__Stagety_Include_H

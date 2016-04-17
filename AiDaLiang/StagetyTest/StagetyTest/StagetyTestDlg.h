@@ -8,10 +8,6 @@
 
 using namespace COMMUSE;
 
-typedef BOOL (WINAPI *SYS_RegCallBackFun)(CALLBACK_FILTERFUN fun);			//注册回调
-typedef BOOL (WINAPI *SYS_OperSysFilter)(BOOL start);						//加载，停止驱动
-typedef BOOL (WINAPI *SYS_OperMsgFilter)(BOOL start);						//加载消息过滤保护
-
 
 // CStagetyTestDlg 对话框
 class CStagetyTestDlg : public CDialogEx,public IActionResultDelegate
@@ -42,13 +38,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	SYS_RegCallBackFun		m_pRegCallBackFun;
-	SYS_OperSysFilter		m_pOperSysFilter;
-	SYS_OperMsgFilter		m_pOperMsgFilter;
-
-	BOOL StartDriver();
-
-	HMODULE m_hDllModule;
 	CString m_strPath;
 
 	CCritiSection mLock;

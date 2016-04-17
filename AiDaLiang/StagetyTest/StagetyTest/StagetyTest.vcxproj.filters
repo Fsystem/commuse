@@ -34,6 +34,12 @@
     <Filter Include="Stagety\QueueService">
       <UniqueIdentifier>{bc8a3076-a5ff-4315-a914-e2ec7796b443}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Stagety\GuardDriver">
+      <UniqueIdentifier>{f24c6484-6c48-4c73-be30-25870b18584f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Stagety\Report">
+      <UniqueIdentifier>{d4d5893c-ca16-44ee-8377-c19e82e6350d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -46,6 +52,7 @@
     <None Include="res\SysIo.dll">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\aqCheck.exe" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StagetyTest.h">
@@ -111,6 +118,12 @@
     <ClInclude Include="Tools\CRC.h">
       <Filter>Tools</Filter>
     </ClInclude>
+    <ClInclude Include="Stagety\GuardDriver\GuardProtectDriver.h">
+      <Filter>Stagety\GuardDriver</Filter>
+    </ClInclude>
+    <ClInclude Include="Stagety\Report\ReportManager.h">
+      <Filter>Stagety\Report</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StagetyTest.cpp">
@@ -163,6 +176,12 @@
     </ClCompile>
     <ClCompile Include="Tools\CRC.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\GuardDriver\GuardProtectDriver.cpp">
+      <Filter>Stagety\GuardDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="Stagety\Report\ReportManager.cpp">
+      <Filter>Stagety\Report</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

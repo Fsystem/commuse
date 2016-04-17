@@ -58,20 +58,13 @@ CStagetyTestDlg::CStagetyTestDlg(CWnd* pParent /*=NULL*/)
 	int nIndex = m_strPath.ReverseFind('\\');
 	m_strPath = m_strPath.Left(nIndex);
 
-	m_hDllModule = NULL;
 
 	mStopOut = false;
 }
 
 CStagetyTestDlg::~CStagetyTestDlg()
 {
-	if(m_hDllModule)
-	{
-		m_pOperSysFilter(FALSE);
-		m_pOperMsgFilter(FALSE);
-		FreeLibrary(m_hDllModule);
-		m_hDllModule = NULL;
-	}
+	PROTECTOR_ENGINE.StopEngine();
 }
 
 void CStagetyTestDlg::DoDataExchange(CDataExchange* pDX)
@@ -123,11 +116,8 @@ BOOL CStagetyTestDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
-	SetPrivilege();
+	PROTECTOR_ENGINE.StartEngine(this);
 
-	StagetyManager::Instance().BuildAllStagety(this);
-	StartDriver();
-	SetTimer(1,2000,NULL);
 	SetTimer(2,100,NULL);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -142,14 +132,7 @@ void CStagetyTestDlg::OnHandleResultByStagety(ActionOperateResult* pResult)
 
 void CStagetyTestDlg::OnTimer(UINT uId)
 {
-	if (uId == 1)
-	{
-		if (m_hDllModule == NULL)
-		{
-			StartDriver();
-		}
-	}
-	else if (uId == 2)
+	if (uId == 2)
 	{
 		if(!mStopOut) 
 		{
@@ -175,27 +158,6 @@ void CStagetyTestDlg::OnTimer(UINT uId)
 	}
 
 	__super::OnTimer(uId);
-}
-
-LRESULT CStagetyTestDlg::OnProcessResult(WPARAM w,LPARAM p)
-{
-//	mResultList.Insert((LPVOID)w);
-	
-// 	NotifyStagety* pNotify = (NotifyStagety*)w;
-// 
-// 	CString sEdit ;
-// 	GetDlgItem(IDC_EDIT_DESCRIBE)->GetWindowText(sEdit);
-// 
-// 	TCHAR szMessage[1025]={0};
-// 	memcpy(szMessage,pNotify->GetData(),pNotify->GetDataSize());
-// 	szMessage[pNotify->GetDataSize()]=0;
-// 
-// 	pNotify->Release();
-// 
-// 	sEdit += szMessage;
-// 	GetDlgItem(IDC_EDIT_DESCRIBE)->SetWindowText(sEdit);
-
-	return 0L;
 }
 
 void CStagetyTestDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -247,42 +209,6 @@ HCURSOR CStagetyTestDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-BOOL WINAPI Sys_Filter_fun(UINT type, PVOID lpata, DWORD size_len)
-{
-	return StagetyManager::Instance().HandleAction(type,lpata,size_len);
-}
-
-BOOL CStagetyTestDlg::StartDriver()
-{
-	CString strFile;
-	strFile.Format(TEXT("%s/tmpsys.dll"), m_strPath);
-	CheckAndExportFile(TEXT("DLL"), strFile, IDR_SYSIO);	
-	m_hDllModule = LoadLibrary(strFile);
-	if( NULL != m_hDllModule)
-	{
-		m_pRegCallBackFun = (SYS_RegCallBackFun)GetProcAddress(m_hDllModule, "RegCallBackFun");
-		m_pOperMsgFilter = (SYS_OperMsgFilter)GetProcAddress(m_hDllModule, "OperMsgFilter");
-		m_pOperSysFilter = (SYS_OperSysFilter)GetProcAddress(m_hDllModule, "OperSysFilter");
-		if( NULL == m_pRegCallBackFun||
-			NULL == m_pOperMsgFilter||
-			NULL == m_pOperSysFilter)
-		{
-			FreeLibrary(m_hDllModule);
-			m_hDllModule = NULL;
-			return FALSE;
-		}
-	}
-
-	if( !m_pRegCallBackFun(Sys_Filter_fun) )
-	{
-		LOGEVEN(TEXT("注册回调失败\n"));
-	}
-	m_pOperSysFilter(TRUE);
-	m_pOperMsgFilter(TRUE);
-	return TRUE;
-}
-
-
 
 void CStagetyTestDlg::OnBnClickedOk()
 {
@@ -308,6 +234,7 @@ void CStagetyTestDlg::OnDestroy()
 
 	// TODO: 在此处添加消息处理程序代码
 
-	KillTimer(1);
 	KillTimer(2);
+
+	PROTECTOR_ENGINE.StopEngine();
 }

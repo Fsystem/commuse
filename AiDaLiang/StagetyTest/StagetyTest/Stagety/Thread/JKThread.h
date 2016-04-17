@@ -28,6 +28,11 @@ public:
 		return _beginthread(Proc.ThreadProc,0,pDelegateThis);
 	}
 
+	static void Stop()
+	{
+		_endthread();
+	}
+
 protected:
 	
 };

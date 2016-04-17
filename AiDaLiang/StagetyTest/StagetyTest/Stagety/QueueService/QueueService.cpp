@@ -1,5 +1,6 @@
 #include <stdafx.h>
 #include <Windows.h>
+#include "../StagetyInclude.h"
 #include "QueueService.h"
 #include <process.h>
 

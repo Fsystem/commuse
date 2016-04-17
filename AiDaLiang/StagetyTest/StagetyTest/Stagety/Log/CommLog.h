@@ -10,9 +10,9 @@
 
 
 //需要打印就定义不需要就不定义
-//#define DEBUG_LOG   //--打印debug
+#define DEBUG_LOG   //--打印debug
 
-#define DEBUG_FILE //--打印文件
+//#define DEBUG_FILE //--打印文件
 
 #define G_COM_PRINT_LOG COMMUSE::ComPrintLog::GetInstance()
 

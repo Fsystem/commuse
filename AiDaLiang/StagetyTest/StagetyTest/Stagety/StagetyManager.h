@@ -10,6 +10,7 @@
 #define __StagetyManager_H
 #include <map>
 #include "QueueService/QueueService.h"
+#include "GuardDriver/GuardProtectDriver.h"
 
 /** 管理和处理行为o
 *   @ClassName	: 
@@ -87,5 +88,8 @@ private:
 	StagetyProcessMap mProcessMap;			//进程列表
 	QueueService mHandleResultService;		//处理结果服务
 	IActionResultDelegate* mActionResultDelegate;	//行为结果的代理
+
+	//驱动守护
+	GuardProtectDriver mGuardObject;		//守护驱动对象
 };
 #endif //__StagetyManager_H

@@ -46,6 +46,8 @@ void StagetyManager::ResetData()
 		}
 	}
 
+	mGuardObject.StopGuard();
+
 	mActionResultDelegate = NULL;
 	mHandleResultService.SetHandleSink(NULL);
 	mHandleResultService.StopService();
@@ -67,6 +69,9 @@ void StagetyManager::BuildAllStagety(IActionResultDelegate* pHandleResultDelegat
 	mHandleResultService.SetHandleSink(this);
 	mHandleResultService.StartService();
 
+	//开启守护驱动 
+	mGuardObject.StartGuard();
+
 	//nThreadProcessResult = JKThread::Start(&StagetyManager::ProcessResultThread,this);
 }
 
@@ -80,6 +85,8 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 	std::string szNewDriverPath="";		//转换后的驱动路径
 	WORD wOperation = enOperateNull;	//操作类型
 	WORD wAction = (type==LOAD_DRIVER)?enActionDriver:enActioProcess;//行为类型
+
+	mGuardObject.IntoDriver();
 
 	USES_CONVERSION;
 
@@ -157,26 +164,32 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 			pProcessParent = GetProcessInfo(pprotected_info->ParentId);
 			pProcessChild = GetProcessInfo(pprotected_info->ProcessId);
 
-			//后期测试重点测试一下 为什么会空
-			if (pProcessParent==NULL || pProcessChild == NULL) {isNeedVerifyStagety = false;break;}
-
+			WORD wOpt = 0;
 			TCHAR szOptItemDes[128]={0};
-
 			if(pprotected_info->oper_type & OPER_TERMINATE_PROCESS)
 			{
-				wOperation |= enTryTerminateProcess;					//尝试结束进程
+				wOpt |= enTryTerminateProcess;					//尝试结束进程
 				_sntprintf(szOptItemDes,128,TEXT("%s"),TEXT("尝试结束进程"));
 			}
 			if(pprotected_info->oper_type & OPER_WRITE_PROCESS)
 			{
-				wOperation |= enWritrProcess;							//尝试注入进程
+				wOpt |= enWritrProcess;							//尝试注入进程
 				_sntprintf(szOptItemDes,128,TEXT("%s %s"),szOptItemDes,TEXT("尝试注入进程"));
 			}
 			if(pprotected_info->oper_type & OPER_TERMINATE_MSG)
 			{
-				wOperation |= enMessageExit;							//发送消息退出进程
+				wOpt |= enMessageExit;							//发送消息退出进程
 				_sntprintf(szOptItemDes,128,TEXT("%s %s"),szOptItemDes,TEXT("发送消息退出进程"));
 			}
+
+			if(wOpt == 0) wOpt = enOperateNull;
+
+			wOperation = wOpt;
+
+			if(mGuardObject.InjectionCheck(pprotected_info->ParentId,pprotected_info->ProcessId)) break;
+
+			//后期测试重点测试一下 为什么会空
+			if (pProcessParent==NULL || pProcessChild == NULL) {isNeedVerifyStagety = false;break;}
 
 			ActionOperateResult Result;
 			Result.parantProcess	= *pProcessParent;
@@ -198,9 +211,10 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 		{
 			POPER_ERROR_INFO perror_info	= (POPER_ERROR_INFO)lpata;
 
-			LOGEVEN(TEXT("error:错误代码[%d]文件行[%d],%s[%s]"),perror_info->error,perror_info->file_line,perror_info->error_str,perror_info->file_name);
+			USES_CONVERSION;
+			LOGEVEN(TEXT("error:错误代码[%d]文件行[%d],%s[%s]"),perror_info->error,perror_info->file_line,A2T(perror_info->error_str),A2T(perror_info->file_name) );
 
-			JKThread::Start(&StagetyManager::ProcessDriverErrorThread,this);
+			//JKThread::Start(&StagetyManager::ProcessDriverErrorThread,this);
 
 			break;
 		}
@@ -232,6 +246,8 @@ bool StagetyManager::HandleAction(UINT type, PVOID lpata, DWORD size_len)
 	_sntprintf(Result.szDescriber,1024,TEXT("=================================================\r\n"));
 
 	SendProcessResult(NotifyStagety::Builder(Result,Result.actionType,Result.operateType));
+
+	mGuardObject.OutDriver();
 
 	return bRet;
 }

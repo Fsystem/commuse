@@ -322,36 +322,39 @@ bool IStagety::VerifyProcess(ProcessInfoStagety* pProcessInfo)
 	if ( VerifyTrust( trustKind ) ) { return true;}
 	if ( VerifyNoTrust( trustKind ) ) { return false;} 
 
-	//3云信任,是否有结果，无结果再进行系统信任检测
+	//3云信任(ADL),是否有结果，无结果再进行系统信任检测
 	trustKind = VerifyByADL(pProcessInfo);
-	if(pProcessInfo->cbVerifyResult != enTrustNull) return VerifyNoTrust( trustKind );
-
-	do 
+	if (trustKind == enTrustNull)
 	{
 		//4.操作系统信任验证
 		trustKind = VerifyByOS(pProcessInfo);
-		//if ( VerifyTrust( trustKind ) ) { return true;}
-		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
+		if ( VerifyNoTrust( trustKind ) ) 
+		{
+			//需要上报
+			ReportManager::Instance().AddWinTrustReport(*pProcessInfo);
+			return false;
+		} 
+	}
 
-		//5.用户公司策略验证
-		trustKind = VerifyByUserCompany(pProcessInfo);
-		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}   
-		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
+	//5.用户公司策略验证
+	trustKind = VerifyByUserCompany(pProcessInfo);
+	if ( VerifyTrust( trustKind ) ) { return true;}   
+	if ( VerifyNoTrust( trustKind ) ) { return false;} 
 
-		//6.默认公司策略验证
-		trustKind = VerifyBySysCompany(pProcessInfo);
-		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}
-		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
+	//6.默认公司策略验证
+	trustKind = VerifyBySysCompany(pProcessInfo);
+	if ( VerifyTrust( trustKind ) ) { return true;}
+	if ( VerifyNoTrust( trustKind ) ) { return false;} 
 
-		//7.判断是否有厂商，有返回厂商不信任，无操作系统信任
-		trustKind = VerifyBySysCompanyName(pProcessInfo);
-		if ( VerifyTrust( trustKind ) ) { bRet = true;break;}
-		if ( VerifyNoTrust( trustKind ) ) { bRet = false;break;} 
-	} while (0);
+	//7.判断是否有厂商，有返回厂商不信任，无操作系统信任
+	trustKind = VerifyBySysCompanyName(pProcessInfo);
+	//if ( VerifyTrust( trustKind ) ) { return true;}
+	//if ( VerifyNoTrust( trustKind ) ) { return false;} 
 
 	//需要上报
-	ActionOperateRecord::Instance().ReportWinTrustFile(pProcessInfo);
+	ReportManager::Instance().AddWinTrustReport(*pProcessInfo);
 	
+	bRet = VerifyTrust( trustKind );
 	return bRet;
 
 }
@@ -583,12 +586,15 @@ TrustKind IStagety::VerifyByOS(ProcessInfoStagety* pProcessInfo)
 TrustKind IStagety::VerifyByADL(ProcessInfoStagety* pProcessInfo)
 {
 	TrustKind trustInfo = enTrustNull;
+	if(pProcessInfo==NULL) return trustInfo;
 
 	if (pProcessInfo->unCrc != 0)
 	{
+		CCRC crc;
 		for (ADLStagetyList::iterator it = mListADLStagetyData.begin(); it != mListADLStagetyData.end(); ++it)
 		{
-			if(it->unCrcContent == pProcessInfo->unCrc) 
+			DWORD dwCrcFileName = crc.GetStrCrc_Key((char*)pProcessInfo->szProcessPath.c_str(),pProcessInfo->szProcessPath.size());
+			if(it->unCrcContent == pProcessInfo->unCrc || dwCrcFileName == it->unCrcPath) 
 			{
 				trustInfo = pProcessInfo->cbVerifyResult;
 				break;

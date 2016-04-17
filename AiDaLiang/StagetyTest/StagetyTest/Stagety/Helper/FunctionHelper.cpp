@@ -69,6 +69,7 @@ bool SetPrivilege()
 		DWORD err = GetLastError();
 		//CDebugLog log;
 		//log.SaveLog(1, "Safe_Client.log", "LookupPrivilegeValue err = %d", err); 
+		CloseHandle(hToken);
 		return false;
 	}
 	tkp.PrivilegeCount = 1;  
@@ -80,8 +81,12 @@ bool SetPrivilege()
 		//CDebugLog log;
 		//log.SaveLog(1, "Safe_Client.log", "AdjustTokenPrivileges err = %d", err); 
 		//	MessageBox("AdjustTokenPrivileges enable failed!");
+		CloseHandle(hToken);
 		return false;
 	}
+
+	CloseHandle(hToken);
+
 	return true;
 }
 
@@ -560,7 +565,7 @@ unsigned int GetFileCrc(const char * filename)
 		rewind(fp);
 
 		char cbBuffer[8192];
-
+	
 		int nReadLen = 0;
 
 		CCRC crc;
@@ -577,43 +582,56 @@ unsigned int GetFileCrc(const char * filename)
 	return unRet;
 }
 
-// unsigned int GetFileCrc(const char * filename)
-// {
-// 	unsigned int unRet = 0;
-// 
-// 	HANDLE hand;///句柄
-// 	hand=CreateFileA(filename,GENERIC_READ,///打开方式，可读
-// 		FILE_SHARE_READ,//共享读
-// 		NULL,OPEN_EXISTING,
-// 		FILE_ATTRIBUTE_NORMAL,
-// 		NULL);
-// 	//没有打开
-// 	if (hand==INVALID_HANDLE_VALUE) return 0;
-// 
-// 	LARGE_INTEGER m_file_len;
-// 	BY_HANDLE_FILE_INFORMATION m_file_info;
-// 	::GetFileInformationByHandle(hand,&m_file_info);
-// 	m_file_len.LowPart=m_file_info.nFileSizeLow;
-// 	m_file_len.HighPart=m_file_info.nFileSizeHigh;
-// 		
-// 	ULONG re;
-// 	char buf[1024*8];
-// 	CCRC crc;
-// 	while(m_file_len.QuadPart)
-// 	{
-// 		memset(buf,0,1024*8);
-// 		if(!ReadFile(hand,buf,1024*8,&re,0))
-// 		{
-// 			///读取文件失败
-// 			return 0;
-// 		}
-// 		m_file_len.QuadPart=m_file_len.QuadPart-re;
-// 		unRet = crc.GetStrCrc_Key((char*)buf,re);
-// 	}
-// 	CloseHandle(hand);
-// 	
-// 	return unRet;
-// }
+unsigned int GetFileCrc_Old(const char * filename)
+{
+	unsigned int unRet = 0;
+
+	HANDLE hand;///句柄
+	hand=CreateFileA(filename,GENERIC_READ,///打开方式，可读
+		FILE_SHARE_READ,//共享读
+		NULL,OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+	//没有打开
+	if (hand==INVALID_HANDLE_VALUE)
+	{
+		char szError[512]={0};
+		_snprintf(szError,512,"error:[GetFileCrc]打开文件失败[%s]\n",filename);
+		OutputDebugStringA(szError);
+		return 0;
+	}
+
+	LARGE_INTEGER m_file_len;
+	BY_HANDLE_FILE_INFORMATION m_file_info;
+	::GetFileInformationByHandle(hand,&m_file_info);
+	m_file_len.LowPart=m_file_info.nFileSizeLow;
+	m_file_len.HighPart=m_file_info.nFileSizeHigh;
+
+	ULONG re;
+	char buf[1024*8];
+	CCRC crc;
+	while(m_file_len.QuadPart)
+	{
+		memset(buf,0,1024*8);
+		if(!ReadFile(hand,buf,1024*8,&re,0))
+		{
+			///读取文件失败
+			return 0;
+		}
+		m_file_len.QuadPart=m_file_len.QuadPart-re;
+		unRet = crc.GetStrCrc_Key((char*)buf,re);
+	}
+	CloseHandle(hand);
+
+	if (unRet == 0)
+	{
+		char szError[512]={0};
+		_snprintf(szError,512,"error:[GetFileCrc]打开文件失败[%s]长度[%i64d]\n",filename,m_file_len.QuadPart);
+		OutputDebugStringA(szError);
+	}
+
+	return unRet;
+}
 
 
 BOOL ExtractFile(LPCTSTR restype, int resid, LPCTSTR destpath,HMODULE hModule)

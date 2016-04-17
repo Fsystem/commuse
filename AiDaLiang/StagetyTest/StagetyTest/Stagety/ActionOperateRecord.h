@@ -25,9 +25,8 @@ public:
 	//记录进程操作,返回是否
 	BOOL RecordProcessOperate(const ActionOperateResult & operate);
 
-	//上报windows信任文件
-	void ReportWinTrustFile(ProcessInfoStagety* pProcessInfo);
-
+	//判断是否需要上报
+	bool NeedReport(const ActionOperateResult & operate);
 private:
 	ActionOperateRecord(){};
 	void ReportWinTrustFileThread(void* pProcessInfo);

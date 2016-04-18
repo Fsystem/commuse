@@ -108,10 +108,13 @@ BOOL ProtectorEngine::LoadProtectDriver()
 	if( !mRegCallBackFun(Sys_Filter_fun) )
 	{
 		LOGEVEN(TEXT("注册回调失败\n"));
+		FreeLibrary(mHDllModule);
+		mHDllModule = NULL;
+		return FALSE;
 	}
-	mOperPorcessStatus(FALSE);
-	Sleep(1000);
-	mOperPorcessStatus(TRUE);
+
+	mOperMsgFilter(TRUE);
+	mOperSysFilter(TRUE);
 
 	LOGEVEN(TEXT(">>加载驱动成功\n" ));
 
@@ -134,15 +137,14 @@ void ProtectorEngine::ReloadProtectDriver()
 			mOperPorcessStatus==NULL) throw 0;
 
 		mOperPorcessStatus(FALSE);
+		mRegCallBackFun(NULL);
 		mOperMsgFilter(FALSE);
 		mOperSysFilter(FALSE);
-		mRegCallBackFun(NULL);
-
-		Sleep(0);
+		Sleep(1000);
 		mRegCallBackFun(Sys_Filter_fun);
+		mOperPorcessStatus(TRUE);
 		mOperMsgFilter(TRUE);
 		mOperSysFilter(TRUE);
-		mOperPorcessStatus(TRUE);
 
 		LOGEVEN(TEXT(">>重新加载驱动\n" ));
 	}

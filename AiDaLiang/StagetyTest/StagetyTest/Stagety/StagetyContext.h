@@ -14,10 +14,10 @@ class StagetyProcess : public IStagety
 {
 	//实现接口
 public:
-	virtual ActionType GetActionType();
-	virtual OperateType GetOperateType();
+	virtual WORD GetActionType();
+	virtual WORD GetOperateType();
 	virtual int HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName); //处理驱动 0-信任 其他为不信任
-	virtual int HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child);//处理进程 0-信任 其他为不信任
+	virtual int HandleProcess(WORD action,WORD optType, ProcessInfoStagety* parant, ProcessInfoStagety* child);//处理进程 0-信任 其他为不信任
 
 };
 
@@ -26,10 +26,10 @@ class StagetyDriver : public IStagety
 {
 	//实现接口
 public:
-	virtual ActionType GetActionType();
-	virtual OperateType GetOperateType();
+	virtual WORD GetActionType();
+	virtual WORD GetOperateType();
 	virtual int HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName); //处理驱动 0-信任 其他为不信任
-	virtual int HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child);//处理进程 0-信任 其他为不信任
+	virtual int HandleProcess(WORD action,WORD optType, ProcessInfoStagety* parant, ProcessInfoStagety* child);//处理进程 0-信任 其他为不信任
 
 };
 

@@ -625,7 +625,7 @@ TrustKind IStagety::VerifyBySysCompanyName(ProcessInfoStagety* pProcessInfo)
 // 策略处理通知
 //-------------------------------------------------------------------------------
 
-NotifyStagety* NotifyStagety::Builder(const ActionOperateResult& result,ActionType action,OperateType opt)
+NotifyStagety* NotifyStagety::Builder(const ActionOperateResult& result,WORD action,WORD opt)
 {
 	NotifyStagety* mThis = new NotifyStagety();
 	mThis->SetActionResult(result);

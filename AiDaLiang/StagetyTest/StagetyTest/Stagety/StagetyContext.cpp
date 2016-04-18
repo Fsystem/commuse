@@ -8,12 +8,12 @@
 using std::string;
 using std::wstring;
 
-ActionType StagetyProcess::GetActionType()
+WORD StagetyProcess::GetActionType()
 {
 	return mActionType;
 }
 
-OperateType StagetyProcess::GetOperateType()
+WORD StagetyProcess::GetOperateType()
 {
 	return mOperateType;
 }
@@ -25,7 +25,7 @@ int StagetyProcess::HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName) //处理驱动
 }
 
 //处理进程 0-信任 其他为不信任
-int StagetyProcess::HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)
+int StagetyProcess::HandleProcess(WORD action,WORD optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)
 {
 	int nRet = 0;
 	mActionType = action;
@@ -115,12 +115,12 @@ PROCESS_RESULT:
 //-------------------------------------------------------------------------------
 // 驱动策略
 //-------------------------------------------------------------------------------
-ActionType StagetyDriver::GetActionType()
+WORD StagetyDriver::GetActionType()
 {
 	return mActionType;
 }
 
-OperateType StagetyDriver::GetOperateType()
+WORD StagetyDriver::GetOperateType()
 {
 	return mOperateType;
 }
@@ -131,7 +131,7 @@ int StagetyDriver::HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName) //处理驱动 
 	return 0;
 }
 
-int StagetyDriver::HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)//处理进程 0-信任 其他为不信任
+int StagetyDriver::HandleProcess(WORD action,WORD optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)//处理进程 0-信任 其他为不信任
 {
 	mActionType = action;
 	mOperateType = optType;

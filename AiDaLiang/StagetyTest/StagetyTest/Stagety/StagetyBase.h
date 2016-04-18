@@ -205,8 +205,8 @@ typedef struct ActionOperateResult
 	ProcessInfoStagety		parantProcess;		//父进程
 	ProcessInfoStagety		childProcess;		//子进程-被父进程操作的进程
 	DWORD					dwTimeStamp;		//操作的时间戳
-	ActionType				actionType;			//参考ActionType枚举
-	OperateType				operateType;		//参考OperateType枚举
+	WORD					actionType;			//参考ActionType枚举
+	WORD					operateType;		//参考OperateType枚举
 	TCHAR					szDescriber[1024];	//描述信息
 	int						nTrusted;			//0-系统放行 1-系统阻止 2-用户放行 3-用户阻止
 	ActionOperateResult()
@@ -242,10 +242,10 @@ class IStagety
 public:
 	IStagety();
 	virtual ~IStagety();
-	virtual ActionType GetActionType()=0;
-	virtual OperateType GetOperateType()=0;
+	virtual WORD GetActionType()=0;
+	virtual WORD GetOperateType()=0;
 	virtual int HandleDriver(LPCSTR pOldPath, LPCSTR pDriverName)=0; //处理驱动 0-信任 其他为不信任
-	virtual int HandleProcess(ActionType action,OperateType optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)=0;//处理进程 0-信任 其他为不信任
+	virtual int HandleProcess(WORD action,WORD optType, ProcessInfoStagety* parant, ProcessInfoStagety* child)=0;//处理进程 0-信任 其他为不信任
 protected:
 	virtual std::string GetOperateInfoDescribe(DWORD dwActionOperate);
 	virtual bool VerifyProcess(ProcessInfoStagety* pProcessInfo);				//验证进程，通过以下策略
@@ -263,8 +263,8 @@ protected:
 	virtual TrustKind VerifyBySysCompanyName(ProcessInfoStagety* pProcessInfo);	//最后通过是否有厂商名称验证
 
 protected:
-	ActionType						mActionType;					//行为类型
-	OperateType						mOperateType;					//操作类型
+	WORD							mActionType;					//行为类型
+	WORD							mOperateType;					//操作类型
 	//应用策略表
 	AppStageList					mListAppStagetyData;			//app.dat的数据列表
 	AppStageList					mListAppUserStagetyData;		//app_user.dat的数据列表
@@ -287,7 +287,7 @@ protected:
 class NotifyStagety
 {
 public:
-	static NotifyStagety* Builder(const ActionOperateResult& result,ActionType action,OperateType opt);
+	static NotifyStagety* Builder(const ActionOperateResult& result,WORD action,WORD opt);
 	static NotifyStagety* Builder();
 	
 	void Retain();
@@ -295,17 +295,17 @@ public:
 
 	void SetActionResult(const ActionOperateResult& result){mActionResult = result;};
 	inline ActionOperateResult& GetActionResult(){return mActionResult;};
-	inline void SetAtionOperate(ActionType action,OperateType opt){mActionType=action;mOperateType=opt;}
-	inline ActionType GetActionType(){return mActionType;}
-	inline OperateType GetOperateType(){return mOperateType;}
+	inline void SetAtionOperate(WORD action,WORD opt){mActionType=action;mOperateType=opt;}
+	inline WORD GetActionType(){return mActionType;}
+	inline WORD GetOperateType(){return mOperateType;}
 protected:
 	NotifyStagety();
 	virtual ~NotifyStagety();
 
 	ActionOperateResult mActionResult;
 
-	ActionType mActionType;		//行为类型
-	OperateType mOperateType;	//操作类型
+	WORD mActionType;		//行为类型
+	WORD mOperateType;	//操作类型
 private:
 	unsigned int uRefCount;
 };

@@ -43,6 +43,10 @@ namespace COMMUSE
 			p--;
 		}
 		memcpy(_szAppFileName , p+1 , strlen(p+1) );//取到程序名
+
+		strncpy(_szLogStateIniPath,_szLogFilePath,MAX_PATH);
+		strrchr(_szLogStateIniPath,'\\')[1]=0;
+		strcat(_szLogStateIniPath,"CommLogOpt.ini");
 		
 #ifdef DEBUG_FILE
 		if (!_LogFile)
@@ -56,11 +60,13 @@ namespace COMMUSE
 			memcpy(p+1,"Log\\\0",strlen("Log\\\0")+1 );//添加目录(_szLogFilePath路径)
 
 			CreateDirectoryA(_szLogFilePath,NULL);	//创建LOG文件目录
-			sprintf_s(tem , 1024 , "%s%s[%d-%d-%d].log",_szLogFilePath,_szAppFileName,t.wYear , t.wMonth , t.wDay );
+			sprintf(tem , "%s%s[%d-%d-%d].log",_szLogFilePath,_szAppFileName,t.wYear , t.wMonth , t.wDay );
 
 			_LogFile = fopen(tem,"a");
 		}
 #endif
+
+		InitLogState();
 
 	}
 	//-------------------------------------------------------------------------------
@@ -78,6 +84,13 @@ namespace COMMUSE
 		DeleteCriticalSection(&_cs_log);
 #endif
 	}
+
+	//-------------------------------------------------------------------------------
+	void ComPrintLog::InitLogState()
+	{
+		_nLogState = GetPrivateProfileIntA("CommLog", "Print", 0, _szLogStateIniPath);
+	}
+
 	//-------------------------------------------------------------------------------
 #	ifdef UNICODE
 	void ComPrintLog::LogEvenD (wchar_t* format,...)
@@ -122,11 +135,11 @@ namespace COMMUSE
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
-		_stprintf_s(tem,TEXT("[PID:%d][%04d-%02d-%02d %02d:%02d:%02d] "),
+		_stprintf(tem,TEXT("[PID:%d][%04d-%02d-%02d %02d:%02d:%02d] "),
 			GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
 
 		//生成文件名
-		sprintf_s(szLogFileName , MAX_PATH , "%s%s[%d-%d-%d].log",
+		_snprintf(szLogFileName , MAX_PATH , "%s%s[%d-%d-%d].log",
 			_szLogFilePath,_szAppFileName,st.wYear , st.wMonth , st.wDay );
 
 		//判断是不是需要重新创建文件
@@ -160,6 +173,36 @@ namespace COMMUSE
 		}
 #endif
 
+	}
+	//-------------------------------------------------------------------------------
+#	ifdef UNICODE
+	void ComPrintLog::LogEvenE (wchar_t* format,...)
+#	else
+	void ComPrintLog::LogEvenE (char* format,...)
+#	endif
+	{
+		if(_nLogState == 0) return;
+
+		TCHAR tem[1024]={0};
+		SYSTEMTIME st;
+
+		GetLocalTime(&st);
+#	ifdef UNICODE
+		USES_CONVERSION;
+		swprintf_s(tem,1024,TEXT("[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] "),
+			A2W(_szAppFileName),GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+#	else
+		sprintf_s(tem,1024,"[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] ",
+			_szAppFileName,GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+
+#	endif
+
+		va_list vl;
+		va_start(vl,format);
+		TVSPINRTF(&tem[_tcslen(tem)],format,vl);
+		va_end(vl);
+
+		OutputDebugString(tem);
 	}
 	//-------------------------------------------------------------------------------
 } // COMMUSE

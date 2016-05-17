@@ -88,7 +88,11 @@ namespace COMMUSE
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::InitLogState()
 	{
+#if defined(DEBUG_LOG) || defined(DEBUG_FILE)
+		_nLogState = 1;
+#else
 		_nLogState = GetPrivateProfileIntA("CommLog", "Print", 0, _szLogStateIniPath);
+#endif
 	}
 
 	//-------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 * 作  者：双刃剑
 * 日  期：2010-12-29 9:03:15
 ******************************************************************************/
-//#include "stdafx.h"
+#include <stdafx.h>
 #include <Windows.h>
 #include "SafeCriticalSection.h "
 

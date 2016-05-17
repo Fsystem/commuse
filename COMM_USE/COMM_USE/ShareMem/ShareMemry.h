@@ -12,13 +12,11 @@ namespace COMMUSE
 	{
 	public:
 		ShareMemry(char* szWLockName, char* szRLockName);
+		ShareMemry();
 		~ShareMemry();
 	public:
 
 		//write
-
-		void CreateInit();
-		void CreateUninit();
 
 		void* CreateShareMemry(char* szFileName,DWORD dwMemSize  ,BOOL bUpdate = FALSE);
 

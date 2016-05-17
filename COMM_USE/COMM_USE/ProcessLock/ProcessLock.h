@@ -12,18 +12,17 @@ namespace COMMUSE
 			char* pszWLockName , 
 			char* pszRLockName );
 		~PROCESS_LOCK();
-
-		//Ð´Ëø³õÊ¼»¯ 
-		BOOL WInit();
-		void WUninit();
+ 
+		BOOL Init();
+		void Uninit();
 
 		//Ð´Ëø 0 = OK
 		BOOL WLock();
-		void WUnlock();
+		void WNotify();
 
 		//¶ÁËø 0 = OK
 		BOOL RLock();
-		void RUnlock();
+		void RNotify();
 
 	protected:
 	private:
@@ -31,6 +30,8 @@ namespace COMMUSE
 		HANDLE	_hRhd;
 		char	_szWLockName[64];
 		char	_szRLockName[64];
+		bool	_bOwnerWLock;
+		bool	_bOwnerRLock;
 
 	};
 

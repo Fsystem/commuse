@@ -3,26 +3,24 @@
 *   @Author    : Double Sword
 *   @date      : 2011-8-28
 *   @Copyright : Copyright belong to Author and ZhiZunNet.CO.
-*   @RefDoc    : --
+*   @RefDoc    : CommLogOpt.ini
+				 1.为控制是否打印的文件，没有此文件不打印
+				 2.[CommLog]
+					Print = [0|1|2] 0-不打印 1-Debugview打印 2-文件打印
 */
 #ifndef __CommLog_H
 #define __CommLog_H
 
-
-//需要打印就定义不需要就不定义
-//#define DEBUG_LOG   //--打印debug
-
-//#define DEBUG_FILE //--打印文件
-
 #define G_COM_PRINT_LOG COMMUSE::ComPrintLog::GetInstance()
 
-#ifdef DEBUG_LOG
-#	define LOGEVEN  G_COM_PRINT_LOG.LogEvenD
-#elif defined(DEBUG_FILE)
-#	define LOGEVEN  G_COM_PRINT_LOG.LogEvenF
+#define LOGEVENW G_COM_PRINT_LOG.LogEventW
+#define LOGEVENA G_COM_PRINT_LOG.LogEventA
+
+#ifdef UNICODE
+#	define LOGEVEN  LOGEVENW
 #else
-#	define LOGEVEN	G_COM_PRINT_LOG.LogEvenE
-#endif //#ifdef DEBUG_LOG 
+#	define LOGEVEN  LOGEVENA
+#endif
 
 namespace COMMUSE
 {
@@ -52,28 +50,25 @@ namespace COMMUSE
 		void InitLogState();
 		int GetLogState(){return _nLogState;}
 
-		//用debugview打印
-#	ifdef UNICODE
-		void LogEvenD (wchar_t* format,...);
-#	else
-		void LogEvenD (char* format,...);
-#	endif
-		
-		//用File打印
-#	ifdef UNICODE
-		void LogEvenF (wchar_t* format,...);
-#	else
-		void LogEvenF (char* format,...);
-#	endif
+		void LogEventW(wchar_t* format,...);
+		void LogEventA(char* format,...);
 
-		//ini控制打印
-#	ifdef UNICODE
-		void LogEvenE (wchar_t* format,...);
-#	else
-		void LogEvenE (char* format,...);
-#	endif
+
+//		//ini控制打印
+//#	ifdef UNICODE
+//		void LogEvenE (wchar_t* format,...);
+//#	else
+//		void LogEvenE (char* format,...);
+//#	endif
 
 	protected:
+		//用debugview打印
+		void LogEvenDW (wchar_t* message);
+		void LogEvenDA (char* message);
+
+		//用File打印
+		void LogEvenFW (wchar_t* message);
+		void LogEvenFA (char* message);
 	private:
 		FILE *				_LogFile ;					//打印文件句柄
 		char				_szLogFilePath[MAX_PATH];	//log文件路径

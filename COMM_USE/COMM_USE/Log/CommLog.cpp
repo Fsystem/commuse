@@ -48,7 +48,6 @@ namespace COMMUSE
 		strrchr(_szLogStateIniPath,'\\')[1]=0;
 		strcat(_szLogStateIniPath,"CommLogOpt.ini");
 		
-#ifdef DEBUG_FILE
 		if (!_LogFile)
 		{
 			InitializeCriticalSection(&_cs_log);
@@ -64,7 +63,6 @@ namespace COMMUSE
 
 			_LogFile = fopen(tem,"a");
 		}
-#endif
 
 		InitLogState();
 
@@ -72,7 +70,6 @@ namespace COMMUSE
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::PrintUnInit()
 	{
-#ifdef DEBUG_FILE
 		EnterCriticalSection(&_cs_log);
 		if ( _LogFile )
 		{
@@ -82,65 +79,90 @@ namespace COMMUSE
 		LeaveCriticalSection(&_cs_log);
 
 		DeleteCriticalSection(&_cs_log);
-#endif
 	}
 
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::InitLogState()
 	{
-#if defined(DEBUG_LOG) || defined(DEBUG_FILE)
-		_nLogState = 1;
-#else
 		_nLogState = GetPrivateProfileIntA("CommLog", "Print", 0, _szLogStateIniPath);
-#endif
 	}
 
 	//-------------------------------------------------------------------------------
-#	ifdef UNICODE
-	void ComPrintLog::LogEvenD (wchar_t* format,...)
-#	else
-	void ComPrintLog::LogEvenD (char* format,...)
-#	endif
+	void ComPrintLog::LogEventW(wchar_t* format,...)
 	{
-#ifdef DEBUG_LOG
-		TCHAR tem[1024]={0};
+		if(_nLogState == 0) return;
+		USES_CONVERSION;
+
+		wchar_t tem[1024]={0};
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
-#	ifdef UNICODE
-		USES_CONVERSION;
-		swprintf_s(tem,1024,TEXT("[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] "),
-			A2W(_szAppFileName),GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
-#	else
-		sprintf_s(tem,1024,"[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] ",
-			_szAppFileName,GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
-		
-#	endif
+
+		swprintf_s(tem,1024,L"[PID:%d] [%02d:%02d:%02d] ",
+			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
 
 		va_list vl;
 		va_start(vl,format);
-		TVSPINRTF(&tem[_tcslen(tem)],format,vl);
+		vswprintf_s(&tem[wcslen(tem)],1024,format,vl);
 		va_end(vl);
 
-		OutputDebugString(tem);
-#endif
-
+		if(_nLogState == 1)
+		{
+			LogEvenDW(tem);
+		}
+		else
+		{
+			LogEvenFW(tem);
+		}
 	}
 	//-------------------------------------------------------------------------------
-#	ifdef UNICODE
-	void ComPrintLog::LogEvenF (wchar_t* format,...)
-#	else
-	void ComPrintLog::LogEvenF (char* format,...)
-#	endif
+	void ComPrintLog::LogEventA(char* format,...)
 	{
-#ifdef DEBUG_FILE
-		TCHAR	tem[1024]	= {0};
+		if(_nLogState == 0) return;
+
+		char tem[1024]={0};
+		SYSTEMTIME st;
+
+		GetLocalTime(&st);
+
+		sprintf_s(tem,1024,"[PID:%d] [%02d:%02d:%02d] ",
+			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
+
+		va_list vl;
+		va_start(vl,format);
+		vsprintf_s(&tem[strlen(tem)],1024,format,vl);
+		va_end(vl);
+
+		if(_nLogState == 1)
+		{
+			LogEvenDA(tem);
+		}
+		else
+		{
+			LogEvenFA(tem);
+		}
+	}
+
+	//-------------------------------------------------------------------------------
+
+	void ComPrintLog::LogEvenDW (wchar_t* message)
+	{
+		OutputDebugStringW(message);
+	}
+
+	void ComPrintLog::LogEvenDA (char* message)
+
+	{
+		OutputDebugStringA(message);
+	}
+	//-------------------------------------------------------------------------------
+
+	void ComPrintLog::LogEvenFW (wchar_t* message)
+	{
 		char	szLogFileName[MAX_PATH];//log文件名(临时用)
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
-		_stprintf(tem,TEXT("[PID:%d][%04d-%02d-%02d %02d:%02d:%02d] "),
-			GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
 
 		//生成文件名
 		_snprintf(szLogFileName , MAX_PATH , "%s%s[%d-%d-%d].log",
@@ -148,7 +170,7 @@ namespace COMMUSE
 
 		//判断是不是需要重新创建文件
 		if( -1 == _access(szLogFileName,0) ) 
-		{//新的一天需要重新创建文件,释放昨天的文件
+		{
 			if (_LogFile) 
 			{
 				fclose(_LogFile);
@@ -159,55 +181,81 @@ namespace COMMUSE
 
 		if (_LogFile)//文件句柄存在
 		{
-			
-			va_list vl;
-			va_start(vl,format);
-			TVSPINRTF(&tem[_tcslen(tem)],format,vl);
-			va_end(vl);
+			USES_CONVERSION;
 
 			EnterCriticalSection(&_cs_log);
-#ifdef UNICODE
-			USES_CONVERSION;
-			fwrite(W2A(tem) , strlen(W2A(tem)), 1 , _LogFile);
-#else
-			fwrite(tem , strlen(tem), 1 , _LogFile);
-#endif
+
+			fwrite(W2A(message) , 1, strlen(W2A(message)) , _LogFile);
+
 			fflush(_LogFile);
 			LeaveCriticalSection(&_cs_log);
 		}
-#endif
-
 	}
-	//-------------------------------------------------------------------------------
-#	ifdef UNICODE
-	void ComPrintLog::LogEvenE (wchar_t* format,...)
-#	else
-	void ComPrintLog::LogEvenE (char* format,...)
-#	endif
-	{
-		if(_nLogState == 0) return;
 
-		TCHAR tem[1024]={0};
+	//-------------------------------------------------------------------------------
+	void ComPrintLog::LogEvenFA (char* message)
+	{
+		char	szLogFileName[MAX_PATH];//log文件名(临时用)
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
-#	ifdef UNICODE
-		USES_CONVERSION;
-		swprintf_s(tem,1024,TEXT("[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] "),
-			A2W(_szAppFileName),GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
-#	else
-		sprintf_s(tem,1024,"[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] ",
-			_szAppFileName,GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
 
-#	endif
+		//生成文件名
+		_snprintf(szLogFileName , MAX_PATH , "%s%s[%d-%d-%d].log",
+			_szLogFilePath,_szAppFileName,st.wYear , st.wMonth , st.wDay );
 
-		va_list vl;
-		va_start(vl,format);
-		TVSPINRTF(&tem[_tcslen(tem)],format,vl);
-		va_end(vl);
+		//判断是不是需要重新创建文件
+		if( -1 == _access(szLogFileName,0) ) 
+		{
+			if (_LogFile) 
+			{
+				fclose(_LogFile);
+				_LogFile = NULL;
+			}
+			_LogFile = fopen(szLogFileName,"a");
+		}
 
-		OutputDebugString(tem);
+		if (_LogFile)//文件句柄存在
+		{
+
+			EnterCriticalSection(&_cs_log);
+
+			fwrite(message , 1, strlen(message) , _LogFile);
+
+			fflush(_LogFile);
+			LeaveCriticalSection(&_cs_log);
+		}
 	}
+	//-------------------------------------------------------------------------------
+//#	ifdef UNICODE
+//	void ComPrintLog::LogEvenE (wchar_t* format,...)
+//#	else
+//	void ComPrintLog::LogEvenE (char* format,...)
+//#	endif
+//	{
+//		if(_nLogState == 0) return;
+//
+//		TCHAR tem[1024]={0};
+//		SYSTEMTIME st;
+//
+//		GetLocalTime(&st);
+//#	ifdef UNICODE
+//		USES_CONVERSION;
+//		swprintf_s(tem,1024,TEXT("[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] "),
+//			A2W(_szAppFileName),GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+//#	else
+//		sprintf_s(tem,1024,"[%s][PID:%d] [%04d-%02d-%02d %02d:%02d:%02d] ",
+//			_szAppFileName,GetCurrentProcessId(),st.wYear,st.wMonth,st.wDay,st.wHour,st.wMinute,st.wSecond);
+//
+//#	endif
+//
+//		va_list vl;
+//		va_start(vl,format);
+//		TVSPINRTF(&tem[_tcslen(tem)],format,vl);
+//		va_end(vl);
+//
+//		OutputDebugString(tem);
+//	}
 	//-------------------------------------------------------------------------------
 } // COMMUSE
 

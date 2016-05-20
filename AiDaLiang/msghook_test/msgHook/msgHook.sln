@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgHook", "msgHook.vcxproj", "{FE5868AA-3CCF-57CE-0E5C-77CE7E56F551}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MsgShareMemTest", "..\MsgShareMemTest\MsgShareMemTest.vcxproj", "{3C5EE5C7-F67A-4692-BE85-FB0353353530}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE5868AA-3CCF-57CE-0E5C-77CE7E56F551}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FE5868AA-3CCF-57CE-0E5C-77CE7E56F551}.Debug|Win32.Build.0 = Debug|Win32
+		{FE5868AA-3CCF-57CE-0E5C-77CE7E56F551}.Release|Win32.ActiveCfg = Release|Win32
+		{FE5868AA-3CCF-57CE-0E5C-77CE7E56F551}.Release|Win32.Build.0 = Release|Win32
+		{3C5EE5C7-F67A-4692-BE85-FB0353353530}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3C5EE5C7-F67A-4692-BE85-FB0353353530}.Debug|Win32.Build.0 = Debug|Win32
+		{3C5EE5C7-F67A-4692-BE85-FB0353353530}.Release|Win32.ActiveCfg = Release|Win32
+		{3C5EE5C7-F67A-4692-BE85-FB0353353530}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

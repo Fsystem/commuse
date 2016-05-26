@@ -1,0 +1,16 @@
+﻿Build started 22/2/2014 21:09:30.
+     1>Project "C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\KeInject\KeInject.vcxproj" on node 2 (Build target(s)).
+     1>StampInf:
+         C:\Program Files (x86)\Windows Kits\8.0\bin\x86\stampinf.exe -d "*" -a "x86" -v "*" -k "1.11" -u "1.11.0" -f VistaRelease\KeInject.inf 
+         Stamping VistaRelease\KeInject.inf [Version] section with DriverVer=02/22/2014,21.9.30.151
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /IVistaRelease\ /Zi /nologo /W3 /WX- /Ox /Os /Oy- /D _X86_=1 /D i386=1 /D STD_CALL /D WIN32_LEAN_AND_MEAN=1 /D _WIN32_WINNT=0x0600 /D WINVER=0x0600 /D WINNT=1 /D NTDDI_VERSION=0x06000100 /GF /Gm- /Zp8 /GS- /Gy /fp:precise /hotpatch /Zc:wchar_t- /Zc:forScope- /GR- /Fo"VistaRelease\\" /Fd"VistaRelease\vc110.pdb" /Gz /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.0\Include\Shared\warning.h" /analyze- /errorReport:prompt /kernel -cbstring  /d1nodatetime /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ main.cpp
+         main.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\VistaRelease\KeInject.sys" /VERSION:"6.2" /INCREMENTAL:NO /NOLOGO /WX /FUNCTIONPADMIN:5 /SECTION:"INIT,d" "C:\Program Files (x86)\Windows Kits\8.0\lib\wlh\KM\x86\memcmp.lib" "C:\Program Files (x86)\Windows Kits\8.0\lib\wlh\KM\x86\BufferOverflowK.lib" "C:\Program Files (x86)\Windows Kits\8.0\lib\wlh\KM\x86\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.0\lib\wlh\KM\x86\hal.lib" "C:\Program Files (x86)\Windows Kits\8.0\lib\wlh\KM\x86\wmilib.lib" /NODEFAULTLIB /MANIFEST:NO /DEBUG /PDB:"C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\VistaRelease\KeInject.pdb" /SUBSYSTEM:NATIVE,"6.00" /Driver /OPT:REF /OPT:ICF /ENTRY:"DriverEntry" /RELEASE /IMPLIB:"C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\VistaRelease\KeInject.lib" /MERGE:"_TEXT=.text;_PAGE=PAGE" /MACHINE:X86 /SAFESEH /kernel /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221 /osversion:6.2 /pdbcompress /debugtype:pdata VistaRelease\main.obj
+         KeInject.vcxproj -> C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\VistaRelease\KeInject.sys
+     1>Done Building Project "C:\Users\kit\Documents\Visual Studio 2012\Projects\KeInject\KeInject\KeInject.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.76

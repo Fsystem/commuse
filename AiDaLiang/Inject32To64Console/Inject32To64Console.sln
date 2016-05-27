@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InjectDll", "InjectDll\Inje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "load64dll", "load64dll\load64dll.vcxproj", "{97DE8F80-FECB-4163-B990-B05B3A526773}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wow64ext-new", "rewolf-wow64ext-master-lib\src\wow64ext-new.vcxproj", "{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,12 @@ Global
 		{97DE8F80-FECB-4163-B990-B05B3A526773}.Release|Win32.Build.0 = Release|Win32
 		{97DE8F80-FECB-4163-B990-B05B3A526773}.Release|x64.ActiveCfg = Release|x64
 		{97DE8F80-FECB-4163-B990-B05B3A526773}.Release|x64.Build.0 = Release|x64
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Debug|Win32.Build.0 = Debug|Win32
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Debug|x64.ActiveCfg = Debug|Win32
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Release|Win32.ActiveCfg = Release|Win32
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Release|Win32.Build.0 = Release|Win32
+		{46A0FBD1-1319-4E50-9BC7-9B7E458AFF6C}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

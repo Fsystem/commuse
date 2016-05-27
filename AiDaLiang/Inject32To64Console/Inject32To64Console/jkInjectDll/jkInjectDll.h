@@ -15,7 +15,22 @@
 #define jkInjectDll jkInjectDllA
 #endif
 
-BOOL jkInjectDllA(const char* szPath,const char* szInjectExe);
-BOOL jkInjectDllW(const wchar_t* szPath,const wchar_t* szInjectExe);
+enum InjectResult {
+	OK,
+	Error_OpenProcess,
+	Error_VirtualAllocEx,
+	Error_GetProcAddress,
+	Error_WriteProcessMemory,
+	Error_CreateRemoteThread,
+	Error_NotSuport64Process,
+	Error_Normal,
+};
+
+BOOL IsWow64ProcessEx(HANDLE hProcess);
+BOOL IsWow64ProcessEx(DWORD dwPid);
+BOOL IsWow64ProcessEx(LPCTSTR szExeName);
+
+InjectResult jkInjectDllA(const char* szPath,const char* szInjectExe);
+InjectResult jkInjectDllW(const wchar_t* szPath,const wchar_t* szInjectExe);
 
 #endif //__jkInjectDll_H

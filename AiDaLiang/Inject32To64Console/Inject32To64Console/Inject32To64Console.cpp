@@ -31,15 +31,17 @@ int _tmain()
 	scanf("%s",szExeName);
 	printf("\n");
 
-	char sz2[] = "c:\\InjectDll.dll";
-	char sz3[] = "c:\\InjectDll64.dll";
-	char sz4[] = "c:\\tmpsysprotect.dll";
-	char sz5[] = "c:\\windows\\system32\\d3d9.dll";
+	char * sz = NULL;
+	if (IsWow64ProcessEx(A2T(szExeName)))
+	{
+		sz = "c:\\InjectDll64.dll";
+	}
+	else
+	{
+		sz = "c:\\InjectDll.dll";
+	}
 
-	jkInjectDllA(sz2,szExeName);
-	jkInjectDllA(sz3,szExeName);
-	//jkInjectDllA(sz3,szExeName);
-	//jkInjectDllA(sz4,szExeName);
+	jkInjectDllA(sz,szExeName);
 
 	printf("注入结束\n是否退出退出(y/n):");
 

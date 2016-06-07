@@ -10,15 +10,31 @@
 #define __JKThread_H
 
 #include <process.h>
-
+template<class T>
 class JKThread
 {
-public:
-	
 	template<class T>
+	struct JK_THREAD_INFO
+	{
+		void (T::*func)();
+		T* pOwner;
+	};
+
+	static void thread_func_private(void* pData)
+	{
+		JK_THREAD_INFO<T>* pFuncInfo = (JK_THREAD_INFO<T>*)pData;
+		if (pFuncInfo)
+		{
+			(pFuncInfo->pOwner->*(pFuncInfo->func))();
+		}
+
+		Stop();
+	}
+public:
+	//需自己调用Stop，释放线程数据
 	static uintptr_t Start(void (T::*func)(void *),void* pDelegateThis)
 	{
-		union {                                // 联合类，用于转换类成员方法指针到普通函数指针（试过编译器不允许在这两种函数之间强制转换），不知道有没有更好的方法。
+		union {
 			void ( *ThreadProc)(void *);
 			void ( T::*MemberProc)(void *);
 		} Proc;
@@ -28,13 +44,28 @@ public:
 		return _beginthread(Proc.ThreadProc,0,pDelegateThis);
 	}
 
+	//不需调用Stop，自己释放释放线程数据
+	static uintptr_t Start(void (T::*func)(),T* pDelegateThis)
+	{
+		JK_THREAD_INFO<T> * pData = new JK_THREAD_INFO<T>;
+		pData->func = func;
+		pData->pOwner = pDelegateThis;
+		return _beginthread(thread_func_private,0,pData);
+	}
+
+	//需自己调用Stop，释放线程数据
+	static uintptr_t Start(void ( *ThreadProc)(void *),void* pDelegateThis)
+	{
+		return _beginthread(ThreadProc,0,pDelegateThis);
+	}
+
 	static void Stop()
 	{
 		_endthread();
 	}
 
 protected:
-	
+
 };
 
 #endif //__JKThread_H

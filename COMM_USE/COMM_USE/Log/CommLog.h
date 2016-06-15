@@ -53,15 +53,7 @@ namespace COMMUSE
 		void LogEventW(wchar_t* format,...);
 		void LogEventA(char* format,...);
 
-
-//		//ini控制打印
-//#	ifdef UNICODE
-//		void LogEvenE (wchar_t* format,...);
-//#	else
-//		void LogEvenE (char* format,...);
-//#	endif
-
-	protected:
+		//-------------------------------------------------------------------------------
 		//用debugview打印
 		void LogEvenDW (wchar_t* message);
 		void LogEvenDA (char* message);

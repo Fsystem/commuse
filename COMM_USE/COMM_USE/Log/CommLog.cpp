@@ -103,7 +103,7 @@ namespace COMMUSE
 
 		va_list vl;
 		va_start(vl,format);
-		vswprintf_s(&tem[wcslen(tem)],1024,format,vl);
+		vswprintf(&tem[wcslen(tem)],format,vl);
 		va_end(vl);
 
 		if(_nLogState == 1)
@@ -130,7 +130,7 @@ namespace COMMUSE
 
 		va_list vl;
 		va_start(vl,format);
-		vsprintf_s(&tem[strlen(tem)],1024,format,vl);
+		vsprintf(&tem[strlen(tem)],format,vl);
 		va_end(vl);
 
 		if(_nLogState == 1)

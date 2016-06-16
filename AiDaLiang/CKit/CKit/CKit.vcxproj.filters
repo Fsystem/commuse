@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{217412c7-de72-43d7-a44a-56e1ed7fb05e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Interface">
+      <UniqueIdentifier>{3c4cabea-0f83-4491-98d5-b8e72a27b856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Director">
+      <UniqueIdentifier>{3f7a0007-994f-4697-be3a-affb26048807}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\IPCManager">
+      <UniqueIdentifier>{d99df416-d0b0-463a-a57b-329e437afa17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel">
+      <UniqueIdentifier>{20471e37-3a5a-42c9-9b8b-60c205a002be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\net">
+      <UniqueIdentifier>{04f0e433-0ccd-4921-8f30-43a720488fca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\crypt">
+      <UniqueIdentifier>{b4f49fcb-0799-4cd2-973a-924414f421dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\thread">
+      <UniqueIdentifier>{7b45253c-db8a-4e86-84e7-0750e894324c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\comm">
+      <UniqueIdentifier>{c51658ae-4b1a-4930-b471-d9c34679482d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\comm\SafeCriticalSection">
+      <UniqueIdentifier>{6912de72-a03d-4c25-9e69-54ee10b2d149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\comm\Log">
+      <UniqueIdentifier>{be7e4c9f-880f-4aae-8c16-0ebaad10dabf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\comm\ShareMem">
+      <UniqueIdentifier>{50a6a0a9-a177-4d9a-93d1-40c1772ec17d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\comm\ProcessLock">
+      <UniqueIdentifier>{e4c6d3f9-e600-4040-b48b-de95e29cffbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\Kernel\template">
+      <UniqueIdentifier>{e10b90c0-be3e-4eec-a351-d95970760a58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\ModuleManager">
+      <UniqueIdentifier>{b972f59d-12aa-4991-acec-b6c36495bb0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\NetManager">
+      <UniqueIdentifier>{9728420b-3062-400c-8c1b-d74b92f2ae65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\ToolHelper">
+      <UniqueIdentifier>{d4c73d05-8379-449c-8379-a2e62ab396b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources\ComnDef">
+      <UniqueIdentifier>{60d6ebfb-5e39-4e7a-89e0-5a8a18919826}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\CKit.h">
+      <Filter>Sources</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Director\CltDirector.h">
+      <Filter>Sources\Director</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\comm\Log\CommLog.h">
+      <Filter>Sources\Kernel\comm\Log</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\comm\ProcessLock\ProcessLock.h">
+      <Filter>Sources\Kernel\comm\ProcessLock</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\comm\SafeCriticalSection\SafeCriticalSection.h">
+      <Filter>Sources\Kernel\comm\SafeCriticalSection</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\comm\ShareMem\ShareMemry.h">
+      <Filter>Sources\Kernel\comm\ShareMem</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\crypt\CRC.h">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\crypt\Md5.h">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\crypt\yrc4.h">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\yCTcp.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\yCUdp.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\template\SingletonBase.h">
+      <Filter>Sources\Kernel\template</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\thread\JKThread.h">
+      <Filter>Sources\Kernel\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetManager\NetManager.h">
+      <Filter>Sources\NetManager</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\DeviceOper.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\FunctionHelper.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\Markup.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\NetOper.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\Service.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\ToolOper.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\unzip.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\zip.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Interface\CKInterface.h">
+      <Filter>Sources\Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ComnDef\cmndef.h">
+      <Filter>Sources\ComnDef</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ModuleManager\PlugManager.h">
+      <Filter>Sources\ModuleManager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Director\CltDirector.cpp">
+      <Filter>Sources\Director</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\comm\Log\CommLog.cpp">
+      <Filter>Sources\Kernel\comm\Log</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\comm\ProcessLock\ProcessLock.cpp">
+      <Filter>Sources\Kernel\comm\ProcessLock</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\comm\SafeCriticalSection\SafeCriticalSection.cpp">
+      <Filter>Sources\Kernel\comm\SafeCriticalSection</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\comm\ShareMem\ShareMemry.cpp">
+      <Filter>Sources\Kernel\comm\ShareMem</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\crypt\CRC.cpp">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\crypt\Md5.cpp">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\crypt\yrc4.cpp">
+      <Filter>Sources\Kernel\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\yCTcp.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\yCUdp.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\NetManager\NetManager.cpp">
+      <Filter>Sources\NetManager</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\DeviceOper.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\FunctionHelper.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\Markup.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\NetOper.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\Service.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\ToolOper.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\unzip.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\zip.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ModuleManager\PlugManager.cpp">
+      <Filter>Sources\ModuleManager</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

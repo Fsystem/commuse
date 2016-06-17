@@ -5,7 +5,7 @@ windows 服务操作类
 #include "Service.h"
 #include "winsvc.h"
 
-SERVICE_INFO CService::m_ServiceInfo;
+CKITSERVICE_INFO CService::m_ServiceInfo;
 
 CService::CService(void)
 {
@@ -103,7 +103,7 @@ BOOL CService::RemoveService(const char*pServiceName)
 // 入参:   SERVICE_INFO *m_serviceInfo
 // 返回值: 无
 //************************************
-VOID CService::GetServiceInfo(SERVICE_INFO *serviceInfo)
+VOID CService::GetServiceInfo(CKITSERVICE_INFO *serviceInfo)
 {
 	char	buffer[MAX_PATH];
 	memset(buffer,0,sizeof(buffer));

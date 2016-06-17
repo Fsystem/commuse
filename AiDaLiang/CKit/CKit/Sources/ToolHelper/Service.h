@@ -5,7 +5,7 @@
 using namespace std;
 
 //服务的结构定义
-typedef	struct	_SERVICE_INFO
+typedef	struct	_CKIT_SERVICE_INFO
 {
 	string SZAPPNAME;
 	string SZSERVICENAME;
@@ -16,7 +16,7 @@ typedef	struct	_SERVICE_INFO
 	string SIP_STR;//ip地址
 	int SITHREADCOUNT;//线程数量
 
-}SERVICE_INFO,*PSERVICE_INFO;
+}CKITSERVICE_INFO,*PCKITSERVICE_INFO;
 enum SEV_STATUS
 {
 	SEV_ERROR	= 0x00,
@@ -33,7 +33,7 @@ public:
 public:
 	~CService(void);
 public:
-	static VOID GetServiceInfo(SERVICE_INFO *serviceInfo);
+	static VOID GetServiceInfo(CKITSERVICE_INFO *serviceInfo);
 	static BYTE CheckServiceStatus(const char*pServiceName);
 	static BOOL StartSevice(const char*pServiceName);
 	static BOOL AddService(/*const char*pSourceName,*/const char*pServiceName,const char*pDisName,const char*pPath);
@@ -43,6 +43,6 @@ public:
 	//BOOL GetCurPath(CString &strCurPath);
 public:
 
-	static SERVICE_INFO m_ServiceInfo;
+	static CKITSERVICE_INFO m_ServiceInfo;
 };
 

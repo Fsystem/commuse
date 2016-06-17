@@ -159,6 +159,9 @@
     <ClInclude Include="Sources\ToolHelper\FileMonitor.h">
       <Filter>Sources\ToolHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\DigitSign.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -228,6 +231,9 @@
       <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
     <ClCompile Include="Sources\ToolHelper\FileMonitor.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\DigitSign.cpp">
       <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
   </ItemGroup>

@@ -46,6 +46,10 @@ std::string NIp2str(DWORD dwIp);
 * !brief 字符串转整数IP
 */
 DWORD Str2NIp(std::string szIp);
+/*
+* !brief 设置重定向
+*/
+DWORD SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue);
 
 //-------------------------------------------------------------------------------
 /*

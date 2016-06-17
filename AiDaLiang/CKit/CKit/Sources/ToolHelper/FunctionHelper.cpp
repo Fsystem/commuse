@@ -13,10 +13,6 @@
 #pragma comment(lib,"ws2_32.lib")
 
 //-------------------------------------------------------------------------------
-DWORD	WINAPI SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue);
-
-
-//-------------------------------------------------------------------------------
 //提升权限
 bool SetPrivilege(PCTSTR szPrivilege, BOOL fEnable)
 {
@@ -151,6 +147,33 @@ DWORD Str2NIp(std::string szIp)
 	return dwIp;
 }
 
+DWORD SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue)
+{
+	typedef int (WINAPI *Wow64DisableWow64FsRedirectionFn)(PVOID *OldValue);
+	typedef int (WINAPI *Wow64RevertWow64FsRedirectionFn)(PVOID OldValue);
+	HMODULE hkernel = GetModuleHandleA("kernel32.dll");
+	Wow64DisableWow64FsRedirectionFn Disable_redirect = NULL;
+	Wow64RevertWow64FsRedirectionFn Enable_redirect = NULL;
+
+	if(hkernel == NULL)
+	{
+		return 0;
+	}
+
+	Disable_redirect = (Wow64DisableWow64FsRedirectionFn)GetProcAddress(hkernel, "Wow64DisableWow64FsRedirection");
+	Enable_redirect = (Wow64RevertWow64FsRedirectionFn)GetProcAddress(hkernel, "Wow64RevertWow64FsRedirection");
+
+	if (Disable_redirect == NULL || Enable_redirect == NULL)
+	{
+		return 0;
+	}
+
+	if (!IsEnable) Disable_redirect(OldValue);
+	else Enable_redirect(*OldValue);
+
+	return 0;
+}
+
 //-------------------------------------------------------------------------------
 /*
 通过一个地址取模块句柄
@@ -194,42 +217,6 @@ BOOL hasDll(DWORD processId,LPCTSTR szDllName)
 
 	return FALSE;
 }
-
-//-------------------------------------------------------------------------------
-DWORD	WINAPI SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue)
-{
-	typedef int (WINAPI *Wow64DisableWow64FsRedirectionFn)(PVOID *OldValue);
-	typedef int (WINAPI *Wow64RevertWow64FsRedirectionFn)(PVOID OldValue);
-	HMODULE hkernel = GetModuleHandle(_T("kernel32.dll"));
-	Wow64DisableWow64FsRedirectionFn Disable_redirect = NULL;
-	Wow64RevertWow64FsRedirectionFn Enable_redirect = NULL;
-
-	if(hkernel == NULL)
-	{
-		return 0;
-	}
-
-	Disable_redirect = reinterpret_cast<Wow64DisableWow64FsRedirectionFn>(GetProcAddress(hkernel, "Wow64DisableWow64FsRedirection"));
-	Enable_redirect = reinterpret_cast<Wow64RevertWow64FsRedirectionFn>(GetProcAddress(hkernel, "Wow64RevertWow64FsRedirection"));
-
-	if (Disable_redirect == NULL || Enable_redirect == NULL)
-	{
-		return 0;
-	}
-
-	if (!IsEnable)
-	{
-		//	MessageBox(NULL,"init","sys",0+64);
-		Disable_redirect(OldValue);
-		//	MessageBox(NULL,"out","sys",0+64);
-	}
-	else
-	{
-		Enable_redirect(*OldValue);
-	}
-	return 0;
-}
-
 //-------------------------------------------------------------------------------
 
 BOOL ExtractFile(LPCTSTR restype, int resid, LPCTSTR destpath,HMODULE hModule)

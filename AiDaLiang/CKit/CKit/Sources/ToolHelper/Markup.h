@@ -13,6 +13,7 @@
 #include <string.h> // memcpy, memset, strcmp...
 
 #define MARKUP_STL
+
 // Major build options
 // MARKUP_WCHAR wide char (2-byte UTF-16 on Windows, 4-byte UTF-32 on Linux and OS X)
 // MARKUP_MBCS ANSI/double-byte strings on Windows

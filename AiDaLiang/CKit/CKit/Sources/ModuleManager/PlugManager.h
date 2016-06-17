@@ -29,7 +29,7 @@ class PlugManager : public SingletonBase<PlugManager>,public IPluginParant
 {
 public:
 	PlugManager();
-	~PlugManager();
+	virtual ~PlugManager();
 
 public:
 	void LoadAllPlugin();

@@ -35,6 +35,8 @@
 #include "ToolHelper/ToolOper.h"
 #include "ToolHelper/zip.h"
 #include "ToolHelper/unzip.h"
+#include "ToolHelper/MemLoadDll.h"
+#include "ToolHelper/FileMonitor.h"
 
 //! Ïß³Ì
 #include "Kernel/thread/JKThread.h"

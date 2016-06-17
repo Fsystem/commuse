@@ -48,11 +48,22 @@ std::string NIp2str(DWORD dwIp);
 DWORD Str2NIp(std::string szIp);
 
 //-------------------------------------------------------------------------------
-
+/*
+当前模块句柄
+*/
+HMODULE ThisModuleHandle();
 /*
 * !brief 解压文件
 */
 void CheckAndExportFile(const TCHAR* pResName, const TCHAR * path,DWORD dwResource);
+
+/*
+* !brief 获取pe文件的内存数据
+		 nResId:资源ID
+		 szResType:资源类型
+*/
+std::vector<char> GetPEFile(int nResId,const char* szResType);
+
 
 //-------------------------------------------------------------------------------
 /*

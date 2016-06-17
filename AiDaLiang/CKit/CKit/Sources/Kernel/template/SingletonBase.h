@@ -26,7 +26,7 @@ public:
 
 		if (t.szClassName == NULL)
 		{
-			t.szClassName=typeid(T).name();
+			//t.szClassName=typeid(T).name(); //rtti a bug memory leak
 		}
 
 		return t;

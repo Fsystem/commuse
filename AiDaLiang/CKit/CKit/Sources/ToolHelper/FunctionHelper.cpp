@@ -276,6 +276,27 @@ void CheckAndExportFile(const TCHAR* pResName, const TCHAR * path,DWORD dwResour
 
 }
 
+std::vector<char> GetPEFile(int nResId,const char* szResType)
+{
+	std::vector<char> vecRet;
+
+	HMODULE hCurModule = ThisModuleHandle();
+
+	HRSRC hRes = FindResourceA(hCurModule,MAKEINTRESOURCEA(nResId),szResType);
+	if (hRes)
+	{
+		HGLOBAL hFileData = LoadResource(hCurModule,hRes);
+		if (hFileData)
+		{
+			DWORD dwFileSize = SizeofResource(hCurModule,hRes);
+
+			vecRet.assign((char*)hFileData,(char*)hFileData+dwFileSize);
+		}
+	}
+
+	return vecRet;
+}
+
 //-------------------------------------------------------------------------------
 //#pragma region È«¾Öº¯Êý
 

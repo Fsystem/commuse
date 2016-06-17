@@ -12,7 +12,7 @@ class NetManager : public SingletonBase<NetManager>
 {
 public:
 	NetManager();
-	~NetManager();
+	virtual ~NetManager();
 
 public:
 	//添加/更新一个服务器(比如核心服务器)

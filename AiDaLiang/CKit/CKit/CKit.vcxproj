@@ -185,8 +185,10 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\ModuleManager\PlugManager.h" />
     <ClInclude Include="Sources\NetManager\NetManager.h" />
     <ClInclude Include="Sources\ToolHelper\DeviceOper.h" />
+    <ClInclude Include="Sources\ToolHelper\FileMonitor.h" />
     <ClInclude Include="Sources\ToolHelper\FunctionHelper.h" />
     <ClInclude Include="Sources\ToolHelper\Markup.h" />
+    <ClInclude Include="Sources\ToolHelper\MemLoadDll.h" />
     <ClInclude Include="Sources\ToolHelper\NetOper.h" />
     <ClInclude Include="Sources\ToolHelper\Service.h" />
     <ClInclude Include="Sources\ToolHelper\ToolOper.h" />
@@ -209,8 +211,10 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\ModuleManager\PlugManager.cpp" />
     <ClCompile Include="Sources\NetManager\NetManager.cpp" />
     <ClCompile Include="Sources\ToolHelper\DeviceOper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\FileMonitor.cpp" />
     <ClCompile Include="Sources\ToolHelper\FunctionHelper.cpp" />
     <ClCompile Include="Sources\ToolHelper\Markup.cpp" />
+    <ClCompile Include="Sources\ToolHelper\MemLoadDll.cpp" />
     <ClCompile Include="Sources\ToolHelper\NetOper.cpp" />
     <ClCompile Include="Sources\ToolHelper\Service.cpp" />
     <ClCompile Include="Sources\ToolHelper\ToolOper.cpp" />

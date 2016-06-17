@@ -24,12 +24,13 @@ class JKThread
 	{
 		try
 		{
-			JK_THREAD_INFO<T>* pFuncInfo = (JK_THREAD_INFO<T>*)pData;
-			if (pFuncInfo)
+			if (pData)
 			{
-				(pFuncInfo->pOwner->*(pFuncInfo->func))();
+				JK_THREAD_INFO<T> tagInfo;
+				memcpy(&tagInfo,pData,sizeof tagInfo);
+				delete pData;
 
-				delete pFuncInfo;
+				(tagInfo.pOwner->*(tagInfo.func))();
 			}
 			else throw 0;
 		}

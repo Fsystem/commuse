@@ -3,13 +3,17 @@
 #include <WindowsX.h>
 #include <Windows.h>
 
+#include <vld.h>
+
 #include "resource.h"
 
-#include "FileMonitor/FileMonitor.h"
 
 class Sink : public IFileMonitorDelegate
 {
+public:
+private:
 	HWND mMainDlg;
+	char* pData;
 public: 
 	BOOL start(HWND mainDlg)
 	{
@@ -126,19 +130,32 @@ INT_PTR WINAPI Dlg_Proc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	return(FALSE);
 }
 
+//定义函数：  
+inline void EnableMemLeakCheck()  
+{  
+	_CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | _CRTDBG_LEAK_CHECK_DF);  
+}
+
+
+
 int WINAPI _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPTSTR lpCmdLine, __in int nShowCmd )
 {
+	std::vector<char> fileData = GetPEFile(IDR_DLLTEST,"DLL");
+	CMemLoadDll md;
+	md.MemLoadLibrary(fileData.data(),fileData.size());
+	
 	//测试插件
-	PlugManager::Instance().LoadAllPlugin();
-
-	while(!PlugManager::Instance().IsPlugRunning())Sleep(1000);
-
-	PlugManager::Instance().OnHandleMessage(110,"你好hello",9);
+ 	PlugManager::Instance().LoadAllPlugin();
+ 	
+ 	while(!PlugManager::Instance().IsPlugRunning())Sleep(1000);
+ 
+ 	PlugManager::Instance().OnHandleMessage(110,"你好hello",9);
 
 	SetPrivilege();
 
 	LOGEVENA("asdasdasd");
 	DialogBox(hInstance,MAKEINTRESOURCE(IDD_DIALOG1),NULL,Dlg_Proc);
+
 	return 0;
 }
 

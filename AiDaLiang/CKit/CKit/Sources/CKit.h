@@ -37,6 +37,7 @@
 #include "ToolHelper/unzip.h"
 #include "ToolHelper/MemLoadDll.h"
 #include "ToolHelper/FileMonitor.h"
+#include "ToolHelper/DigitSign.h"
 
 //! Ïß³Ì
 #include "Kernel/thread/JKThread.h"

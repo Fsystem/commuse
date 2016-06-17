@@ -731,20 +731,13 @@ BOOL CDigitSign::CheckFileTrust(LPCSTR filename,LPSTR pszCompany)
 
 	return bRet;
 }
-DWORD CDigitSign::GetSignInfo(LPCSTR filename, LPSTR serial, LPSTR issuser, LPSTR signer)
+DWORD CDigitSign::GetSignInfo(LPCSTR filename, LPTSTR serial, LPTSTR issuser, LPTSTR signer)
 {
 	DWORD dwErr = 0;
-	TCHAR szSerial[MAX_PATH]={0};
-	TCHAR szIssuser[MAX_PATH]={0};
-	TCHAR szSigner[MAX_PATH]={0};
 
 	locale loc = locale::global(gLocale);
-	dwErr = get_sign_info_private(filename,szSerial,szIssuser,szSigner);
+	dwErr = get_sign_info_private(filename,serial,issuser,signer);
 	locale::global(loc);
-
-	strcpy(serial,T2AString(szSerial).c_str());
-	strcpy(issuser,T2AString(szIssuser).c_str());
-	strcpy(signer,T2AString(szSigner).c_str());
 
 	return dwErr;
 }

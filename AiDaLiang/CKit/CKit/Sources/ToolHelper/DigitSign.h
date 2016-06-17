@@ -5,7 +5,7 @@ class CDigitSign
 {
 public:
 	static BOOL CheckFileTrust(LPCSTR filename,LPSTR pszCompany);
-	static DWORD GetSignInfo(LPCSTR filename, LPSTR serial, LPSTR issuser, LPSTR signer);
+	static DWORD GetSignInfo(LPCSTR filename, LPTSTR serial, LPTSTR issuser, LPTSTR signer);
 protected:
 private:
 };

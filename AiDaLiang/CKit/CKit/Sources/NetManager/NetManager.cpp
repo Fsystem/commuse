@@ -35,7 +35,6 @@ typedef	struct	_TAG_HEAD
 typedef struct SERVER_INFO{
 	DWORD			dwIp;
 	WORD			wPort;
-	INetDelegate*	pDelegate;
 }SERVER_INFO;
 
 //-------------------------------------------------------------------------------
@@ -76,12 +75,11 @@ NetManager::~NetManager()
 }
 
 //添加/更新一个服务器
-void NetManager::AddServer(DWORD dwSvrId,enNetMethod method,LPCSTR szIP,WORD wPort,INetDelegate* pINetDelegate)
+void NetManager::AddServer(DWORD dwSvrId,enNetMethod method,LPCSTR szIP,WORD wPort)
 {
 	SERVER_INFO info;
 	info.dwIp = Str2NIp(szIP);
 	info.wPort = wPort;
-	info.pDelegate = pINetDelegate;
 	if (method==enTCP)
 	{
 		MAP_TCPSVR_INFO[dwSvrId] = info;
@@ -94,21 +92,21 @@ void NetManager::AddServer(DWORD dwSvrId,enNetMethod method,LPCSTR szIP,WORD wPo
 }
 
 //发送数据（短链接,直接返回数据）-字符串数据
-std::string NetManager::SendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData)
+std::string NetManager::SendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate )
 {
 	std::string sRet = "error";
 
-	sRet = UDPSendDataByShortLink(dwSvrId,dwCMD,strData);
+	sRet = UDPSendDataByShortLink(dwSvrId,dwCMD,strData,pINetDelegate);
 
 	if (sRet == "error")
 	{
-		sRet = TCPSendDataByShortLink(dwSvrId,dwCMD,strData);
+		sRet = TCPSendDataByShortLink(dwSvrId,dwCMD,strData,pINetDelegate);
 	}
 
 	return sRet;
 }
 
-std::string NetManager::TCPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData)
+std::string NetManager::TCPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate )
 {
 	std::string sRet = "error";
 	auto itSend = MAP_TCPSVR_INFO.find(dwSvrId);
@@ -202,13 +200,13 @@ std::string NetManager::TCPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::st
 TCPFINISH:
 		if (sRet != "error")
 		{
-			if(itSend->second.pDelegate) 
-				itSend->second.pDelegate->OnSocketRecv(enTCP,tag_head.msg_info,recv_buffer,tag_head.msg_len);
+			if(pINetDelegate) 
+				pINetDelegate->OnSocketRecv(enTCP,tag_head.msg_info,recv_buffer,tag_head.msg_len);
 		}
 		else
 		{
-			if(itSend->second.pDelegate)
-				itSend->second.pDelegate->OnSocketErr(enTCP,dwCMD,strData.c_str(),strData.size());
+			if(pINetDelegate)
+				pINetDelegate->OnSocketErr(enTCP,dwCMD,strData.c_str(),strData.size());
 		}
 	}
 
@@ -216,7 +214,7 @@ TCPFINISH:
 	return sRet;
 }
 
-std::string NetManager::UDPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData)
+std::string NetManager::UDPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate )
 {
 	std::string sRet = "error";
 	auto itSend = MAP_UDPSVR_INFO.find(dwSvrId);
@@ -282,17 +280,17 @@ std::string NetManager::UDPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::st
 
 		if (recv_ret)
 		{    
-			if (itSend->second.pDelegate)
+			if (pINetDelegate)
 			{
-				itSend->second.pDelegate->OnSocketRecv(enUDP,tag_head.msg_info,recv_buffer + sizeof(TAG_HEAD),recv_len-sizeof(TAG_HEAD) );
+				pINetDelegate->OnSocketRecv(enUDP,tag_head.msg_info,recv_buffer + sizeof(TAG_HEAD),recv_len-sizeof(TAG_HEAD) );
 			}
 
 			return recv_buffer + sizeof(TAG_HEAD);
 		}	
 
-		if (itSend->second.pDelegate)
+		if (pINetDelegate)
 		{
-			itSend->second.pDelegate->OnSocketErr(enUDP,dwCMD,strData.c_str(),strData.size() );
+			pINetDelegate->OnSocketErr(enUDP,dwCMD,strData.c_str(),strData.size() );
 		}
 	}
 	

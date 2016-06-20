@@ -16,12 +16,12 @@ public:
 
 public:
 	//添加/更新一个服务器(比如核心服务器)
-	void AddServer(DWORD dwSvrId,enNetMethod method,LPCSTR szIP,WORD wPort,INetDelegate* pINetDelegate = NULL);
+	void AddServer(DWORD dwSvrId,enNetMethod method,LPCSTR szIP,WORD wPort);
 
 	//发送数据（短链接,直接返回数据）-字符串数据
-	std::string SendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData);
-	std::string TCPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData);
-	std::string UDPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData);
+	std::string SendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate = NULL);
+	std::string TCPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate = NULL);
+	std::string UDPSendDataByShortLink(DWORD dwSvrId,DWORD dwCMD,std::string strData,INetDelegate* pINetDelegate = NULL);
 	void UDPSendDataByShortLinkNoRecv(DWORD dwSvrId,DWORD dwCMD,std::string strData);
 
 	//发送数据（长链接）-暂时没实现

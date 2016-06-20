@@ -7,6 +7,53 @@
 
 #include "resource.h"
 
+#include "NetPackBase/NetPackManager.h"
+
+class NetPkgTest : public NetPackBase
+{
+public:
+	int a;
+	double b;
+	string c;
+	float d;
+	char e[20];
+public:
+	NetPkgTest()
+	{
+		a=10;
+		b=1.202012;
+		c="asdasdasd你好asd";
+		d=5.2456;
+		strcpy(e,"我啊哈大声s的as");
+	}
+protected:
+	virtual std::string MakeBodyData()
+	{
+		USES_XML;
+
+		ADD_XMLITEM(a,"a");
+		ADD_XMLITEM(b,"b");
+		ADD_XMLITEM(c,"c");
+		ADD_XMLITEM(d,"d");
+		ADD_XMLITEM(e,"e");
+
+		return GET_XML;
+	}
+
+	virtual void ParseBodyData(std::string szXml)
+	{
+		PARSE_XML_BEGIN;
+
+		PARSE_ITEM_NUMBER(a,"a");
+		PARSE_ITEM_NUMBER(b,"b");
+		PARSE_ITEM_STDSTR(c,"c");
+		PARSE_ITEM_NUMBER(d,"d");
+		PARSE_ITEM_CSTRING(e,"e",20);
+
+		PARSE_XML_END;
+	}
+};
+
 
 class Sink : public IFileMonitorDelegate
 {
@@ -140,6 +187,12 @@ inline void EnableMemLeakCheck()
 
 int WINAPI _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance, __in LPTSTR lpCmdLine, __in int nShowCmd )
 {
+	//测试命令包
+	NetPkgTest pkg;
+	std::string sXml = pkg.ToXmlStr();
+	pkg.c="asdajsdj活动回顾";
+	pkg.FromXmlStr(sXml);
+	//
 	std::vector<char> fileData = GetPEFile(IDR_DLLTEST,"DLL");
 	CMemLoadDll md;
 	md.MemLoadLibrary(fileData.data(),fileData.size());

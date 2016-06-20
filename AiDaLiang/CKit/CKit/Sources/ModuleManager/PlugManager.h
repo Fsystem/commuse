@@ -32,7 +32,7 @@ public:
 	virtual ~PlugManager();
 
 public:
-	void LoadAllPlugin();
+	void LoadAllPlugin(IPluginParant* pSink = NULL);
 	void StopAllPlugin();
 
 	//插件是否都正常运行了
@@ -65,6 +65,8 @@ private:
 	//static HANDLE   thread_handle_load_;
 	HANDLE mThreadLoad;
 	bool mLoadedAll;
+
+	IPluginParant* mSink;
 };
 
 

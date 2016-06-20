@@ -10,6 +10,8 @@ PlugManager::PlugManager()
 	mThreadLoad = NULL;
 	mLoadedAll = false;
 
+	mSink = NULL;
+
 	char current_path[MAX_PATH] = {0};
 	GetModuleFileNameA(NULL, current_path, MAX_PATH);
 	char *lpstr = strrchr(current_path,'\\');
@@ -130,15 +132,17 @@ void PlugManager::FreePlugin(PlugInfo& plugInfo)
 	}
 }
 
-void PlugManager::LoadAllPlugin()
+void PlugManager::LoadAllPlugin(IPluginParant* pSink)
 {
 	StopAllPlugin();
+	mSink = pSink;
 	mThreadLoad = (HANDLE)JKThread<PlugManager>::Start(&PlugManager::LoadPluginThread,this);
 }
 
 void PlugManager::StopAllPlugin()
 {
 	//WaitForSingleObject((HANDLE)JKThread<PlugManager>::Start(&PlugManager::FreePluginThread,this),INFINITE) ;
+	mSink = NULL;
 	FreePluginThread();
 }
 
@@ -192,6 +196,10 @@ void PlugManager::OnHandleMessage(DWORD dwCmd,PVOID pData,int nLen)
 void PlugManager::SendMessageToParant(DWORD dwCmd,PVOID pData,int nLen)
 {
 	LOGEVENA("插件发消息了[%u]\n",dwCmd);
+	if (mSink)
+	{
+		mSink->SendMessageToParant(dwCmd,pData,nLen);
+	}
 }
 
 //

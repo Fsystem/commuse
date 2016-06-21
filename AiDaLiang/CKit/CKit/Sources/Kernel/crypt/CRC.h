@@ -19,9 +19,9 @@ public:
 	virtual ~CCRC();
 
 public:
-	DWORD GetCrcNumber(char *buf,DWORD len);
-	std::string GetCrcString(char *buf,DWORD len);
-	std::string GetCrcHexString(char *buf,DWORD len);
+	DWORD GetCrcNumber(const char *buf,DWORD len);
+	std::string GetCrcString(const char *buf,DWORD len);
+	std::string GetCrcHexString(const char *buf,DWORD len);
 
 private:
 	DWORD GetCrC();

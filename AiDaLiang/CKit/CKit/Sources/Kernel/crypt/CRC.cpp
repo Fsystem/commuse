@@ -95,7 +95,7 @@ DWORD CCRC::GetCrC()
 
 
 
-DWORD CCRC::GetCrcNumber(char *buf, DWORD len)
+DWORD CCRC::GetCrcNumber(const char *buf, DWORD len)
 {
 	Get_CRC((unsigned char *)buf,len);
 	ULONG dwCrc=GetCrC();
@@ -103,7 +103,7 @@ DWORD CCRC::GetCrcNumber(char *buf, DWORD len)
 	return dwCrc;
 }
 
-std::string CCRC::GetCrcString(char *buf,DWORD len)
+std::string CCRC::GetCrcString(const char *buf,DWORD len)
 {
 	DWORD dwCrc = GetCrcNumber(buf,len);
 	char szCrc[16];
@@ -112,7 +112,7 @@ std::string CCRC::GetCrcString(char *buf,DWORD len)
 	return szCrc;
 }
 
-std::string CCRC::GetCrcHexString(char *buf,DWORD len)
+std::string CCRC::GetCrcHexString(const char *buf,DWORD len)
 {
 	DWORD dwCrc = GetCrcNumber(buf,len);
 	char szCrc[16];

@@ -50,6 +50,9 @@ DWORD Str2NIp(std::string szIp);
 * !brief 设置重定向
 */
 DWORD SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue);
+/*
+* !brief 结束进程
+*/
 
 //-------------------------------------------------------------------------------
 /*

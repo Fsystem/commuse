@@ -3,7 +3,7 @@
 
 #include "resource.h"
 
-class TestPlug : public IPluginInterface
+class TestPlug : public IPluginInterface,public SingletonBase<TestPlug>
 {
 public:
 	virtual BOOL OnInitPlugin(IPluginParant* pDelegate)
@@ -58,5 +58,5 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	return TRUE;
 }
 
-IMP_PLUGIN_EXPORT(TestPlug);
+IMP_PLUGIN_EXPORT_EX(&TestPlug::Instance());
 

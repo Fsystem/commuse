@@ -7,7 +7,8 @@
 #define STR_CLIENT_PROTECT32				TEXT("MasterProtect.exe")
 #define STR_CLIENT_PROTECT64				TEXT("MasterProtect64b.exe")
 #define STR_CLIENT_TIP						TEXT("Tip_Window.exe")
-#define STR_DRIVER_DLL						TEXT("tmpsys.dll")
+#define STR_DRIVER_PD_DLL					TEXT("tmpsys.dll")
+#define STR_DRIVER_FR_DLL					TEXT("tmpfilereg.dll")
 #define STR_MSG_PROTECT						TEXT("tmpsysprotect.dll")
 
 //ÍøÂç¶¨Òå
@@ -63,6 +64,10 @@
 	pModuleInterface = new classname( ##__VA_ARGS__ );\
 	}\
 	return pModuleInterface;\
+}
+
+#define  IMP_PLUGIN_EXPORT_EX(clazz_pointer) extern "C" __declspec(dllexport) void* CreatePlugInterface(){\
+	return clazz_pointer;\
 }
 
 typedef void* (*PFN_CreatePlugInterface)();

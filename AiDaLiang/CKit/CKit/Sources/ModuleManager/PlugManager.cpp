@@ -4,6 +4,8 @@
 
 #define PLUG_FILE         "plug.ini"
 
+static std::map<std::string,PlugInfo>				mPlugMap;
+
 PlugManager::PlugManager()
 {
 	mPlugCnt = 0;
@@ -12,12 +14,9 @@ PlugManager::PlugManager()
 
 	mSink = NULL;
 
-	char current_path[MAX_PATH] = {0};
-	GetModuleFileNameA(NULL, current_path, MAX_PATH);
-	char *lpstr = strrchr(current_path,'\\');
+	GetModuleFileNameA(NULL, mPlugDir, MAX_PATH);
+	char *lpstr = strrchr(mPlugDir,'\\');
 	lpstr[1] = 0;
-
-	mPlugDir = current_path;
 }
 
 
@@ -30,7 +29,7 @@ BOOL PlugManager::LoadCfg()
 {
 	mPlugMap.clear();
 	char szPlugIniPath[MAX_PATH] = {0};
-	sprintf(szPlugIniPath,"%s%s",mPlugDir.c_str(),PLUG_FILE);
+	sprintf(szPlugIniPath,"%s%s",mPlugDir,PLUG_FILE);
 
 	mPlugCnt = GetPrivateProfileIntA("total", "plug_num", 0, szPlugIniPath);
 

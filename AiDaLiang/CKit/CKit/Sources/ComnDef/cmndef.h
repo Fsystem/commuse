@@ -70,7 +70,7 @@
 	return clazz_pointer;\
 }
 
-typedef void* (*PFN_CreatePlugInterface)();
+typedef void* (WINAPI *PFN_CreatePlugInterface)();
 
 //-------------------------------------------------------------------------------
 // 网络管理接口

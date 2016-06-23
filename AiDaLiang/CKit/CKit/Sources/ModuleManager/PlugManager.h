@@ -57,10 +57,9 @@ public:
 
 private:
 	int											mPlugCnt;
-	std::string									mPlugDir;
-	std::string									mPlugIni;
-	std::map<std::string,PlugInfo>				mPlugMap;
-	
+	char										mPlugDir[MAX_PATH];
+	char										mPlugIni[MAX_PATH];
+
 private:
 	//static HANDLE   thread_handle_load_;
 	HANDLE mThreadLoad;

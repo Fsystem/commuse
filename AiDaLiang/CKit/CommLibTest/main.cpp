@@ -209,6 +209,8 @@ int WINAPI _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstance
 	LOGEVENA("asdasdasd");
 	DialogBox(hInstance,MAKEINTRESOURCE(IDD_DIALOG1),NULL,Dlg_Proc);
 
+	PlugManager::Instance().StopAllPlugin();
+
 	return 0;
 }
 

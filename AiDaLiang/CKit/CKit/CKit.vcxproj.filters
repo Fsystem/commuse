@@ -224,9 +224,6 @@
     <ClCompile Include="Sources\ToolHelper\zip.cpp">
       <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\ModuleManager\PlugManager.cpp">
-      <Filter>Sources\ModuleManager</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\ToolHelper\MemLoadDll.cpp">
       <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
@@ -235,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="Sources\ToolHelper\DigitSign.cpp">
       <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ModuleManager\PlugManager.cpp">
+      <Filter>Sources\ModuleManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

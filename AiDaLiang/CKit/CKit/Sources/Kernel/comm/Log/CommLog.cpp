@@ -90,6 +90,7 @@ namespace COMMUSE
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::LogEventW(wchar_t* format,...)
 	{
+		InitLogState();
 		if(_nLogState == 0) return;
 		USES_CONVERSION;
 
@@ -118,6 +119,7 @@ namespace COMMUSE
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::LogEventA(char* format,...)
 	{
+		InitLogState();
 		if(_nLogState == 0) return;
 
 		char tem[1024]={0};

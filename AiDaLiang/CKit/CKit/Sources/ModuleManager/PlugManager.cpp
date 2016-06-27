@@ -140,9 +140,8 @@ void PlugManager::LoadAllPlugin(IPluginParant* pSink)
 
 void PlugManager::StopAllPlugin()
 {
-	//WaitForSingleObject((HANDLE)JKThread<PlugManager>::Start(&PlugManager::FreePluginThread,this),INFINITE) ;
-	mSink = NULL;
-	FreePluginThread();
+	WaitForSingleObject((HANDLE)JKThread<PlugManager>::Start(&PlugManager::FreePluginThread,this),INFINITE) ;
+	//FreePluginThread();
 }
 
 bool PlugManager::IsPlugRunning()
@@ -177,6 +176,7 @@ void PlugManager::FreePluginThread()
 
 	mPlugMap.clear();
 	mLoadedAll = false;
+	mSink = NULL;
 }
 
 //宿主将消息投递给插件

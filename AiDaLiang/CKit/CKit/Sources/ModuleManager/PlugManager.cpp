@@ -64,16 +64,20 @@ BOOL PlugManager::LoadPlugin(LPCSTR szPlugName)
 
 BOOL PlugManager::LoadPlugin(PlugInfo& plugInfo)
 {
-	if (plugInfo.hModule) return TRUE;
+	//if (plugInfo.hModule) return TRUE;
 	
-	std::string sPlugFullPath = mPlugDir;
-	sPlugFullPath += "plug\\";
-	sPlugFullPath += plugInfo.szRelativePath;
-	if(plugInfo.szRelativePath[0] != 0) sPlugFullPath += "\\";
-	sPlugFullPath += plugInfo.szName;
+	if (plugInfo.hModule == NULL)
+	{
+		std::string sPlugFullPath = mPlugDir;
+		sPlugFullPath += "plug\\";
+		sPlugFullPath += plugInfo.szRelativePath;
+		if(plugInfo.szRelativePath[0] != 0) sPlugFullPath += "\\";
+		sPlugFullPath += plugInfo.szName;
 
-	plugInfo.hModule = ::LoadLibraryA(sPlugFullPath.c_str());
-	if (plugInfo.hModule == NULL ) return FALSE;
+		plugInfo.hModule = ::LoadLibraryA(sPlugFullPath.c_str());
+		if (plugInfo.hModule == NULL ) return FALSE;
+	}
+	
 
 	PFN_CreatePlugInterface fnCreateInterface = (PFN_CreatePlugInterface)GetProcAddress(plugInfo.hModule,PLUGIN_EXPORT_FUNCNAME);
 	if(fnCreateInterface) 
@@ -97,11 +101,11 @@ BOOL PlugManager::LoadPlugin(PlugInfo& plugInfo)
 FREELAB:
 	plugInfo.pPlugDelegate = NULL;
 
-	if (plugInfo.hModule)
-	{
-		::FreeLibrary(plugInfo.hModule);
-		plugInfo.hModule = NULL;
-	}
+	//if (plugInfo.hModule)
+	//{
+	//	::FreeLibrary(plugInfo.hModule);
+	//	plugInfo.hModule = NULL;
+	//}
 
 	return FALSE;
 }
@@ -124,11 +128,12 @@ void PlugManager::FreePlugin(PlugInfo& plugInfo)
 
 	plugInfo.pPlugDelegate = NULL;
 
-	if (plugInfo.hModule)
-	{
-		::FreeLibrary(plugInfo.hModule);
-		plugInfo.hModule = NULL;
-	}
+	//if (plugInfo.hModule)
+	//{
+	//	::FreeLibraryAndExitThread(plugInfo.hModule,0);
+	//	//::FreeLibrary(plugInfo.hModule);
+	//	plugInfo.hModule = NULL;
+	//}
 }
 
 void PlugManager::LoadAllPlugin(IPluginParant* pSink)
@@ -140,8 +145,8 @@ void PlugManager::LoadAllPlugin(IPluginParant* pSink)
 
 void PlugManager::StopAllPlugin()
 {
-	WaitForSingleObject((HANDLE)JKThread<PlugManager>::Start(&PlugManager::FreePluginThread,this),INFINITE) ;
-	//FreePluginThread();
+	//WaitForSingleObject((HANDLE)JKThread<PlugManager>::Start(&PlugManager::FreePluginThread,this),INFINITE) ;
+	FreePluginThread();
 }
 
 bool PlugManager::IsPlugRunning()

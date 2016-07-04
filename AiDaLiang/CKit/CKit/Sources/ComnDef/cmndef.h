@@ -59,12 +59,14 @@
 //-------------------------------------------------------------------------------
 #define  PLUGIN_EXPORT_FUNCNAME "CreatePlugInterface"
 
-#define  IMP_PLUGIN_EXPORT(classname,...) extern "C" __declspec(dllexport) void* CreatePlugInterface(){\
+#if _MSC_VER >= 1400
+#	define  IMP_PLUGIN_EXPORT(classname,...) extern "C" __declspec(dllexport) void* CreatePlugInterface(){\
 	static classname* pModuleInterface = NULL; if(pModuleInterface == NULL){\
 	pModuleInterface = new classname( ##__VA_ARGS__ );\
-	}\
-	return pModuleInterface;\
-}
+		}\
+		return pModuleInterface;\
+	}
+#endif
 
 #define  IMP_PLUGIN_EXPORT_EX(clazz_pointer) extern "C" __declspec(dllexport) void* CreatePlugInterface(){\
 	return clazz_pointer;\

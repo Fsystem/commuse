@@ -199,7 +199,7 @@ void PlugManager::OnHandleMessage(DWORD dwCmd,PVOID pData,int nLen)
 //插件将消息投递给宿主
 void PlugManager::SendMessageToParant(DWORD dwCmd,PVOID pData,int nLen)
 {
-	LOGEVENA("插件发消息了[%u]\n",dwCmd);
+	//LOGEVENA("插件发消息了[%u]\n",dwCmd);
 	if (mSink)
 	{
 		mSink->SendMessageToParant(dwCmd,pData,nLen);

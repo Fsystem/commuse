@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <io.h>
 #include <atlconv.h>
+#include <Mmsystem.h>
+#include <time.h>
 
 #include <WinSock.h>
 
@@ -11,6 +13,7 @@
 
 #pragma comment(lib,"psapi")
 #pragma comment(lib,"ws2_32.lib")
+#pragma comment(lib,"Winmm.lib")
 
 //-------------------------------------------------------------------------------
 //提升权限
@@ -172,6 +175,60 @@ DWORD SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue)
 	else Enable_redirect(*OldValue);
 
 	return 0;
+}
+
+void UnixTimeToFileTime(DWORD tmUnixTime, FILETIME& fileTime)  
+{  
+	//FILETIME starts from 1601-01-01 UTC, epoch from 1970- 01-01
+	ULARGE_INTEGER ull = {0};
+	ull.QuadPart = tmUnixTime * 10000000ULL + 116444736000000000ULL;  
+	fileTime.dwLowDateTime = ull.LowPart;  
+	fileTime.dwHighDateTime = ull.HighPart;  
+}  
+
+void FileTimeToUnixTime(DWORD& tmUnixTime, const FILETIME& fileTime) 
+{
+	//FILETIME starts from 1601-01-01 UTC, epoch from 1970- 01-01
+	ULARGE_INTEGER ull = { 0 };
+	ull.HighPart = fileTime.dwHighDateTime;
+	ull.LowPart = fileTime.dwLowDateTime;
+	tmUnixTime = (DWORD)((ull.QuadPart - 116444736000000000ULL) / 10000000ULL);
+}
+
+DWORD GetBootTime()
+{
+	DWORD startMSCount;//从开机到现在的毫秒数
+	startMSCount = timeGetTime();
+	time_t CurSysTime, BootSysTime;
+	time(&CurSysTime);
+	//将开机到现在的毫秒数转换为秒数，再用当前的时间减去，获得开机时间
+	BootSysTime = CurSysTime - startMSCount/1000;
+
+	return BootSysTime;
+}
+
+DWORD GetShutTime()
+{
+	HKEY hKey;
+	LONG lResult;
+	DWORD ShutdownTime = 0;
+	LPTSTR lpSubKey=TEXT("SYSTEM\\CurrentControlSet\\Control\\Windows");
+	lResult = RegOpenKeyEx(HKEY_LOCAL_MACHINE, lpSubKey, 0, KEY_READ, &hKey);
+
+	if (lResult != ERROR_SUCCESS)
+		return ShutdownTime;
+	FILETIME FileTime;
+	DWORD dwSize;
+	lResult = RegQueryValueEx(hKey, TEXT("ShutdownTime"), 
+		NULL, NULL, NULL, &dwSize);
+	if (lResult == ERROR_SUCCESS && dwSize==sizeof(FileTime))
+	{
+		lResult = RegQueryValueEx(hKey, TEXT("ShutdownTime"), NULL, 
+			NULL, (LPBYTE)&FileTime, &dwSize);
+		FileTimeToUnixTime(ShutdownTime,FileTime);
+	}
+	RegCloseKey(hKey);
+	return ShutdownTime;
 }
 
 //-------------------------------------------------------------------------------

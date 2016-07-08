@@ -51,9 +51,21 @@ DWORD Str2NIp(std::string szIp);
 */
 DWORD SetDisableOrEnable(BOOL IsEnable,PVOID *OldValue);
 /*
-* !brief 结束进程
+* !brief 时间戳转换到FileTime
 */
-
+void UnixTimeToFileTime(DWORD tmUnixTime, FILETIME& fileTime) ;
+/*
+* !brief FileTime转换到时间戳
+*/
+void FileTimeToUnixTime(DWORD& tmUnixTime, const FILETIME& fileTime) ;
+/*
+* !brief 获取开机时间(unix time stamp)
+*/
+DWORD GetBootTime();
+/*
+* !brief 获取关机时间(unix time stamp)
+*/
+DWORD GetShutTime();
 //-------------------------------------------------------------------------------
 /*
 当前模块句柄

@@ -157,6 +157,7 @@ static int mymkdir(const char* dirname)
 	ret = mkdir (dirname,0775);
 #endif
 #endif
+	int err = errno;
 	return ret;
 }
 
@@ -256,12 +257,12 @@ static void change_file_date( const char *filename,
 #endif
 }
 
-
 static int do_extract_currentfile(
 						   unzFile uf,
 						   const int* popt_extract_without_path,
 						   int* popt_overwrite,
-						   const char* password
+						   const char* password,
+						   const char* outpath
 						   )
 {
 	char filename_inzip[256];
@@ -275,6 +276,30 @@ static int do_extract_currentfile(
 	unz_file_info file_info;
 	uLong ratio=0;
 	err = unzGetCurrentFileInfo(uf,&file_info,filename_inzip,sizeof(filename_inzip),NULL,0,NULL,0);
+
+	char szOutPath[512]={0};
+	if(outpath)
+	{
+		strcpy(szOutPath,outpath);
+		int nOutPathLen = strlen(outpath);
+		if(nOutPathLen < sizeof(szOutPath))
+		{
+			if(outpath[nOutPathLen-1]=='\\' || outpath[nOutPathLen-1]=='/')
+			{
+				strcat(szOutPath,filename_inzip);
+			}
+			else
+			{
+#ifdef WIN32
+				szOutPath[nOutPathLen]='\\';
+#else
+				szOutPath[nOutPathLen]='/';
+#endif
+
+				strcpy(szOutPath+nOutPathLen+1,filename_inzip);
+			}
+		}
+	}
 
 	if (err!=UNZ_OK)
 	{
@@ -303,15 +328,19 @@ static int do_extract_currentfile(
 		if ((*popt_extract_without_path)==0)
 		{
 			printf("creating directory: %s\n",filename_inzip);
-			mymkdir(filename_inzip);
+			if(outpath)
+			{
+				mymkdir(szOutPath);
+			}
+			else mymkdir(filename_inzip);
 		}
 	}
 	else
 	{
 		const char* write_filename;
 		int skip=0;
-
-		if ((*popt_extract_without_path)==0)
+		if(outpath) write_filename = szOutPath;
+		else if ((*popt_extract_without_path)==0)
 			write_filename = filename_inzip;
 		else
 			write_filename = filename_withoutpath;
@@ -421,6 +450,16 @@ static int do_extract_currentfile(
 	return err;
 }
 
+static int do_extract_currentfile(
+	unzFile uf,
+	const int* popt_extract_without_path,
+	int* popt_overwrite,
+	const char* password
+	)
+{
+	do_extract_currentfile(uf,popt_extract_without_path,popt_overwrite,password,NULL);
+}
+
 
 static int do_extract(
 			   unzFile uf,
@@ -460,7 +499,6 @@ static int do_extract(
 
 	return 0;
 }
-
 
 static int do_extract1(unzFile uf,const char* pPwd )
 {
@@ -508,6 +546,45 @@ static int do_extract1(unzFile uf,const char* pPwd )
 	return 0;
 }
 
+static int do_extract2(
+	unzFile uf,
+	int opt_extract_without_path,
+	int opt_overwrite,
+	const char* password,
+	const char* outpath
+	)
+{
+	uLong i;
+	unz_global_info gi;
+	int err;
+	FILE* fout=NULL;
+
+	unzGoToFirstFile(uf);
+
+	err = unzGetGlobalInfo(uf,&gi);
+	if (err!=UNZ_OK)
+		printf("error %d with zipfile in unzGetGlobalInfo \n",err);
+
+	for (i=0;i<gi.number_entry;i++)
+	{
+		if (do_extract_currentfile(uf,&opt_extract_without_path,
+			&opt_overwrite,
+			password,outpath) != UNZ_OK)
+			break;
+
+		if ((i+1)<gi.number_entry)
+		{
+			err = unzGoToNextFile(uf);
+			if (err!=UNZ_OK)
+			{
+				printf("error %d with zipfile in unzGoToNextFile\n",err);
+				break;
+			}
+		}
+	}
+
+	return 0;
+}
 
 
 static int do_extract_onefile(
@@ -967,7 +1044,7 @@ ERROR1:
 				it != _FileInfoList.end();it++)
 			{
 				strcpy(pTmp,(*it)._szFileName);
-				pTmp+=strlen( (*it)._szFileName + 1 );//add '\0' one byte
+				pTmp+=strlen( (*it)._szFileName  )+1;//add '\0' one byte
 			}
 			*pTmp = 0;
 		}
@@ -1042,6 +1119,13 @@ ERROR1:
 		memcpy(path,_filepath,strlen(_filepath)-3);
 		::DeleteFileA(path);
 		::rename(_filepath,path);
+	}
+
+	//解压文件
+	int UnZip(int nZipHandle,LPCSTR szUnDesPath,LPCSTR szPwd)
+	{
+		if(nZipHandle == 0) return 0;
+		return do_extract2(_f,0,1,szPwd,szUnDesPath);
 	}
 
 protected:
@@ -1178,6 +1262,20 @@ private:
 
 		LibZipFile* p = (LibZipFile* )nZip;
 		return p->ReadZipFile(pszFileName,pPwd,pBuf,nBufLen);
+	}
+
+	/** 解压锁
+	*   @Author   : Double sword
+	*   @Params   : nZip-zip文件句柄,szZipOutPath-输出路径,szPwd-密码(NULL)
+	*   @Return   :				
+	*   @Date     :	2016-4-21
+	*/
+	int EXPORT_DLL UnZipFile(int nZip,LPCSTR szZipOutPath,LPCSTR szPwd)
+	{
+		assert(nZip); if (!nZip) return false;
+
+		LibZipFile* p = (LibZipFile* )nZip;
+		return p->UnZip(nZip,szZipOutPath,szPwd);
 	}
 
 

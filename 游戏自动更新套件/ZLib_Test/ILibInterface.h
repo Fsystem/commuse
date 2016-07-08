@@ -86,8 +86,13 @@ extern int GetZipFileSize(int nZip,char* pszFileName);
 */
 extern int ReadZipFile(int nZip,char* pszFileName,char* pPwd,void* pBuf,int nBufLen);
 
-
-
+/** ½âÑ¹Ëõ
+	*   @Author   : Double sword
+	*   @Params   : nZip-zipÎÄ¼þ¾ä±ú,szPwd-ÃÜÂë(NULL)
+	*   @Return   :				
+	*   @Date     :	2016-4-21
+	*/
+extern int UnZipFile(int nZip,LPCSTR szZipOutPath,LPCSTR szPwd);
 
 
 

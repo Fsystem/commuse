@@ -5,37 +5,81 @@
 #include <map>
 #include <algorithm>
 #include <regex>
-#include <string>
+#include <direct.h>
 
 #pragma comment(lib,"regex/lib/regex.lib")
 
 using namespace std;
+
 //-------------------------------------------------------------------------------
-#define RESULT_FILE_NAME "RET.TXT"
+char SearchIpAndPort::szAppPath[MAX_PATH]={0};
+char SearchIpAndPort::szErrorPath[MAX_PATH]={0};
 //-------------------------------------------------------------------------------
 SearchIpAndPort::SearchIpAndPort()
 {
-	char szPath[MAX_PATH]={0};
-	GetModuleFileNameA(NULL,szPath,MAX_PATH);
-	strrchr(szPath,'\\')[1]=0;
-	strcat(szPath,RESULT_FILE_NAME);
-	fp = fopen(szPath,"a");
+	if (szAppPath[0] == 0)
+	{
+		GetModuleFileNameA(NULL,szAppPath,MAX_PATH);
+		strrchr(szAppPath,'\\')[1]=0;
+
+		strncpy(szErrorPath,szAppPath,MAX_PATH);
+		strcat(szErrorPath,"error\\");
+	}
+	if(gAnalysisMode==0 || gAnalysisMode==1)
+		sprintf(szFileName,"%sRET%09d.TXT",szAppPath,gFileIndex);
+	else
+		sprintf(szFileName,"%sRETSingle.TXT",szAppPath);
+	fp = fopen(szFileName,"a");
+	//nErrorFileCount = 0;
+	nResultCnt = 0;
 }
 
 SearchIpAndPort::~SearchIpAndPort()
 {
-	fclose(fp);
+	if(fp){
+		fclose(fp);
+		fp = NULL;
+	}
+
+	if (nResultCnt == 0)
+	{
+		DeleteFileA(szFileName);
+	}
 }
 
-std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData,LPCSTR szKey)
+void SearchIpAndPort::AddKey(LPCSTR szKey)
+{
+	if( szKey== NULL) return;
+	sKeys.push_back(szKey);
+}
+
+bool SearchIpAndPort::ExistKey(LPCSTR szContent)
+{
+	if(szContent==NULL) return false;
+	std::string sContent = szContent;
+	bool bFind = false;
+	for (auto it = sKeys.begin(); it != sKeys.end() ; it++)
+	{
+		bFind = (stristr(szContent,it->c_str())!=NULL);
+		if(bFind) break;
+	}
+
+	return bFind;
+}
+
+std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData)
 {
 	std::vector<string> res;
 	std::map<string,int> mapRes,mapAnalysis;
 
-	if (szFile && szFileInnerFile&&szFileData && szKey)
+	//bool bKeywordAvalid = false;
+
+	static DWORD dwCur =0;
+	dwCur = GetTickCount();
+	if (szFile && szFileInnerFile&&szFileData )
 	{
-		WriteStringFile("%s\r\n",szFile);
-		WriteStringFile("\t%s\r\n",szFileInnerFile);
+		//WriteStringFile("%s\r\n",szFile);
+		//WriteStringFile("\t%s\r\n",szFileInnerFile);
 
 		std::string sFileData = szFileData;
 		std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
@@ -46,9 +90,9 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 
 		while(fin.getline(szLine,sizeof(szLine)-1))
 		{
-			if(szKey[0]!=0)
+			if(sKeys.size()>0)
 			{
-				if(stristr(szLine,szKey))
+				if(ExistKey(szLine))
 				{
 					size_t s_,snpos = std::string::npos;
 					std::string sTmp = szLine;
@@ -64,6 +108,8 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 							{
 								sMatch = sTmp.substr(0,s_);
 								mapRes[sMatch] = 0;
+
+								//bKeywordAvalid = true;
 							}
 						}
 
@@ -73,7 +119,7 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 					}
 				}
 			}
-			else
+			else //无关键字
 			{
 				size_t s_,snpos = std::string::npos;
 				std::string sTmp = szLine;
@@ -89,6 +135,8 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 						{
 							sMatch = sTmp.substr(0,s_);
 							mapRes[sMatch] = 0;
+
+							//bKeywordAvalid = true;
 						}
 					}
 
@@ -136,53 +184,36 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 				s_ = sUrl.find("/");
 				if(s_!=snpos) sUrl = sUrl.substr(0,s_);
 
-				std::replace(sUrl.begin(),sUrl.end(),':',' ');
+				//std::replace(sUrl.begin(),sUrl.end(),':',' ');
 
 				if(mapAnalysis.find(sUrl)==mapAnalysis.end())
 				{
 					mapAnalysis[sUrl] = 0;
-					WriteStringFile("\t\t%s\r\n",sUrl.c_str());
+					WriteStringFile("%s\r\n",sUrl.c_str());
+
+					sOringinUrl += "解析后:";
+					sUrl = sOringinUrl + sUrl;
+					res.push_back(sUrl);
 				}
-
-				sOringinUrl += "解析后:";
-				sUrl = sOringinUrl + sUrl;
-				res.push_back(sUrl);
-
-				
-
-				/*s_ = sUrl.find(":");
-				if (s_!=snpos)
-				{
-					sIp = sUrl.substr(0,s_);
-					sUrl = sUrl.substr(s_+1,snpos);
-					nPort = atoi(sUrl.c_str());
-				}
-				else
-				{
-					sIp = sUrl;
-				}*/
 			}
-
-			/*if (sIp.empty()==false)
-			{
-				std::string s = sIp;
-				if(nPort) {
-					s += " ";
-					s += std::to_string((LONGLONG)nPort);
-				}
-
-				res.push_back(s);
-			}*/
 		}
-
-		if(res.size()==0)
-		{
-			//MessageBoxA(NULL,"没有关键字部分内容，请重新输入关键字","提示",MB_OK);
-		}
-
-		
 	}
 
+	//拷贝错误文件到error文件夹下
+	if(res.size()==0)
+	{
+		_mkdir( szErrorPath);
+		char szFileName[MAX_PATH]={0};
+		strncat(szFileName,szErrorPath,MAX_PATH);
+		strncat(szFileName,strrchr(szFile,'\\')+1,MAX_PATH);
+		CopyFileA(szFile,szFileName,FALSE);
+		//nErrorFileCount++;
+	}
+
+	dwCur = GetTickCount()-dwCur;
+
+	nResultCnt += res.size();
+	
 	return res;
 }
 

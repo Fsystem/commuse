@@ -19,7 +19,34 @@
 
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
 
 #include "zlib/ILibInterface.h"
 #include "FunctionHelper.h"
+#include "JKThread.h"
 // TODO: 在此处引用程序需要的其他头文件
+
+extern HWND gMainHwnd;
+extern HWND gParantHwnd;
+extern int gFileIndex ;
+extern char gszZipFile[4096];
+extern char gszKeys[4096];
+extern int gAnalysisMode;
+
+struct IPC_Data 
+{
+	bool bProcessed;
+	int nResultCnt;
+	char szFile[MAX_PATH];
+	char szRetFile[MAX_PATH];
+};
+
+struct CreateAnalysisPath
+{
+	std::string sFile;
+	std::string sKey;
+};
+
+
+void SendResultNotify(LPCSTR szFile,LPCSTR szFileName,DWORD dwResultCnt);

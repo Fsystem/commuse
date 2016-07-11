@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FunctionHelper.h" />
+    <ClInclude Include="JKThread.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SearchIpAndPort.h" />
     <ClInclude Include="stdafx.h" />

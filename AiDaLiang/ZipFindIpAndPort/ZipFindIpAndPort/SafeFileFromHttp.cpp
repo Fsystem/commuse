@@ -1,0 +1,85 @@
+#include "stdafx.h"
+#include "SafeFileFromHttp.h"
+#include <fstream>
+
+static std::string sConfig;
+static std::string sLocalDownDir;
+static int nTotal;
+static int nCurCnt;
+
+int SaveFileFromHttp::GetTotal()
+{
+	return nTotal;
+}
+int SaveFileFromHttp::GetCurCnt()
+{
+	return nCurCnt;
+}
+bool SaveFileFromHttp::IsDownFinish()
+{
+	return nCurCnt == nTotal;
+}
+
+void SaveFileFromHttp::DownFromHttp(std::string sConfig_,std::string sLocalDownDir_)
+{
+	sConfig = sConfig_;
+	sLocalDownDir = sLocalDownDir_;
+	std::ifstream infile(sConfig.c_str(),std::ifstream::in);
+
+	nTotal = 0;
+	nCurCnt = 0;
+	
+	if (infile.is_open())
+	{
+		char szLine[1024];
+		while(infile.getline(szLine,sizeof(szLine)))
+		{
+			char* pData = new char[sizeof(szLine)];
+			strncpy(pData,szLine,sizeof(szLine));
+			HANDLE hThr = (HANDLE)JKThread<SaveFileFromHttp>::Start(&SaveFileFromHttp::DownThread,pData);
+			//if( WaitForSingleObject(hThr,6000) == WAIT_TIMEOUT)
+			//{
+			//	::TerminateThread(hThr,1);
+			//	CloseHandle(hThr);
+			//}
+
+			nTotal ++ ;
+		}
+	}
+	
+}
+
+void SaveFileFromHttp::DownThread(void* p)
+{
+	std::string sUrl = (char*)p;
+	delete p;
+	CCRC crc;
+	HttpDownFile httpDown;
+	auto fileData = httpDown.OpentUrl(sUrl);
+	std::string sData ;
+	sData.assign(fileData.begin(),fileData.end());
+	std::string sCrc = crc.GetCrcHexString(sData.c_str(),sData.size());
+
+	std::string sZipFile = sLocalDownDir;
+	sZipFile += sCrc;
+	sZipFile += ".zip";
+
+	int nZip = OpenZip(sZipFile.c_str(),NULL);
+	if (nZip)
+	{
+		if ( sData.size()>0)
+		{
+			AddUpdateFile(nZip,"web.html",(char*)sData.c_str(),sData.size());
+			UpdateZipFile(nZip);
+		}
+
+		CloseZip(nZip);
+	}
+
+	InterlockedExchangeAdd((long*)&nCurCnt,1);
+
+	if (nCurCnt == nTotal)
+	{
+		PostMessage(gMainHwnd,WM_USER+1000,0,0);
+	}
+}

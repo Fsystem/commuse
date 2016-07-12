@@ -15,6 +15,7 @@ public:
 	int GetRetCnt(){return nResultCnt;}
 protected:
 	void WriteStringFile(LPCSTR format,...);
+	bool IsUrl(std::string sTxtUrl);
 private:
 	//std::string sFileName;
 	FILE* fp;

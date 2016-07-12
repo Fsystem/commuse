@@ -45,6 +45,18 @@
     <ClInclude Include="JKThread.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="HttpDownFile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SafeFileFromHttp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CRC.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UrlCode.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +69,18 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SearchIpAndPort.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="HttpDownFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SafeFileFromHttp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CRC.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UrlCode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,8 +19,12 @@
 std::string g_sLog;
 static std::list<IPC_Data> listIpcDatas;
 static bool bFinish = false;
+static char szAppDir[MAX_PATH]={0};
 static char szRetFile[MAX_PATH]={0};
 static DWORD dwCastTime = 0;
+static char szDownZipDir[MAX_PATH]={0};
+static char szDownZipConfig[MAX_PATH]={0};
+static SaveFileFromHttp gSafeFile;
 
 extern HWND gMainHwnd=NULL;
 extern HWND gParantHwnd=NULL;
@@ -30,6 +34,8 @@ extern char gszKeys[4096] = {0};
 extern int gAnalysisMode = -1; //0多进程 1多线程 2单进程单线程
 //-------------------------------------------------------------------------------
 #define RESULT_FILE_NAME "RET.TXT"
+#define DOWN_ZIP_DIR "DownZip\\"
+#define DOWN_ZIP_CONFIG "DownUrl.txt"
 //-------------------------------------------------------------------------------
 
 void ProcessResultThread(void* p)
@@ -73,17 +79,23 @@ void ProcessResultThread(void* p)
 				SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,50+(++nPos)*50/nMax,0);
 			}
 
+			SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,100,0);
+
 			TCHAR szContent[4096];
 			Edit_GetText(GetDlgItem(gMainHwnd,IDC_EDIT_RESULT),szContent,_countof(szContent));
 			std::string sTmp = T2AString(szContent);
-			sTmp += "耗时:";
+			sTmp += "\r\n耗时:";
 			sTmp += std::to_string((LONGLONG)(GetTickCount()-dwCastTime));
 			sTmp += "ms\r\n";
-			sTmp += "全部完成[结果:RET.TXT]\r\n";
+			sTmp += "全部完成,得到的结果数:[";
+			sTmp += std::to_string((LONGLONG)nMax);
+			sTmp += "][结果:RET.TXT]\r\n";
 	
 			Edit_SetText(GetDlgItem(gMainHwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
 
 			MessageBoxA(NULL,"文件解析和写入完成,请查看RET.TXT。\r\n建议每次新的操作前删除所有TXT文件","提示",MB_OK);
+
+			EnableWindow(GetDlgItem(gMainHwnd,IDOK),TRUE);
 
 			listIpcDatas.clear();
 
@@ -103,10 +115,14 @@ BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 	SendMessage(GetDlgItem(hwnd,IDC_PROGRESS_RESULT),PBM_SETRANGE32,0,100);
 	SendMessage(GetDlgItem(hwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,0,0);
 
-	szRetFile[MAX_PATH-1] = 0;
-	GetModuleFileNameA(NULL,szRetFile,MAX_PATH-1);
-	strrchr(szRetFile,'\\')[1] = 0;
-	strcat(szRetFile,RESULT_FILE_NAME);
+	Button_SetCheck(GetDlgItem(hwnd,IDC_RADIO_LOCALFILE),TRUE);
+
+	szAppDir[MAX_PATH-1] = 0;
+	GetModuleFileNameA(NULL,szAppDir,MAX_PATH-1);
+	strrchr(szAppDir,'\\')[1] = 0;
+	sprintf(szRetFile,"%s%s",szAppDir,RESULT_FILE_NAME);
+	sprintf(szDownZipDir,"%s%s",szAppDir,DOWN_ZIP_DIR);
+	sprintf(szDownZipConfig,"%s%s",szAppDir,DOWN_ZIP_CONFIG);
 
 	_beginthread(ProcessResultThread,0,0);
 	return TRUE;
@@ -164,7 +180,8 @@ void AnalysisIpAndPortZipPravite(LPCSTR pszZipFile,LPCSTR pszKey)
 			while(*pFileName)
 			{
 				int nSize = GetZipFileSize(nZip,pFileName);
-				char* pData = new char[nSize];
+				char* pData = new char[nSize+1];
+				pData[nSize] = 0;
 				ReadZipFile(nZip,pFileName,NULL,pData,nSize);
 
 				auto list = s.GetIpAndport(pszZipFile,pFileName,pData);
@@ -188,7 +205,7 @@ void AnalysisIpAndPortZipPravite(LPCSTR pszZipFile,LPCSTR pszKey)
 			CloseZip(nZip,false);
 
 			SendResultNotify(pszZipFile,s.GetRetFileName(),s.GetRetCnt());
-
+			
 			return;
 		}
 
@@ -198,7 +215,7 @@ void AnalysisIpAndPortZipPravite(LPCSTR pszZipFile,LPCSTR pszKey)
 	SendResultNotify(0,0,0);
 }
 
-void AnalysisIpAndPortZipThread(void* p)
+void AnalysisIpAndPortZipMultiThread(void* p)
 {
 	char szThd[2][sizeof(gszKeys)];
 	char** pszThd = (char**)p;
@@ -213,12 +230,40 @@ void AnalysisIpAndPortZipThread(void* p)
 	_endthread();
 }
 
+void AnalysisIpAndPortZipMultiProcess(LPCSTR pszZipFile,LPCSTR pszKey)
+{
+	//SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,listIpcDatas.size()*100/gFileIndex,0);
+
+	char szExe[MAX_PATH],szParam[MAX_PATH];
+	GetModuleFileNameA(NULL,szExe,MAX_PATH);
+	memset(szParam,0,sizeof(szParam));
+	_snprintf(szParam,MAX_PATH-1,"%s %u,%d,%u,%s,%s",szExe,gMainHwnd,gAnalysisMode,gFileIndex,pszZipFile,pszKey);
+	STARTUPINFOA si;
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory( &si, sizeof(si) );
+	si.cb = sizeof(si);
+	ZeroMemory( &pi, sizeof(pi) );
+
+	if( ::CreateProcessA(NULL,szParam,NULL,NULL,FALSE,CREATE_NO_WINDOW,NULL,NULL,&si,&pi) )
+	{
+		// Wait until child process exits.
+		//WaitForSingleObject( pi.hProcess, INFINITE );
+
+		// Close process and thread handles. 
+		CloseHandle( pi.hProcess );
+		CloseHandle( pi.hThread );
+
+	}
+
+}
+
 void AnalysisIpAndPortZip(LPCSTR pszZipFile,LPCSTR pszKey)
 {
 	//g_sLog += pszZipFile;
 	//g_sLog += "\r\n";
 	bool bProcessed = false;
-	gFileIndex ++;
+	InterlockedExchangeAdd((long*)&gFileIndex,1);
 
 	if (gMainHwnd)
 	{
@@ -229,33 +274,10 @@ void AnalysisIpAndPortZip(LPCSTR pszZipFile,LPCSTR pszKey)
 		sTmp += " 加入分析>>>>>>>>>>>\r\n";
 		Edit_SetText(GetDlgItem(gMainHwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
 
-		//SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,listIpcDatas.size()*100/gFileIndex,0);
 		if (gAnalysisMode == 0)
 		{
-			char szExe[MAX_PATH],szParam[MAX_PATH];
-			GetModuleFileNameA(NULL,szExe,MAX_PATH);
-			memset(szParam,0,sizeof(szParam));
-			_snprintf(szParam,MAX_PATH-1,"%s %u,%d,%u,%s,%s",szExe,gMainHwnd,gAnalysisMode,gFileIndex,pszZipFile,pszKey);
-			STARTUPINFOA si;
-			PROCESS_INFORMATION pi;
-
-			ZeroMemory( &si, sizeof(si) );
-			si.cb = sizeof(si);
-			ZeroMemory( &pi, sizeof(pi) );
-
-			if( ::CreateProcessA(NULL,szParam,NULL,NULL,FALSE,CREATE_NO_WINDOW,NULL,NULL,&si,&pi) )
-			{
-				// Wait until child process exits.
-				//WaitForSingleObject( pi.hProcess, INFINITE );
-
-				// Close process and thread handles. 
-				CloseHandle( pi.hProcess );
-				CloseHandle( pi.hThread );
-
-			}
-
+			AnalysisIpAndPortZipMultiProcess(pszZipFile,pszKey);
 			bProcessed = true;
-
 		}
 		else if (gAnalysisMode == 1)
 		{
@@ -265,12 +287,15 @@ void AnalysisIpAndPortZip(LPCSTR pszZipFile,LPCSTR pszKey)
 			szThd[1] = new char[sizeof(gszKeys)];
 			strncpy(szThd[0],pszZipFile,sizeof(gszKeys));
 			strncpy(szThd[1],pszKey,sizeof(gszKeys));
-			_beginthread(AnalysisIpAndPortZipThread,0,szThd);
+			_beginthread(AnalysisIpAndPortZipMultiThread,0,szThd);
 			bProcessed = true;
 		}
 	}
 
-	if (bProcessed==false) AnalysisIpAndPortZipPravite(pszZipFile,pszKey);
+	if (bProcessed==false) 
+	{
+		AnalysisIpAndPortZipPravite(pszZipFile,pszKey);
+	}
 }
 
 void AnalysisIpAndPortDir(LPCSTR pszPath,LPCSTR pszKey)
@@ -328,6 +353,8 @@ void AnalysisIpAndPortThread(void* p)
 	{
 		AnalysisIpAndPortZip(sFile.c_str(),sKey.c_str());
 	}
+
+	if(gAnalysisMode == 2)bFinish = true;
 
 	_endthread();
 }
@@ -395,9 +422,30 @@ LRESULT Cls_OnCopyData(HWND hwnd,HWND hRemoteHwnd,PCOPYDATASTRUCT pCopyData)
 	sTmp += data.szFile;
 	sTmp += " 完成<<<<<<<<<<\r\n";
 	Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
-	bFinish = (listIpcDatas.size()==gFileIndex);
+	if(gAnalysisMode!=2) bFinish = (listIpcDatas.size()==gFileIndex);
 
 	return 0L;
+}
+
+void OnSelFileSource(HWND hwnd, int id, HWND hwndCtl)
+{
+	switch(id)
+	{
+	case IDC_RADIO_LOCALFILE:
+		{
+			Edit_Enable(GetDlgItem(hwnd,IDC_EDIT_PATH),TRUE);
+			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_PATH),TEXT(""));
+			break;
+		}
+	case IDC_RADIO_DOWNFILE:
+		{
+			Edit_Enable(GetDlgItem(hwnd,IDC_EDIT_PATH),FALSE);
+			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_PATH),A2TString(szDownZipDir).c_str());
+			break;
+		}
+	
+
+	}
 }
 
 void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
@@ -406,6 +454,22 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 	{
 	case IDOK:
 		{
+			if (Button_GetCheck( GetDlgItem(hwnd,IDC_RADIO_DOWNFILE)) == TRUE )
+			{
+				_mkdir(szDownZipDir);
+				
+				gSafeFile.DownFromHttp(szDownZipConfig,szDownZipDir);
+				::SetTimer(hwnd,1,1000,NULL);
+				EnableWindow(hwnd,FALSE);
+
+				TCHAR szContent[4096];
+				Edit_GetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),szContent,_countof(szContent));
+				std::string sTmp = T2AString(szContent);
+				sTmp = "开始下载文件\r\n";
+				Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
+				return;
+			}
+
 			bFinish = false;
 			gFileIndex = 0;
 			dwCastTime = GetTickCount();
@@ -439,6 +503,8 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 			
 			AnalysisIpAndPort(T2AString(szFile).c_str(),T2AString(szKey).c_str());
 
+			EnableWindow(GetDlgItem(hwnd,IDOK),FALSE);
+
 			break;
 		}
 	case IDCANCEL:
@@ -449,6 +515,12 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 	case IDC_BN_CLEAR:
 		{
 			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),TEXT(""));
+			break;
+		}
+	case IDC_RADIO_LOCALFILE:
+	case IDC_RADIO_DOWNFILE:
+		{
+			OnSelFileSource(hwnd,id,hwndCtl);
 			break;
 		}
 	}
@@ -467,6 +539,30 @@ INT_PTR CALLBACK DialogProc(
 		HANDLE_MSG(hwndDlg,WM_COMMAND,Cls_OnCommand);  return TRUE;
 		HANDLE_MSG(hwndDlg,WM_DROPFILES,Cls_OnDropFiles); return TRUE;
 		HANDLE_MSG(hwndDlg,WM_COPYDATA,Cls_OnCopyData);return TRUE;
+	case MSG_DOWN_FINISH:
+		{
+			EnableWindow(hwndDlg,TRUE);
+			Button_SetCheck( GetDlgItem(hwndDlg,IDC_RADIO_LOCALFILE),TRUE) ;
+			Button_SetCheck( GetDlgItem(hwndDlg,IDC_RADIO_DOWNFILE),FALSE) ;
+			PostMessage(hwndDlg,WM_COMMAND,IDOK,0);
+			KillTimer(hwndDlg,1);
+
+			TCHAR szContent[4096];
+			Edit_GetText(GetDlgItem(hwndDlg,IDC_EDIT_RESULT),szContent,_countof(szContent));
+			std::string sTmp = T2AString(szContent);
+			sTmp = "完成下载文件,准备开始分析\r\n";
+			Edit_SetText(GetDlgItem(hwndDlg,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
+
+			return TRUE;
+		}
+	case WM_TIMER:
+		{
+			if(wParam == 1)
+			{
+				SendMessage(GetDlgItem(hwndDlg,IDC_PROGRESS_RESULT),PBM_SETPOS,gSafeFile.GetCurCnt()*100/gSafeFile.GetTotal(),0);
+			}
+			break;
+		}
 	}
 
 	return 0L;
@@ -478,6 +574,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
+	std::string sUrl = "我哎你.com";
+	sUrl = urlencode(sUrl);
+	sUrl = urldecode(sUrl);
+	sUrl = URLEncode(sUrl);
+	sUrl = URLDecode(sUrl);
 	//MessageBox(NULL,lpCmdLine,NULL,MB_OK);
 	sscanf(T2AString(lpCmdLine).c_str(),"%u,%d,%u,%[^,],%s",&gParantHwnd,&gAnalysisMode,&gFileIndex,gszZipFile,gszKeys);
 	if (gParantHwnd)

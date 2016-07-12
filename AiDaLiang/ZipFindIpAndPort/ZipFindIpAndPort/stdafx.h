@@ -22,9 +22,16 @@
 #include <list>
 #include <map>
 
+#include <assert.h>
+#include <direct.h>
+
 #include "zlib/ILibInterface.h"
 #include "FunctionHelper.h"
 #include "JKThread.h"
+#include "CRC.h"
+#include "UrlCode.h"
+#include "HttpDownFile.h"
+#include "SafeFileFromHttp.h"
 // TODO: 在此处引用程序需要的其他头文件
 
 extern HWND gMainHwnd;
@@ -33,6 +40,8 @@ extern int gFileIndex ;
 extern char gszZipFile[4096];
 extern char gszKeys[4096];
 extern int gAnalysisMode;
+
+#define MSG_DOWN_FINISH WM_USER+1000
 
 struct IPC_Data 
 {

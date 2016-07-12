@@ -14,6 +14,7 @@ using namespace std;
 //-------------------------------------------------------------------------------
 char SearchIpAndPort::szAppPath[MAX_PATH]={0};
 char SearchIpAndPort::szErrorPath[MAX_PATH]={0};
+char cbInsteadSpace='|';
 //-------------------------------------------------------------------------------
 SearchIpAndPort::SearchIpAndPort()
 {
@@ -49,7 +50,7 @@ SearchIpAndPort::~SearchIpAndPort()
 
 void SearchIpAndPort::AddKey(LPCSTR szKey)
 {
-	if( szKey== NULL) return;
+	if( szKey== NULL || szKey[0] == 0) return;
 	sKeys.push_back(szKey);
 }
 
@@ -83,7 +84,8 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 
 		std::string sFileData = szFileData;
 		std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
-		std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e==' ';});
+		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e==' ';});
+		std::replace(sFileData.begin(),sFileData.end(),' ',cbInsteadSpace);
 		std::istrstream fin(sFileData.c_str());
 		char szLine[4096*10];
 		std::string sMatch;
@@ -104,6 +106,8 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 							char chFind = sTmp[s_+5];
 							sTmp = sTmp.substr(s_+6,snpos);
 							s_ = sTmp.find(chFind);
+							size_t s_1 = sTmp.find(cbInsteadSpace);
+							if (s_1!=snpos && s_1<s_) s_ = s_1;
 							if(s_!=snpos)
 							{
 								sMatch = sTmp.substr(0,s_);
@@ -131,6 +135,8 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 						char chFind = sTmp[s_+5];
 						sTmp = sTmp.substr(s_+6,snpos);
 						s_ = sTmp.find(chFind);
+						size_t s_1 = sTmp.find(cbInsteadSpace);
+						if (s_1!=snpos && s_1<s_) s_ = s_1;
 						if(s_!=snpos)
 						{
 							sMatch = sTmp.substr(0,s_);
@@ -156,6 +162,7 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 			size_t s_ = sUrl.find("?"),snpos = std::string::npos;
 			if (s_ != snpos)
 			{
+				size_t s_1 = s_;
 				sUrlParam = sUrl.substr(s_,snpos);
 				int nAdd = 3;
 				s_ = sUrlParam.find("://");
@@ -173,16 +180,52 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 					}
 					sUrl = sUrlParam;
 				}
+				else//删除？之后无用参数
+				{
+					sUrl = sUrl.substr(0,s_1);
+				}
 			}
 
 			if (sUrl.empty() == false && sOringinUrl.find("://")!=snpos)
 			{
+				sUrl = urldecode(sUrl);
 				//去除html 超链接 自己的
 				s_ = sUrl.find("://");
 				if(s_!=snpos) sUrl = sUrl.substr(s_+3,snpos);
 				//去除路径部分
 				s_ = sUrl.find("/");
 				if(s_!=snpos) sUrl = sUrl.substr(0,s_);
+
+				s_ = sUrl.find(".");
+				if(s_==snpos) continue;
+
+				std::string sStart = sUrl;
+				bool bFinded = false;
+				while((s_=sStart.find("=")) != snpos)
+				{
+					std::string sOld = sStart.substr(0,s_);
+					if(IsUrl(sOld)) {
+						sUrl = sOld;
+						bFinded = true;
+						break;
+					}
+					sStart = sStart.substr(s_+1,snpos);
+				}
+
+				if(bFinded == false) sUrl = sStart;
+
+				if(IsUrl(sUrl)==false) continue;
+
+				//删除后面非url字符，如逗号等
+				auto itFinded = std::find_if(sUrl.begin(),sUrl.end(),[](char c)->bool{
+					return c == ',' || c == '，' || c == '\'' || c == '\"';
+				});
+
+				if (itFinded!=sUrl.end())
+				{
+					sUrl = sUrl.substr(0,itFinded-sUrl.begin());
+					//sUrl.erase(itFinded);
+				}
 
 				//std::replace(sUrl.begin(),sUrl.end(),':',' ');
 
@@ -229,6 +272,29 @@ void SearchIpAndPort::WriteStringFile(LPCSTR format,...)
 		fwrite(szBuffer,1,strlen(szBuffer),fp);
 		fflush(fp);
 	}
+}
+
+bool SearchIpAndPort::IsUrl(std::string sTxtUrl)
+{
+	char* filterExt[]={".com",".cn",".org",".wang",".cc",".xin",".net",".pub",".ink",".info",".xyz",".win",};
+	for (int i=0;i<_countof(filterExt);i++)
+	{
+		if(stristr(sTxtUrl.c_str(),filterExt[i])) return true;
+	}
+
+	int nC = 0;
+	for (auto it = sTxtUrl.begin();it != sTxtUrl.end();it++)
+	{
+		if (*it == '.')
+		{
+			if (++nC >= 3)
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 

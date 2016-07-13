@@ -184,7 +184,8 @@ void AnalysisIpAndPortZipPravite(LPCSTR pszZipFile,LPCSTR pszKey)
 				pData[nSize] = 0;
 				ReadZipFile(nZip,pFileName,NULL,pData,nSize);
 
-				auto list = s.GetIpAndport(pszZipFile,pFileName,pData);
+				//auto list = s.GetIpAndport(pszZipFile,pFileName,pData);
+				auto list = s.GetIpAndportRegex(pszZipFile,pFileName,pData);
 				//int nIndex = ListBox_GetCount(GetDlgItem(hwnd,IDC_LIST_IP_PORT));
 				//g_sLog += "\t";
 				//g_sLog += pFileName;

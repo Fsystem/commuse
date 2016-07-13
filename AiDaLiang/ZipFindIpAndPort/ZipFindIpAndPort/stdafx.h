@@ -21,15 +21,24 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <strstream>
+#include <algorithm>
+#include <iterator>
 
 #include <assert.h>
 #include <direct.h>
+
+#include <boost/regex.hpp>
 
 #include "zlib/ILibInterface.h"
 #include "FunctionHelper.h"
 #include "JKThread.h"
 #include "CRC.h"
 #include "UrlCode.h"
+
+#include "RegexOpt.h"
+
+
 #include "HttpDownFile.h"
 #include "SafeFileFromHttp.h"
 // TODO: 在此处引用程序需要的其他头文件

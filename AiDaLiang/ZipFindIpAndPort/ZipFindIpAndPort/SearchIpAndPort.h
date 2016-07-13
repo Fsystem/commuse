@@ -8,6 +8,7 @@ public:
 	SearchIpAndPort();
 	~SearchIpAndPort();
 	std::vector<std::string> GetIpAndport(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData);
+	std::vector<std::string> GetIpAndportRegex(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData);
 	void AddKey(LPCSTR szKey);
 	bool ExistKey(LPCSTR szContent);
 

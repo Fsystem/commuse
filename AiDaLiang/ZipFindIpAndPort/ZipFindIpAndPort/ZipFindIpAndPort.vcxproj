@@ -50,11 +50,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>E:\working\3rdLib\boost_1_61_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>zlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>zlib;E:\working\3rdLib\boost_1_61_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -66,13 +67,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>E:\working\3rdLib\boost_1_61_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>zlib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>zlib;E:\working\3rdLib\boost_1_61_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -85,6 +87,7 @@
     <ClInclude Include="FunctionHelper.h" />
     <ClInclude Include="HttpDownFile.h" />
     <ClInclude Include="JKThread.h" />
+    <ClInclude Include="RegexOpt.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SafeFileFromHttp.h" />
     <ClInclude Include="SearchIpAndPort.h" />
@@ -97,6 +100,7 @@
     <ClCompile Include="CRC.cpp" />
     <ClCompile Include="FunctionHelper.cpp" />
     <ClCompile Include="HttpDownFile.cpp" />
+    <ClCompile Include="RegexOpt.cpp" />
     <ClCompile Include="SafeFileFromHttp.cpp" />
     <ClCompile Include="SearchIpAndPort.cpp" />
     <ClCompile Include="stdafx.cpp">

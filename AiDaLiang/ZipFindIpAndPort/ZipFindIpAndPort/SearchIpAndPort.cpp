@@ -1,13 +1,6 @@
 #include "stdafx.h"
-#include "regex/include/regex.h"
 #include "SearchIpAndPort.h"
-#include <strstream>
-#include <map>
-#include <algorithm>
-#include <regex>
-#include <direct.h>
 
-#pragma comment(lib,"regex/lib/regex.lib")
 
 using namespace std;
 
@@ -257,6 +250,114 @@ std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFile,LPCSTR szFi
 
 	nResultCnt += res.size();
 	
+	return res;
+}
+
+std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData)
+{
+	std::vector<string> res;
+	std::map<string,int> mapRes,mapAnalysis;
+
+	static DWORD dwCur =0;
+	dwCur = GetTickCount();
+	if (szFile && szFileInnerFile&&szFileData )
+	{
+		std::string sAherfPattern = "href[/s]*=[^\\s]+\\s";//获取超链正则
+		std::string sAherfPattern1 = "(\'|\")https?://\\w+\\.\\w+(\\.\\w+)*(:\\d{2,5})?(\'|\")";
+		std::string sUrlParttrn = "(//|=)\\w+\\.\\w+(\\.{0,1}\\w)*(:{0,1}\\d{2,5})?(/|&)?";//需要去除//，/,&,",',=,' '
+
+		std::string sFileData = szFileData;
+		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
+		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e==' ';});
+		//std::replace(sFileData.begin(),sFileData.end(),' ',cbInsteadSpace);
+		std::istrstream fin(sFileData.c_str());
+		char szLine[4096*10];
+		std::string sMatch;
+
+		if(sKeys.size()>0)
+		{
+			while(fin.getline(szLine,sizeof(szLine)-1))
+			{
+				if(ExistKey(szLine))
+				{
+					RegOpt ro;
+					std::list<std::string> vecResHerf;
+					auto vecResHerf0 = ro.GetRegexResult(sAherfPattern,szLine);
+					auto vecResHerf1 = ro.GetRegexResult(sAherfPattern1,szLine);
+
+					std::copy(vecResHerf0.begin(),vecResHerf0.end(),std::back_inserter(vecResHerf));
+					std::copy(vecResHerf1.begin(),vecResHerf1.end(),std::back_inserter(vecResHerf));
+
+					for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
+					{
+						if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
+						mapAnalysis[*itVecRes] = 0;
+
+						auto vecUrl = ro.GetRegexResult(sUrlParttrn,*itVecRes);
+						if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
+						for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
+
+							auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
+								return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\');
+							} );
+							sElem.erase(itErase,sElem.end());
+							mapRes[sElem] = 0;
+						});
+					}
+				}
+			}
+		}
+		else //无关键字
+		{
+			RegOpt ro;
+			std::list<std::string> vecResHerf;
+			auto vecResHerf0 = ro.GetRegexResult(sAherfPattern,sFileData);
+			auto vecResHerf1 = ro.GetRegexResult(sAherfPattern1,sFileData);
+
+			std::copy(vecResHerf0.begin(),vecResHerf0.end(),std::back_inserter(vecResHerf));
+			std::copy(vecResHerf1.begin(),vecResHerf1.end(),std::back_inserter(vecResHerf));
+			
+			//vecResHerf.insert(vecResHerf.end(),ro.GetRegexResult(sAherfPattern1,sFileData));
+			for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
+			{
+				if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
+				mapAnalysis[*itVecRes] = 0;
+				
+				auto vecUrl = ro.GetRegexResult(sUrlParttrn,*itVecRes);
+				if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
+				for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
+
+					auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
+						return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\');
+					} );
+					sElem.erase(itErase,sElem.end());
+					mapRes[sElem] = 0;
+				});
+			}
+		}
+	}
+
+	for (auto itMap = mapRes.begin();itMap!=mapRes.end();itMap++)
+	{
+		res.push_back(itMap->first);
+		WriteStringFile("%s\r\n",itMap->first.c_str());
+	}
+
+	//拷贝错误文件到error文件夹下
+	if(res.size()==0)
+	{
+		_mkdir( szErrorPath);
+		char szFileName[MAX_PATH]={0};
+		strncat(szFileName,szErrorPath,MAX_PATH);
+		strncat(szFileName,strrchr(szFile,'\\')+1,MAX_PATH);
+		CopyFileA(szFile,szFileName,FALSE);
+		//nErrorFileCount++;
+	}
+
+	dwCur = GetTickCount()-dwCur;
+
+	nResultCnt += res.size();
+
 	return res;
 }
 

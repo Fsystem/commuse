@@ -264,7 +264,7 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 	{
 		std::string sAherfPattern = "href[/s]*=[^\\s]+\\s";//获取超链正则
 		std::string sAherfPattern1 = "(\'|\")https?://\\w+\\.\\w+(\\.\\w+)*(:\\d{2,5})?(\'|\")";
-		std::string sUrlParttrn = "(//|=)(\\w+-?\\w+)+\\.(\\w+-?\\w+)+(\\.{0,1}(\\w+-?\\w+))*(:{0,1}\\d{2,5})?(/|&|\\?)?";//需要去除//，/,\,&,",',=,' '
+		std::string sUrlParttrn = "(//|=)(\\w+-?(\\w+)?)+\\.(\\w+-?(\\w+)?)+(\\.{0,1}(\\w+-?(\\w+)?))*(:{0,1}\\d{2,5})?(/|&|\\?)?";//需要去除//，/,\,&,",',=,' '
 
 		std::string sFileData = szFileData;
 		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
@@ -322,10 +322,7 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 				if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
 				mapAnalysis[*itVecRes] = 0;
 				std::string sUrlDecode = URLDecode(*itVecRes);
-				if (sUrlDecode.find("liaskja-dkfjs.dongwoshixia")!=-1)
-				{
-					assert(false);
-				}
+				
 				auto vecUrl = ro.GetRegexResult(sUrlParttrn,sUrlDecode);
 				if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
 				for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){

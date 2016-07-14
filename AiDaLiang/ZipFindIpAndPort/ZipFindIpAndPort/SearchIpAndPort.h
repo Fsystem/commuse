@@ -17,6 +17,10 @@ public:
 protected:
 	void WriteStringFile(LPCSTR format,...);
 	bool IsUrl(std::string sTxtUrl);
+	void ParseUrlRegex(std::string szContent, std::vector<std::string>& sAhrefPatterns
+		,std::string& sUrlPartten
+		,std::map<std::string,int>& mapAnalysis
+		,std::map<std::string,int>& mapRes);
 private:
 	//std::string sFileName;
 	FILE* fp;

@@ -366,6 +366,7 @@ void AnalysisIpAndPort(LPCSTR szFile,LPCSTR szKey)
 
 	if(sPath.empty()) {
 		MessageBoxA(NULL,"请提供zip文件","提示",MB_OK);
+		EnableWindow(GetDlgItem(gMainHwnd,IDOK),TRUE);
 		return;
 	}
 
@@ -373,6 +374,7 @@ void AnalysisIpAndPort(LPCSTR szFile,LPCSTR szKey)
 	{
 		if (MessageBoxA(NULL,"您确认要进行无关键字全局搜索吗？\r\n全局搜索可能结果不准确。","温馨提示",MB_YESNO)==IDNO)
 		{
+			EnableWindow(GetDlgItem(gMainHwnd,IDOK),TRUE);
 			return;
 		}
 	}
@@ -489,6 +491,8 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 			sTmp += "]\r\n==============================================\r\n";
 			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
 
+			EnableWindow(GetDlgItem(hwnd,IDOK),FALSE);
+
 			if (Button_GetCheck(GetDlgItem(hwnd,IDC_RADIO_PROCESS)) == TRUE)
 			{
 				gAnalysisMode = 0;
@@ -503,8 +507,6 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 			}
 			
 			AnalysisIpAndPort(T2AString(szFile).c_str(),T2AString(szKey).c_str());
-
-			EnableWindow(GetDlgItem(hwnd,IDOK),FALSE);
 
 			break;
 		}
@@ -577,9 +579,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	std::string sUrl = "我哎你.com";
 	sUrl = urlencode(sUrl);
-	sUrl = urldecode(sUrl);
+	std::string sUrl1 = "%31%39%36%2e%73%68%75%61%69%62%61%62%79%2e%63%6f%6d";
+	sUrl = urldecode(sUrl1);
 	sUrl = URLEncode(sUrl);
-	sUrl = URLDecode(sUrl);
+	sUrl = URLDecode(sUrl1);
 	//MessageBox(NULL,lpCmdLine,NULL,MB_OK);
 	sscanf(T2AString(lpCmdLine).c_str(),"%u,%d,%u,%[^,],%s",&gParantHwnd,&gAnalysisMode,&gFileIndex,gszZipFile,gszKeys);
 	if (gParantHwnd)

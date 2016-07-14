@@ -6,6 +6,7 @@ class RegOpt
 	typedef const result_tyle& const_deff_result_tyle;
 public:
 	const_deff_result_tyle GetRegexResult(std::string sRegPattern,std::string sContent);
+	static void RegexReplace(std::string& sContent,std::string sSearch,std::string sInstead);
 protected:
 private:
 	result_tyle result;

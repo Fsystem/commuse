@@ -2,6 +2,7 @@
 #include "RegexOpt.h"
 
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 RegOpt::const_deff_result_tyle RegOpt::GetRegexResult(std::string sRegPattern,std::string sContent)
 {
@@ -37,4 +38,9 @@ RegOpt::const_deff_result_tyle RegOpt::GetRegexResult(std::string sRegPattern,st
 	}
 	
 	return result;
+}
+
+void RegOpt::RegexReplace(std::string& sContent,std::string sSearch,std::string sInstead)
+{
+	boost::algorithm::replace_all(sContent,sSearch,sInstead);
 }

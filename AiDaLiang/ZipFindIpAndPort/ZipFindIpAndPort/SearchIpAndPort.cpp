@@ -262,80 +262,43 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 	dwCur = GetTickCount();
 	if (szFile && szFileInnerFile&&szFileData )
 	{
-		std::string sAherfPattern = "href[/s]*=[^\\s]+\\s";//获取超链正则
+		//1.去herf超链接,2，取脚本中的网址
+		std::vector<std::string> sAherfPatterns;
+		sAherfPatterns.push_back("href[/s]*=[^\\s]+\\s");
+		sAherfPatterns.push_back("(\'|\")(https?://)?[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})?[^\'\"\\s]*(\'|\"|\\s)");
+		
+		//std::string sAherfPattern = "href[/s]*=[^\\s]+\\s";//获取超链正则
 		//std::string sAherfPattern1 = "(\'|\")https?://\\w+\\.\\w+(\\.\\w+)*(:\\d{2,5})?(\'|\")";
-		std::string sAherfPattern1 = "(\'|\")(https?://)?[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})?[^\'\"\\s]*(\'|\"|\\s)";
-		//std::string sUrlParttrn = "(//|=)(\\w+-?(\\w+)?)+\\.(\\w+-?(\\w+)?)+(\\.{0,1}(\\w+-?(\\w+)?))*(:{0,1}\\d{2,5})?(/|&|\\?)?";//需要去除//，/,\,&,",',=,' '
-		std::string sUrlParttrn = "(//|=)[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})*";//需要去除//，/,\,&,",',=,' ',?
-
+		//
+		//std::string sAherfPattern1 = "(\'|\")(https?://)?[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})?[^\'\"\\s]*(\'|\"|\\s)";
+		//std::string sAherfPattern1 = "(\'|\")(https?://)?[^\\s]+\\s";
+		//3取超链中参数带合法url
+		//std::string sUrlParttrn0 = "\\?.+=.+(https?://)?[\'\"\\s]*[\\w-]+(\\.[\\w-]+)+(:\\d{2,5})*";//优先取后面的
+		//4如果3没有，则证明参数中没有合法的url，取主url
+		std::string sUrlParttrn = "(//|=)[\'\"\\s]*[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})*";//需要去除//，/,\,&,",',=,' ',?
+		
 		std::string sFileData = szFileData;
+		RegOpt::RegexReplace(sFileData,"<a","\n<a");
 		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
 		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e==' ';});
 		//std::replace(sFileData.begin(),sFileData.end(),' ',cbInsteadSpace);
 		std::istrstream fin(sFileData.c_str());
-		char szLine[4096*10];
+		std::string sLine;
 
 		if(sKeys.size()>0)
 		{
-			while(fin.getline(szLine,sizeof(szLine)-1))
+			while(std::getline(fin,sLine,'\n'))
 			{
-				if(ExistKey(szLine))
+				if(sLine.length()==0) break;
+				if(ExistKey(sLine.c_str()))
 				{
-					RegOpt ro;
-					std::list<std::string> vecResHerf;
-					auto vecResHerf0 = ro.GetRegexResult(sAherfPattern,szLine);
-					auto vecResHerf1 = ro.GetRegexResult(sAherfPattern1,szLine);
-
-					std::copy(vecResHerf0.begin(),vecResHerf0.end(),std::back_inserter(vecResHerf));
-					std::copy(vecResHerf1.begin(),vecResHerf1.end(),std::back_inserter(vecResHerf));
-
-					for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
-					{
-						if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
-						mapAnalysis[*itVecRes] = 0;
-
-						auto vecUrl = ro.GetRegexResult(sUrlParttrn,*itVecRes);
-						if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
-						for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
-
-							auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
-								return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\');
-							} );
-							sElem.erase(itErase,sElem.end());
-							mapRes[sElem] = 0;
-						});
-					}
+					ParseUrlRegex(sLine,sAherfPatterns,sUrlParttrn,mapAnalysis,mapRes);
 				}
 			}
 		}
 		else //无关键字
 		{
-			RegOpt ro;
-			std::list<std::string> vecResHerf;
-			auto vecResHerf0 = ro.GetRegexResult(sAherfPattern,sFileData);
-			auto vecResHerf1 = ro.GetRegexResult(sAherfPattern1,sFileData);
-
-			std::copy(vecResHerf0.begin(),vecResHerf0.end(),std::back_inserter(vecResHerf));
-			std::copy(vecResHerf1.begin(),vecResHerf1.end(),std::back_inserter(vecResHerf));
-			
-			//vecResHerf.insert(vecResHerf.end(),ro.GetRegexResult(sAherfPattern1,sFileData));
-			for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
-			{
-				if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
-				mapAnalysis[*itVecRes] = 0;
-				std::string sUrlDecode = URLDecode(*itVecRes);
-				
-				auto vecUrl = ro.GetRegexResult(sUrlParttrn,sUrlDecode);
-				if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
-				for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
-
-					auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
-						return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\' || c == '?');
-					} );
-					sElem.erase(itErase,sElem.end());
-					mapRes[sElem] = 0;
-				});
-			}
+			ParseUrlRegex(sFileData,sAherfPatterns,sUrlParttrn,mapAnalysis,mapRes);
 		}
 	}
 
@@ -353,7 +316,6 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 		strncat(szFileName,szErrorPath,MAX_PATH);
 		strncat(szFileName,strrchr(szFile,'\\')+1,MAX_PATH);
 		CopyFileA(szFile,szFileName,FALSE);
-		//nErrorFileCount++;
 	}
 
 	dwCur = GetTickCount()-dwCur;
@@ -361,6 +323,39 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 	nResultCnt += res.size();
 
 	return res;
+}
+
+void SearchIpAndPort::ParseUrlRegex(std::string szContent, std::vector<std::string>& sAhrefPatterns
+	,std::string& sUrlPartten
+	,std::map<string,int>& mapAnalysis
+	,std::map<string,int>& mapRes)
+{
+	RegOpt ro;
+	std::list<std::string> vecResHerf;
+	for (auto it = sAhrefPatterns.begin();it != sAhrefPatterns.end(); it++)
+	{
+		auto vecResHerf0 = ro.GetRegexResult(*it,szContent);
+		std::copy(vecResHerf0.begin(),vecResHerf0.end(),std::back_inserter(vecResHerf));
+	}
+
+	//vecResHerf.insert(vecResHerf.end(),ro.GetRegexResult(sAherfPattern1,sFileData));
+	for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
+	{
+		if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
+		mapAnalysis[*itVecRes] = 0;
+		std::string sUrlDecode = urldecode(*itVecRes);
+
+		auto vecUrl = ro.GetRegexResult(sUrlPartten,sUrlDecode);
+		if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
+		for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
+
+			auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
+				return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\' || c == '?');
+			} );
+			sElem.erase(itErase,sElem.end());
+			mapRes[sElem] = 0;
+		});
+	}
 }
 
 void SearchIpAndPort::WriteStringFile(LPCSTR format,...)

@@ -263,8 +263,10 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 	if (szFile && szFileInnerFile&&szFileData )
 	{
 		std::string sAherfPattern = "href[/s]*=[^\\s]+\\s";//获取超链正则
-		std::string sAherfPattern1 = "(\'|\")https?://\\w+\\.\\w+(\\.\\w+)*(:\\d{2,5})?(\'|\")";
-		std::string sUrlParttrn = "(//|=)(\\w+-?(\\w+)?)+\\.(\\w+-?(\\w+)?)+(\\.{0,1}(\\w+-?(\\w+)?))*(:{0,1}\\d{2,5})?(/|&|\\?)?";//需要去除//，/,\,&,",',=,' '
+		//std::string sAherfPattern1 = "(\'|\")https?://\\w+\\.\\w+(\\.\\w+)*(:\\d{2,5})?(\'|\")";
+		std::string sAherfPattern1 = "(\'|\")(https?://)?[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})?[^\'\"\\s]*(\'|\"|\\s)";
+		//std::string sUrlParttrn = "(//|=)(\\w+-?(\\w+)?)+\\.(\\w+-?(\\w+)?)+(\\.{0,1}(\\w+-?(\\w+)?))*(:{0,1}\\d{2,5})?(/|&|\\?)?";//需要去除//，/,\,&,",',=,' '
+		std::string sUrlParttrn = "(//|=)[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})*";//需要去除//，/,\,&,",',=,' ',?
 
 		std::string sFileData = szFileData;
 		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
@@ -328,7 +330,7 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 				for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
 
 					auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
-						return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\');
+						return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\' || c == '?');
 					} );
 					sElem.erase(itErase,sElem.end());
 					mapRes[sElem] = 0;

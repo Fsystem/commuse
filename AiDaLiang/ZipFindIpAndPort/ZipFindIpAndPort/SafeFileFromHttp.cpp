@@ -31,11 +31,13 @@ void SaveFileFromHttp::DownFromHttp(std::string sConfig_,std::string sLocalDownD
 	
 	if (infile.is_open())
 	{
-		char szLine[1024];
-		while(infile.getline(szLine,sizeof(szLine)))
+		std::string szLine;
+		while(std::getline(infile,szLine,'\n'))
 		{
-			char* pData = new char[sizeof(szLine)];
-			strncpy(pData,szLine,sizeof(szLine));
+			if(szLine.length()==0) break;
+			char* pData = new char[szLine.size()+1];
+			memset(pData,0,szLine.size()+1);
+			strncpy(pData,szLine.data(),szLine.size());
 			HANDLE hThr = (HANDLE)JKThread<SaveFileFromHttp>::Start(&SaveFileFromHttp::DownThread,pData);
 			//if( WaitForSingleObject(hThr,6000) == WAIT_TIMEOUT)
 			//{

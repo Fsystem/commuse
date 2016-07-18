@@ -197,13 +197,17 @@ void FileTimeToUnixTime(DWORD& tmUnixTime, const FILETIME& fileTime)
 
 DWORD GetBootTime()
 {
-	DWORD startMSCount;//从开机到现在的毫秒数
-	startMSCount = timeGetTime();
-	time_t CurSysTime, BootSysTime;
-	time(&CurSysTime);
-	//将开机到现在的毫秒数转换为秒数，再用当前的时间减去，获得开机时间
-	BootSysTime = CurSysTime - startMSCount/1000;
-
+	static DWORD BootSysTime = 0;
+	if (BootSysTime == 0)
+	{
+		DWORD startMSCount;//从开机到现在的毫秒数
+		startMSCount = timeGetTime();
+		time_t CurSysTime, BootSysTime;
+		time(&CurSysTime);
+		//将开机到现在的毫秒数转换为秒数，再用当前的时间减去，获得开机时间
+		BootSysTime = CurSysTime - startMSCount/1000;
+	}
+	
 	return BootSysTime;
 }
 

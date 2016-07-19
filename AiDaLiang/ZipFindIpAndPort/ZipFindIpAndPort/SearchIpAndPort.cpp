@@ -524,15 +524,6 @@ void FilterUrlThreadFile(void* pData)
 	for (auto it = vecs.begin();it!=vecs.end();it++)
 	{
 		std::string szTmp = *it;
-		//std::string* szOut = new std::string;
-		//*szOut = szTmp;
-		//HttpDownFile hdf;
-
-		//std::string sFileData;
-		//if (SearchIpAndPort::IsUrl(szTmp))
-		//{
-			//sFileData = hdf.DownFile(szTmp);
-		//}
 		
 		auto itFind = std::find(sFilterFile.begin(),sFilterFile.end(),szTmp);
 		if ( itFind!=sFilterFile.end() )

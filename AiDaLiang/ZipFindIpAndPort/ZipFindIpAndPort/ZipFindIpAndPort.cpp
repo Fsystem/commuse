@@ -358,6 +358,12 @@ void AnalysisIpAndPortThread(void* p)
 
 	if(gAnalysisMode == 2)bFinish = true;
 
+	if (gFileIndex==0)
+	{
+		MessageBoxA(NULL,"¿ÕÄ¿Â¼","ÎÂÜ°ÌáÊ¾",MB_OK);
+		EnableWindow(GetDlgItem(gMainHwnd,IDOK),TRUE);
+	}
+
 	_endthread();
 }
 
@@ -443,8 +449,10 @@ void OnSelFileSource(HWND hwnd, int id, HWND hwndCtl)
 		}
 	case IDC_RADIO_DOWNFILE:
 		{
+			std::string sDir = szDownZipDir;
+			sDir.erase(sDir.begin()+sDir.length()-1);
 			Edit_Enable(GetDlgItem(hwnd,IDC_EDIT_PATH),FALSE);
-			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_PATH),A2TString(szDownZipDir).c_str());
+			Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_PATH),A2TString(sDir.c_str()).c_str());
 			break;
 		}
 	

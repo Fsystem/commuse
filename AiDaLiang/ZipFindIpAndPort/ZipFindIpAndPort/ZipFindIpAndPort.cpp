@@ -54,10 +54,11 @@ void ProcessResultThread(void* p)
 				{
 					{
 						std::ifstream infile(it->szRetFile);
-						char szLine[4096];
-						while( infile.getline(szLine,sizeof(szLine)) )
+						std::string sLine;
+						while(std::getline(infile,sLine,'\n'))
 						{
-							mapUrls[szLine] = 0;
+							if(sLine.length()==0) break;
+							mapUrls[sLine] = 0;
 						}
 					}
 					
@@ -451,6 +452,14 @@ void OnSelFileSource(HWND hwnd, int id, HWND hwndCtl)
 	}
 }
 
+void OnBnFilterPublisherUrl(HWND hwnd, int id, HWND hwndCtl)
+{
+	EnableWindow(hwnd,FALSE);
+	SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,0,0);
+	BOOL bCheck = Button_GetCheck(GetDlgItem(gMainHwnd,IDC_CHECK_FILTER));
+	_beginthread(SearchIpAndPort::FilterPublisherUrl,0,(void*)bCheck);
+}
+
 void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 {
 	switch(id)
@@ -526,6 +535,12 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 			OnSelFileSource(hwnd,id,hwndCtl);
 			break;
 		}
+	case IDC_BN_FILTER_PUBLISHER_URL:
+		{
+			OnBnFilterPublisherUrl(hwnd,id,hwndCtl);
+			
+			break;
+		}
 	}
 }
 
@@ -566,6 +581,64 @@ INT_PTR CALLBACK DialogProc(
 			}
 			break;
 		}
+	case MSG_FILTER_FINISH:
+		{
+			static int nFilterCount = INT_MAX;
+			static int nCurCount=0;
+			static std::string szTmp;
+			static std::ofstream outchldfile;
+			static std::ofstream outpubfile;
+			static std::ofstream outerrfile;
+			if (szTmp.empty())
+			{
+				szTmp = szAppDir+std::string("RET_CHILD.TXT");
+				outchldfile.open(szTmp,std::ios::out);
+				szTmp = szAppDir+std::string("RET_PUBLISH.TXT");
+				outpubfile.open(szTmp,std::ios::out);
+				szTmp = szAppDir+std::string("RET_ERROR.TXT");
+				outerrfile.open(szTmp,std::ios::out);
+
+			}
+			if (lParam==0)
+			{
+				nCurCount++;
+
+				outchldfile<<*(std::string*)wParam<<std::endl;
+			}
+			else if (lParam == 1)
+			{
+				nCurCount++;
+
+				outpubfile<<*(std::string*)wParam<<std::endl;
+			}
+			else if (lParam == -1)
+			{
+				nCurCount++;
+
+				outerrfile<<*(std::string*)wParam<<std::endl;
+			}
+			else if (lParam == 2)
+			{
+				nCurCount = 0;
+				nFilterCount = (wParam==0?1:(int)wParam);
+			}
+
+			//delete (void*)wParam;
+
+			SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,nCurCount*100/nFilterCount,0);
+			
+			if (nCurCount == nFilterCount)
+			{
+				szTmp.clear();
+				outchldfile.close();
+				outpubfile.close();
+				outerrfile.close();
+				MessageBoxA(NULL,"过滤完成\r\nRET_CHILD.TXT-表示子站\r\nRET_PUBLISH.TXT-表示发布站\r\nRET_ERROR.TXT-不能连接的url","温馨提示",MB_OK);
+				EnableWindow(hwndDlg,TRUE);
+			}
+			
+			break;
+		}
 	}
 
 	return 0L;
@@ -577,12 +650,19 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	std::string sUrl = "我哎你.com";
+	/*std::string sUrl = "我哎你.com";
 	sUrl = urlencode(sUrl);
 	std::string sUrl1 = "%31%39%36%2e%73%68%75%61%69%62%61%62%79%2e%63%6f%6d";
 	sUrl = urldecode(sUrl1);
 	sUrl = URLEncode(sUrl);
-	sUrl = URLDecode(sUrl1);
+	sUrl = URLDecode(sUrl1);*/
+
+	//HttpDownFile HF;
+	//HF.DownFile("xjp177.95fe.com:2618");
+	//HttpDownFile HF1;
+	//HF1.DownFile("http://192.168.1.47:9096/DBNT/Public/Uploads/2016-07-05/577b17d2974b7.jpg");
+	//HttpDownFile HF2;
+	//HF2.DownFile("03.298go.com");
 	//MessageBox(NULL,lpCmdLine,NULL,MB_OK);
 	sscanf(T2AString(lpCmdLine).c_str(),"%u,%d,%u,%[^,],%s",&gParantHwnd,&gAnalysisMode,&gFileIndex,gszZipFile,gszKeys);
 	if (gParantHwnd)

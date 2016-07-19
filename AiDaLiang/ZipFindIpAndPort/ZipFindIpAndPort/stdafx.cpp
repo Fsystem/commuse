@@ -34,3 +34,16 @@ void SendResultNotify(LPCSTR szFile,LPCSTR szFileName,DWORD dwResultCnt)
 		::SendMessage(gMainHwnd,WM_COPYDATA,(WPARAM)gMainHwnd,(LPARAM)&cds);
 	}
 }
+
+
+void LogTrace(LPCSTR pszFormat, ...)  
+{  
+	va_list pArgs;  
+
+	char szMessageBuffer[16380]={0};  
+	va_start( pArgs, pszFormat );  
+	_vsnprintf( szMessageBuffer, 16380, pszFormat, pArgs );  
+	va_end( pArgs );  
+
+	OutputDebugStringA(szMessageBuffer);  
+}  

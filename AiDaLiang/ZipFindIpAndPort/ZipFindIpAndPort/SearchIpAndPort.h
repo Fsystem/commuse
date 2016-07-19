@@ -4,11 +4,14 @@
 
 class SearchIpAndPort
 {
+	friend void FilterUrlThread(void* pData);
+	friend void FilterUrlThreadTr(void* pData);
 public:
-	SearchIpAndPort();
+	SearchIpAndPort(bool bMakeFile=true);
 	~SearchIpAndPort();
 	std::vector<std::string> GetIpAndport(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData);
 	std::vector<std::string> GetIpAndportRegex(LPCSTR szFile,LPCSTR szFileInnerFile,LPCSTR szFileData);
+	static void FilterPublisherUrl(void* p);
 	void AddKey(LPCSTR szKey);
 	bool ExistKey(LPCSTR szContent);
 
@@ -16,8 +19,8 @@ public:
 	int GetRetCnt(){return nResultCnt;}
 protected:
 	void WriteStringFile(LPCSTR format,...);
-	bool IsUrl(std::string sTxtUrl);
-	void ParseUrlRegex(std::string szContent, std::vector<std::string>& sAhrefPatterns
+	static bool IsUrl(std::string sTxtUrl);
+	static void ParseUrlRegex(std::string szContent, std::vector<std::string>& sAhrefPatterns
 		,std::string& sUrlPartten
 		,std::map<std::string,int>& mapAnalysis
 		,std::map<std::string,int>& mapRes);

@@ -57,7 +57,7 @@ void SaveFileFromHttp::DownThread(void* p)
 	delete p;
 	CCRC crc;
 	HttpDownFile httpDown;
-	auto fileData = httpDown.OpentUrl(sUrl);
+	auto fileData = httpDown.OpentUrlByCURL(sUrl);
 	std::string sData ;
 	sData.assign(fileData.begin(),fileData.end());
 	std::string sCrc = crc.GetCrcHexString(sData.c_str(),sData.size());

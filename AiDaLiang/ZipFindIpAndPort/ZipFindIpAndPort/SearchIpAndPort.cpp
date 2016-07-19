@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SearchIpAndPort.h"
-
+#include <fstream>
 
 using namespace std;
 
@@ -9,7 +9,7 @@ char SearchIpAndPort::szAppPath[MAX_PATH]={0};
 char SearchIpAndPort::szErrorPath[MAX_PATH]={0};
 char cbInsteadSpace='|';
 //-------------------------------------------------------------------------------
-SearchIpAndPort::SearchIpAndPort()
+SearchIpAndPort::SearchIpAndPort(bool bMakeFile)
 {
 	if (szAppPath[0] == 0)
 	{
@@ -23,7 +23,9 @@ SearchIpAndPort::SearchIpAndPort()
 		sprintf(szFileName,"%sRET%09d.TXT",szAppPath,gFileIndex);
 	else
 		sprintf(szFileName,"%sRETSingle.TXT",szAppPath);
-	fp = fopen(szFileName,"a");
+	fp = NULL;
+	if (bMakeFile) fp = fopen(szFileName,"w");
+	
 	//nErrorFileCount = 0;
 	nResultCnt = 0;
 }
@@ -33,11 +35,11 @@ SearchIpAndPort::~SearchIpAndPort()
 	if(fp){
 		fclose(fp);
 		fp = NULL;
-	}
 
-	if (nResultCnt == 0)
-	{
-		DeleteFileA(szFileName);
+		if (nResultCnt == 0)
+		{
+			DeleteFileA(szFileName);
+		}
 	}
 }
 
@@ -304,8 +306,9 @@ std::vector<std::string> SearchIpAndPort::GetIpAndportRegex(LPCSTR szFile,LPCSTR
 
 	for (auto itMap = mapRes.begin();itMap!=mapRes.end();itMap++)
 	{
+		if(IsUrl(itMap->first) == false) continue;
 		res.push_back(itMap->first);
-		WriteStringFile("%s\r\n",itMap->first.c_str());
+		WriteStringFile("%s\n",itMap->first.c_str());
 	}
 
 	//拷贝错误文件到error文件夹下
@@ -341,19 +344,27 @@ void SearchIpAndPort::ParseUrlRegex(std::string szContent, std::vector<std::stri
 	//vecResHerf.insert(vecResHerf.end(),ro.GetRegexResult(sAherfPattern1,sFileData));
 	for (auto itVecRes = vecResHerf.begin();itVecRes!=vecResHerf.end();itVecRes++)
 	{
-		if (mapAnalysis.find(*itVecRes)!=mapAnalysis.end()) continue;
-		mapAnalysis[*itVecRes] = 0;
 		std::string sUrlDecode = urldecode(*itVecRes);
 
-		auto vecUrl = ro.GetRegexResult(sUrlPartten,sUrlDecode);
+		if (mapAnalysis.find(sUrlDecode)!=mapAnalysis.end()) 
+		{
+			mapAnalysis[sUrlDecode]++;
+			continue;
+		}
+		mapAnalysis[sUrlDecode] = 1;
+		
+		std::list<std::string> vecUrl ;
+		if(sUrlPartten.empty()==false) vecUrl = ro.GetRegexResult(sUrlPartten,sUrlDecode);
+
 		if(vecUrl.size()>1) vecUrl.pop_front();//删除第一个主url
+
 		for_each(vecUrl.begin(),vecUrl.end(),[&mapRes](std::string sElem){
 
-			auto itErase = std::remove_if(sElem.begin(),sElem.end(),[](char c){
-				return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\' || c == '?');
-			} );
-			sElem.erase(itErase,sElem.end());
-			mapRes[sElem] = 0;
+			auto itEnd = std::remove_if(sElem.begin(),sElem.end(),[](char c){
+				return (c=='/' || c=='&' ||c=='\"' || c=='\'' || c=='=' || c==' ' || c == '\\' || c == '?' || c == '\r' || c == '\n');
+			});
+			sElem.erase(itEnd,sElem.end());
+			mapRes[sElem]++;
 		});
 	}
 }
@@ -395,212 +406,345 @@ bool SearchIpAndPort::IsUrl(std::string sTxtUrl)
 	return false;
 }
 
+bool ParseLineAnd(std::list<std::string> sPartternList,std::string sContent)
+{
+	std::string sParttern;
+	int nCount = 1;
+	int nCurCount = 0;
 
-//std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFileData,LPCSTR szKey)
-//{
-//	std::vector<string> res;
-//	std::map<string,int> mapRes;
-//
-//	if (szFileData && szKey)
-//	{
-//		//char pattern[512]="(http(s)?+://)(([a-zA-Z0-9\\._-]+\\.[a-zA-Z]{2,6})|([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\\&%_\\./-~-]*)?";
-//		//char pattern[]="<a(?: [^>]*)+href=([^ >]*)(?: [^>]*)*>";
-//		char pattern[]="<a[^>]+>/?";
-//		//char pattern[512]="[a-zA-z]+://[^\s]*";
-//		char patternDomain[]="[://]([\\w-]+\\.)+[\\w-]+(:\\d{0,5})?/?";
-//		//char patternDomain[]="(://)([0-9A-Za-z\\-_\\.]+)\\.([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)+(:\\d{0,5})?/?";
-//		const size_t nmatch = 100;
-//		regmatch_t pm[nmatch];
-//		regex_t reg;
-//
-//		regcomp(&reg,pattern,REG_EXTENDED|REG_ICASE);
-//
-//		int nErr = regexec(&reg,szFileData,nmatch,pm,REG_NOTBOL);
-//
-//		std::istrstream fin(szFileData);
-//		char szLine[4096*10];
-//		std::string sMatch;
-//		while(fin.getline(szLine,sizeof(szLine)-1))
-//		{
-//			if(szKey[0]!=0)
-//			{
-//				if(stristr(szLine,szKey))
-//				{
-//					int nErr = regexec(&reg,szLine,nmatch,pm,REG_NOTBOL);
-//					if (nErr == REG_NOMATCH) continue;
-//					if(nErr == 0)
-//					{
-//						for (int k=0;k<_countof(pm);k++)
-//						{
-//							sMatch.assign((char*)szLine+pm[k].rm_so,(char*)szLine+pm[k].rm_eo);
-//							mapRes[sMatch] = 0;
-//						}
-//
-//					}
-//				}
-//			}
-//			else
-//			{
-//				int nErr = regexec(&reg,szLine,nmatch,pm,REG_NOTBOL);
-//				if (nErr == REG_NOMATCH) continue;
-//				if(nErr == 0)
-//				{
-//					for (int k=0;k<_countof(pm);k++)
-//					{
-//						sMatch.assign((char*)szLine+pm[k].rm_so,(char*)szLine+pm[k].rm_eo);
-//						mapRes[sMatch] = 0;
-//					}
-//				}
-//			}
-//
-//		}
-//
-//		regfree(&reg);
-//
-//		//匹配域名
-//		regcomp(&reg,patternDomain,REG_EXTENDED|REG_ICASE);
-//		std::string sLineDomain;
-//		for (auto itMap = mapRes.begin();itMap != mapRes.end();itMap++)
-//		{
-//			int nErr = regexec(&reg,itMap->first.c_str(),nmatch,pm,REG_NOTBOL);
-//			if (nErr == REG_NOMATCH) continue;
-//			if(nErr == 0)
-//			{
-//				sLineDomain = "";
-//				for (int k=0;k<_countof(pm);k++)
-//				{
-//					if (pm[k].rm_so!=-1 && pm[k].rm_eo!=-1)
-//					{
-//						sMatch.assign(itMap->first.begin()+pm[k].rm_so,itMap->first.begin()+pm[k].rm_eo);
-//						std::remove_if(sMatch.begin(),sMatch.end(),[](char c)->bool{return c=='/' || c=='\\';});
-//						sLineDomain +=sMatch;
-//						sLineDomain += " ";
-//					}
-//				}
-//
-//				if (!sLineDomain.empty())
-//				{
-//					res.push_back(sLineDomain);
-//				}
-//
-//			}
-//		}
-//
-//		regfree(&reg);
-//	}
-//
-//	if(res.size()==0)
-//	{
-//		MessageBoxA(NULL,"没有关键字部分内容，请重新输入关键字","提示",MB_OK);
-//	}
-//
-//	return res;
-//}
+	bool bRet = true;
+
+	RegOpt reg;
+	for (auto itList = sPartternList.begin();itList!=sPartternList.end();)
+	{
+		sParttern = *itList;
+		itList = sPartternList.erase(itList);
+		nCount = 1;
+		if (itList!=sPartternList.end())
+		{
+			nCount = (int)std::stoll(*itList);
+			itList = sPartternList.erase(itList);
+		}
+
+		auto listRes = reg.GetRegexResult(sParttern,sContent);
+		if(listRes.size()<nCount) return false;
+		for (auto itRes = listRes.begin();itRes!=listRes.end();itRes++)
+		{
+			bRet &= ParseLineAnd(sPartternList,*itRes);
+			if(bRet==false) return false;
+		}
+	}
+
+	return bRet;
+}
+
+bool ParseCustom(std::string sFileData)
+{
+	char szAppDir[MAX_PATH];
+	GetModuleFileNameA(NULL,szAppDir,MAX_PATH);
+	strrchr(szAppDir,'\\')[1]=0;
+
+	std::string sFilePath=szAppDir;
+	sFilePath += "partten.ini";
+	std::ifstream ifile(sFilePath);
+	if (ifile.is_open()==false)
+	{
+		{
+			std::ofstream ofile(sFilePath);
+			ofile<<"<tr[\\s\\S]*?</tr>|20"<<std::endl;
+		}
+		
+		ifile.open(sFilePath);
+	}
+
+	if (ifile.is_open())
+	{
+		std::string sLine;
+		
+		while(std::getline(ifile,sLine,'\n'))
+		{
+			if(sLine.length()==0) break;
+
+			std::string sParttern;
+			int nCount = 1;
+			int nCurCount = 0;
+
+			RegOpt reg;
+			auto list = reg.GetRegexResult("[^|]+",sLine);
+			//if( ParseLineAnd(list,sFileData) ) return true;
+			if (list.size()>0)
+			{
+				sParttern = list.front();
+				list.pop_front();
+
+				if(list.size()>0) {
+					nCount = std::stoll(list.front());
+				}
+			}
+
+			auto listRes = reg.GetRegexResult(sParttern,sFileData);
+			if(listRes.size()>=nCount) return true;
+
+		}
+		
+	}
+	
+	return false;
+}
+
+void FilterUrlThreadFile(void* pData)
+{
+	std::vector<std::string> vecs = *(std::vector<std::string>*)pData;
+	delete pData;
+
+	static std::list<std::string> sFilterFile;
+	static bool bInit = false;
+	if (bInit == false)
+	{
+		bInit = true;
+
+		char szAppDir[MAX_PATH];
+		GetModuleFileNameA(NULL,szAppDir,MAX_PATH);
+		strrchr(szAppDir,'\\')[1]=0;
+
+		std::string sFilePath=szAppDir;
+		sFilePath += "Filter.txt";
+		std::ifstream ifile(sFilePath);
+		if (ifile.is_open())
+		{
+			std::string sLine;
+			while(std::getline(ifile,sLine,'\n'))
+			{
+				if(sLine.length()==0) break;
+				sFilterFile.push_back(sLine);
+			}
+		}
+	}
+
+	for (auto it = vecs.begin();it!=vecs.end();it++)
+	{
+		std::string szTmp = *it;
+		//std::string* szOut = new std::string;
+		//*szOut = szTmp;
+		//HttpDownFile hdf;
+
+		//std::string sFileData;
+		//if (SearchIpAndPort::IsUrl(szTmp))
+		//{
+			//sFileData = hdf.DownFile(szTmp);
+		//}
+		
+		auto itFind = std::find(sFilterFile.begin(),sFilterFile.end(),szTmp);
+		if ( itFind!=sFilterFile.end() )
+		{
+			SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,1);
+		}
+		else
+		{
+			SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
+		}
+	}
+}
+
+void FilterUrlThreadTr(void* pData)
+{
+	std::vector<std::string> vecs = *(std::vector<std::string>*)pData;
+	delete pData;
+
+	for (auto it = vecs.begin();it!=vecs.end();it++)
+	{
+		std::string szTmp = *it;
+		//std::string* szOut = new std::string;
+		//*szOut = szTmp;
+		HttpDownFile hdf;
+
+		std::string sFileData;
+		if (SearchIpAndPort::IsUrl(szTmp))
+		{
+			sFileData = hdf.DownFile(szTmp);
+		}
+		
+		if (sFileData.size()>0)
+		{
+			if (ParseCustom(sFileData))
+			{
+				SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,1);
+			}
+			else
+			{
+				SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
+			}
+		}
+		else
+		{
+			SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
+		}
+
+	}
+	/*
+	static long nCount = 0;
+	InterlockedExchangeAdd(&nCount,1);
+	LogTrace("当前线程:%d\n",nCount);*/
+	
+}
+
+void FilterUrlThread(void* pData)
+{
+	std::vector<std::string> vecs = *(std::vector<std::string>*)pData;
+	delete pData;
+
+	std::vector<std::string> sAherfPatterns;
+	sAherfPatterns.push_back("href[/s]*=[^\\s]+\\s");
+	sAherfPatterns.push_back("(\'|\")(https?://)?[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})?[^\'\"\\s]*(\'|\"|\\s)");
+	//4如果3没有，则证明参数中没有合法的url，取主url
+	std::string sUrlParttrn = "(//|=)[\'\"\\s]*[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})*";
+
+	for (auto it = vecs.begin();it!=vecs.end();it++)
+	{
+		std::string szTmp = *it;
+		//std::string* szOut = new std::string;
+		//*szOut = szTmp;
+		HttpDownFile hdf;
+
+		std::string sFileData;
+		if (SearchIpAndPort::IsUrl(szTmp))
+		{
+			sFileData = hdf.DownFile(szTmp);
+		}
+		
+
+		if (sFileData.size()>0)
+		{
+			std::map<string,int> mapRes,mapAnalysis;
+			std::vector<std::string> vecDels;
+			vecDels.push_back(szTmp);
+			vecDels.push_back("www.w3.org");
+			vecDels.push_back("www.w3c.org");
+			vecDels.push_back(".baidu.");
+			vecDels.push_back(".360.");
+			vecDels.push_back(".163.");
+			vecDels.push_back(".114so.");
+			vecDels.push_back(".ku6.");
+			vecDels.push_back(".youku.");
+			vecDels.push_back(".tudou.");
 
 
-//std::vector<std::string> SearchIpAndPort::GetIpAndport(LPCSTR szFileData,LPCSTR szKey)
-//{
-//	std::vector<string> res;
-//	std::map<string,int> mapRes;
-//
-//	if (szFileData && szKey)
-//	{
-//		
-//		//char pattern[512]="(http(s)?+://)(([a-zA-Z0-9\\._-]+\\.[a-zA-Z]{2,6})|([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\\&%_\\./-~-]*)?";
-//		char pattern[]="/<a(?: [^>]*)+href=([^ >]*)(?: [^>]*)*>/";
-//		//char pattern[512]="[a-zA-z]+://[^\s]*";
-//		//char patternDomain[]="[://]([\\w-]+\\.)+[\\w-]+(:\\d{0,5})?/?";
-//		//char patternDomain[]="(://)([0-9A-Za-z\\-_\\.]+)\\.([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)+(:\\d{0,5})?/?";
-//	
-//		std::regex rgx("<a[^>]+>",std::regex_constants::extended);
-//		std::cmatch match;
-//
-//		std::string sFileData = szFileData;
-//		std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e=='\\';});
-//		//std::remove_if(sFileData.begin(),sFileData.end(),[](char e)->bool{return e==' ';});
-//		std::istrstream fin(sFileData.c_str());
-//		char szLine[4096*10],szUrl[1024];
-//		std::string sMatch;
-//
-//		std::regex_search(sFileData.c_str(),match,rgx,std::regex_constants::match_not_bol);
-//
-//		while(fin.getline(szLine,sizeof(szLine)-1))
-//		{
-//			if(szKey[0]!=0)
-//			{
-//				if(stristr(szLine,szKey))
-//				{
-//					sscanf(szLine,"*herf=\"%s\"*",szUrl);
-//					//std::regex_search(szLine,match,rgx);
-//					/*int nErr = regexec(&reg,szLine,nmatch,pm,REG_NOTBOL);
-//					if (nErr == REG_NOMATCH) continue;
-//					if(nErr == 0)
-//					{
-//						for (int k=0;k<_countof(pm);k++)
-//						{
-//							sMatch.assign((char*)szLine+pm[k].rm_so,(char*)szLine+pm[k].rm_eo);
-//							mapRes[sMatch] = 0;
-//						}
-//
-//					}*/
-//				}
-//			}
-//			else
-//			{
-//				sscanf(szLine,"*herf=\"%s\"*",szUrl);
-//				//std::regex_search(szLine,match,rgx);
-//				/*int nErr = regexec(&reg,szLine,nmatch,pm,REG_NOTBOL);
-//				if (nErr == REG_NOMATCH) continue;
-//				if(nErr == 0)
-//				{
-//					for (int k=0;k<_countof(pm);k++)
-//					{
-//						sMatch.assign((char*)szLine+pm[k].rm_so,(char*)szLine+pm[k].rm_eo);
-//						mapRes[sMatch] = 0;
-//					}
-//				}*/
-//			}
-//
-//		}
-//
-//	//	regfree(&reg);
-//
-//	//	//匹配域名
-//	//	regcomp(&reg,patternDomain,REG_EXTENDED|REG_ICASE);
-//	//	std::string sLineDomain;
-//	//	for (auto itMap = mapRes.begin();itMap != mapRes.end();itMap++)
-//	//	{
-//	//		int nErr = regexec(&reg,itMap->first.c_str(),nmatch,pm,REG_NOTBOL);
-//	//		if (nErr == REG_NOMATCH) continue;
-//	//		if(nErr == 0)
-//	//		{
-//	//			sLineDomain = "";
-//	//			for (int k=0;k<_countof(pm);k++)
-//	//			{
-//	//				if (pm[k].rm_so!=-1 && pm[k].rm_eo!=-1)
-//	//				{
-//	//					sMatch.assign(itMap->first.begin()+pm[k].rm_so,itMap->first.begin()+pm[k].rm_eo);
-//	//					std::remove_if(sMatch.begin(),sMatch.end(),[](char c)->bool{return c=='/' || c=='\\';});
-//	//					sLineDomain +=sMatch;
-//	//					sLineDomain += " ";
-//	//				}
-//	//			}
-//
-//	//			if (!sLineDomain.empty())
-//	//			{
-//	//				res.push_back(sLineDomain);
-//	//			}
-//
-//	//		}
-//	//	}
-//
-//	//	regfree(&reg);
-//	}
-//
-//	if(res.size()==0)
-//	{
-//		MessageBoxA(NULL,"没有关键字部分内容，请重新输入关键字","提示",MB_OK);
-//	}
-//
-//	return res;
-//}
+			SearchIpAndPort::ParseUrlRegex(sFileData,sAherfPatterns,sUrlParttrn,mapAnalysis,mapRes);
+			
+			//bool bPublish = false;
+
+			for (auto itmap = mapRes.begin();itmap!=mapRes.end();)
+			{
+				if (SearchIpAndPort::IsUrl(itmap->first) == false) 
+				{
+					mapRes.erase(itmap++);
+					continue;
+				}
+
+				bool bDeleted = false;
+				for (auto itDel = vecDels.begin();itDel!=vecDels.end();itDel++)
+				{
+					if (  itmap->first.find(*itDel) != std::string::npos )
+					{
+						bDeleted = true;
+						break;
+
+					}
+
+				}
+
+				if(bDeleted) {
+					mapRes.erase(itmap++);
+					continue;
+				}
+
+				itmap++;
+			}
+
+			if (mapRes.size()>=20&&ParseCustom(sFileData))
+			{
+				SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,1);
+			}
+			else
+			{
+				SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
+			}
+		}
+		else
+		{
+			SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
+		}
+
+	}
+
+	//static long nCount = 0;
+	//InterlockedExchangeAdd(&nCount,1);
+	//LogTrace("当前线程:%d\n",nCount);
+	
+}
+
+void SearchIpAndPort::FilterPublisherUrl(void* p)
+{
+	std::string szTmp;
+
+	int mode = (int)p;
+
+	char szAppDir[MAX_PATH];
+	GetModuleFileNameA(NULL,szAppDir,MAX_PATH);
+	strrchr(szAppDir,'\\')[1]=0;
+
+	szTmp = szAppDir+std::string("RET.TXT");
+	std::ifstream infile(szTmp,std::ios::in);
+
+	if (infile.is_open())
+	{
+		//int nCount = 0;
+		std::vector<std::string> vecUrl;
+		while(std::getline(infile,szTmp,'\n'))
+		{
+			if(szTmp.length()==0) break;
+
+			vecUrl.push_back(szTmp);
+		}
+
+		SendMessage(gMainHwnd,MSG_FILTER_FINISH,WPARAM(vecUrl.size()),2);
+		
+		int nMaxThread = 1000;
+
+		int nItemCnt = vecUrl.size()/nMaxThread+(vecUrl.size()%nMaxThread>0?1:0);
+
+		int nLast = vecUrl.size()/nItemCnt;
+
+		for (int i =0 ;i< nLast;i ++)
+		{
+			std::vector<std::string>* vecs = new std::vector<std::string>;
+			
+			std::copy(vecUrl.begin()+i*nItemCnt,vecUrl.begin()+i*nItemCnt+nItemCnt,std::back_inserter(*vecs));
+
+			if(mode==0){
+				_beginthread(FilterUrlThread,0,vecs);
+			}
+			else
+			{
+				_beginthread(FilterUrlThreadFile,0,vecs);
+			}
+			//_beginthread(FilterUrlThreadTr,0,vecs);
+
+		}
+
+		if (vecUrl.size()%nItemCnt>0)
+		{
+			std::vector<std::string>* vecs = new std::vector<std::string>;
+
+			std::copy(vecUrl.begin()+nLast*nItemCnt,vecUrl.end(),std::back_inserter(*vecs));
+
+			if(mode==0){
+				_beginthread(FilterUrlThread,0,vecs);
+			}
+			else
+			{
+				_beginthread(FilterUrlThreadFile,0,vecs);
+			}
+		}
+	}
+}

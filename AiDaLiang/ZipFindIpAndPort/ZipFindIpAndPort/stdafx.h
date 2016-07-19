@@ -42,6 +42,7 @@
 #include "HttpDownFile.h"
 #include "SafeFileFromHttp.h"
 // TODO: 在此处引用程序需要的其他头文件
+//-------------------------------------------------------------------------------
 
 extern HWND gMainHwnd;
 extern HWND gParantHwnd;
@@ -51,6 +52,7 @@ extern char gszKeys[4096];
 extern int gAnalysisMode;
 
 #define MSG_DOWN_FINISH WM_USER+1000
+#define MSG_FILTER_FINISH WM_USER+1001
 
 struct IPC_Data 
 {
@@ -68,3 +70,5 @@ struct CreateAnalysisPath
 
 
 void SendResultNotify(LPCSTR szFile,LPCSTR szFileName,DWORD dwResultCnt);
+
+void LogTrace(LPCSTR pszFormat, ...);

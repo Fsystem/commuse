@@ -10,6 +10,7 @@ char SearchIpAndPort::szErrorPath[MAX_PATH]={0};
 char cbInsteadSpace='|';
 long lCurFilterCnt = 0;
 long lTotalFilterCnt = 0;
+long lFilterThreadCnt = 0;
 //-------------------------------------------------------------------------------
 SearchIpAndPort::SearchIpAndPort(bool bMakeFile)
 {
@@ -593,6 +594,12 @@ void FilterUrlThread(void* pData)
 	//4如果3没有，则证明参数中没有合法的url，取主url
 	std::string sUrlParttrn = "(//|=)[\'\"\\s]*[\\w-]+\\.[\\w-]+(\\.[\\w-]+)*(:\\d{2,5})*";
 
+	static long nNodeCnt = 0;
+	InterlockedExchangeAdd(&nNodeCnt,vecs.size());
+
+	InterlockedExchangeAdd(&lFilterThreadCnt,1);
+	LogTrace(">>>++++++++真实线程计数[%ld]节点总数:%ld当前节点数:%ld\n",lFilterThreadCnt,nNodeCnt,vecs.size());
+
 	for (auto it = vecs.begin();it!=vecs.end();it++)
 	{
 		std::string szTmp = *it;
@@ -670,7 +677,7 @@ void FilterUrlThread(void* pData)
 
 		InterlockedExchangeAdd(&lCurFilterCnt,1);
 
-		LogTrace(">>>====当前线程结束[%ld/%ld]\n",lCurFilterCnt,lTotalFilterCnt);
+		LogTrace(">>>====当前进度[%ld/%ld]\n",lCurFilterCnt,lTotalFilterCnt);
 	}
 }
 
@@ -698,7 +705,7 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 			vecUrl.push_back(szTmp);
 		}
 
-		int nMaxThread = 1000;
+		int nMaxThread = 500;
 
 		int nItemCnt = vecUrl.size()/nMaxThread+(vecUrl.size()%nMaxThread>0?1:0);
 
@@ -706,6 +713,10 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 
 		lTotalFilterCnt = vecUrl.size();
 		lCurFilterCnt = 0;
+		lFilterThreadCnt = 0;
+		int nDefaultStackSize = 0;
+
+		LogTrace(">>>总线程数:%ld\n",nLast+(vecUrl.size()%nItemCnt>0?1:0));
 
 		SendMessage(gMainHwnd,MSG_FILTER_FINISH,WPARAM(lTotalFilterCnt),2);
 
@@ -717,16 +728,16 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 
 			HANDLE hThr = NULL;
 			if(mode==0){
-				hThr = (decltype(hThr))_beginthread(FilterUrlThread,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThread,nDefaultStackSize,vecs);
 			}
 			else
 			{
-				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,nDefaultStackSize,vecs);
 			}
 
-			if (hThr == NULL)
+			if (hThr == NULL|| hThr == INVALID_HANDLE_VALUE)
 			{
-				OutputDebugStringA(">>>----线程创建失败\n");
+				LogTrace(">>>----线程创建失败[%u]\n",errno);
 			}
 
 		}
@@ -739,17 +750,23 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 
 			HANDLE hThr = NULL;
 			if(mode==0){
-				hThr = (decltype(hThr))_beginthread(FilterUrlThread,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThread,nDefaultStackSize,vecs);
 			}
 			else
 			{
-				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,nDefaultStackSize,vecs);
 			}
 
-			if (hThr == NULL)
+			if (hThr == NULL|| hThr == INVALID_HANDLE_VALUE)
 			{
-				OutputDebugStringA(">>>----线程创建失败\n");
+				LogTrace(">>>----线程创建失败[%u]\n",errno);
 			}
+		}
+
+		assert(nLast*nItemCnt+(vecUrl.size()%nItemCnt>0?1:0) == lTotalFilterCnt);
+		if (nLast*nItemCnt+(vecUrl.size()%nItemCnt>0?1:0) != lTotalFilterCnt)
+		{
+			MessageBoxA(NULL,"异常错误",NULL,MB_OK);
 		}
 	}
 }

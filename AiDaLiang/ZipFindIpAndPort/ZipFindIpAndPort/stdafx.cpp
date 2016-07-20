@@ -3,7 +3,7 @@
 // stdafx.obj 将包含预编译类型信息
 
 #include "stdafx.h"
-
+//#pragma comment(linker,"/STACK:100000000,65536")
 // TODO: 在 STDAFX.H 中
 // 引用任何所需的附加头文件，而不是在此文件中引用
 
@@ -40,9 +40,9 @@ void LogTrace(LPCSTR pszFormat, ...)
 {  
 	va_list pArgs;  
 
-	char szMessageBuffer[16380]={0};  
+	char szMessageBuffer[1024]={0};  
 	va_start( pArgs, pszFormat );  
-	_vsnprintf( szMessageBuffer, 16380, pszFormat, pArgs );  
+	_vsnprintf( szMessageBuffer, 1024, pszFormat, pArgs );  
 	va_end( pArgs );  
 
 	OutputDebugStringA(szMessageBuffer);  

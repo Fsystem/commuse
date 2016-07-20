@@ -10,6 +10,8 @@
 #define WIN32_LEAN_AND_MEAN             //  从 Windows 头文件中排除极少使用的信息
 // Windows 头文件:
 #include <windows.h>
+#include <Shellapi.h>
+#include <Windowsx.h>
 
 // C 运行时头文件
 #include <stdlib.h>
@@ -24,9 +26,12 @@
 #include <strstream>
 #include <algorithm>
 #include <iterator>
+#include <fstream>
 
 #include <assert.h>
 #include <direct.h>
+
+#include <CommCtrl.h>
 
 #include <boost/regex.hpp>
 
@@ -41,6 +46,10 @@
 
 #include "HttpDownFile.h"
 #include "SafeFileFromHttp.h"
+
+#include "resource.h"
+
+#include "ProcessResult.h"
 // TODO: 在此处引用程序需要的其他头文件
 //-------------------------------------------------------------------------------
 

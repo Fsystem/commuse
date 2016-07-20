@@ -3,109 +3,42 @@
 
 #include "stdafx.h"
 #include "ZipFindIpAndPort.h"
-#include <Shellapi.h>
-#include <Windowsx.h>
+
+
 #include <atlconv.h>
 #include "SearchIpAndPort.h"
 #include <Shlwapi.h>
-#include <process.h>
-#include <CommCtrl.h>
-#include <fstream>
 
 
 #pragma comment(lib,"Shlwapi.lib")
 
 //-------------------------------------------------------------------------------
 std::string g_sLog;
-static std::list<IPC_Data> listIpcDatas;
-static bool bFinish = false;
-static char szAppDir[MAX_PATH]={0};
-static char szRetFile[MAX_PATH]={0};
-static DWORD dwCastTime = 0;
-static char szDownZipDir[MAX_PATH]={0};
-static char szDownZipConfig[MAX_PATH]={0};
-static SaveFileFromHttp gSafeFile;
 
-extern HWND gMainHwnd=NULL;
-extern HWND gParantHwnd=NULL;
-extern int gFileIndex = 0;
-extern char gszZipFile[4096] = {0};
-extern char gszKeys[4096] = {0};
-extern int gAnalysisMode = -1; //0多进程 1多线程 2单进程单线程
+char szAppDir[MAX_PATH]={0};
+char szRetFile[MAX_PATH]={0};
+DWORD dwCastTime = 0;
+char szDownZipDir[MAX_PATH]={0};
+char szDownZipConfig[MAX_PATH]={0};
+SaveFileFromHttp gSafeFile;
+
+HWND gMainHwnd=NULL;
+HWND gParantHwnd=NULL;
+int gFileIndex = 0;
+char gszZipFile[4096] = {0};
+char gszKeys[4096] = {0};
+int gAnalysisMode = -1; //0多进程 1多线程 2单进程单线程
+
+extern bool bAnalysisFinish;
+extern bool bFilterFinish;
+extern std::list<IPC_Data> listIpcDatas;
+extern std::map<int,std::list<std::string>> mapFilterResult;
 //-------------------------------------------------------------------------------
 #define RESULT_FILE_NAME "RET.TXT"
 #define DOWN_ZIP_DIR "DownZip\\"
 #define DOWN_ZIP_CONFIG "DownUrl.txt"
 //-------------------------------------------------------------------------------
 
-void ProcessResultThread(void* p)
-{
-	while(1)
-	{
-		if (bFinish)
-		{
-			//MessageBoxA(NULL,"解析完毕，开始执行文件写入","提示",MB_OK);
-			int nPos = 0,nMax = listIpcDatas.size();
-			SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,nPos,0);
-			std::map<std::string,int> mapUrls;
-			for (auto it = listIpcDatas.begin();it != listIpcDatas.end();it++)
-			{
-				if (it->bProcessed)
-				{
-					{
-						std::ifstream infile(it->szRetFile);
-						std::string sLine;
-						while(std::getline(infile,sLine,'\n'))
-						{
-							if(sLine.length()==0) break;
-							mapUrls[sLine] = 0;
-						}
-					}
-					
-					//删除临时文件
-					DeleteFileA(it->szRetFile);
-				}
-
-				SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,(++nPos)*50/nMax,0);
-			}
-
-			nPos = 0;
-			nMax = mapUrls.size();
-	
-			for (auto it = mapUrls.begin();it != mapUrls.end();it++)
-			{
-				std::ofstream outfile(szRetFile,std::ios::app);
-				outfile << it->first<<std::endl;
-
-				SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,50+(++nPos)*50/nMax,0);
-			}
-
-			SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,100,0);
-
-			TCHAR szContent[4096];
-			Edit_GetText(GetDlgItem(gMainHwnd,IDC_EDIT_RESULT),szContent,_countof(szContent));
-			std::string sTmp = T2AString(szContent);
-			sTmp += "\r\n耗时:";
-			sTmp += std::to_string((LONGLONG)(GetTickCount()-dwCastTime));
-			sTmp += "ms\r\n";
-			sTmp += "全部完成,得到的结果数:[";
-			sTmp += std::to_string((LONGLONG)nMax);
-			sTmp += "][结果:RET.TXT]\r\n";
-	
-			Edit_SetText(GetDlgItem(gMainHwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
-
-			MessageBoxA(NULL,"文件解析和写入完成,请查看RET.TXT。\r\n建议每次新的操作前删除所有TXT文件","提示",MB_OK);
-
-			EnableWindow(GetDlgItem(gMainHwnd,IDOK),TRUE);
-
-			listIpcDatas.clear();
-
-			bFinish = false;
-		}
-
-		Sleep(1000);
-	}
-}
 
 BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
@@ -125,7 +58,7 @@ BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 	sprintf(szDownZipDir,"%s%s",szAppDir,DOWN_ZIP_DIR);
 	sprintf(szDownZipConfig,"%s%s",szAppDir,DOWN_ZIP_CONFIG);
 
-	_beginthread(ProcessResultThread,0,0);
+	StartProcessResultService();
 	return TRUE;
 }
 
@@ -356,7 +289,7 @@ void AnalysisIpAndPortThread(void* p)
 		AnalysisIpAndPortZip(sFile.c_str(),sKey.c_str());
 	}
 
-	if(gAnalysisMode == 2)bFinish = true;
+	if(gAnalysisMode == 2)bAnalysisFinish = true;
 
 	if (gFileIndex==0)
 	{
@@ -432,7 +365,7 @@ LRESULT Cls_OnCopyData(HWND hwnd,HWND hRemoteHwnd,PCOPYDATASTRUCT pCopyData)
 	sTmp += data.szFile;
 	sTmp += " 完成<<<<<<<<<<\r\n";
 	Edit_SetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),A2TString(sTmp.c_str()).c_str());
-	if(gAnalysisMode!=2) bFinish = (listIpcDatas.size()==gFileIndex);
+	if(gAnalysisMode!=2) bAnalysisFinish = (listIpcDatas.size()==gFileIndex);
 
 	return 0L;
 }
@@ -462,6 +395,7 @@ void OnSelFileSource(HWND hwnd, int id, HWND hwndCtl)
 
 void OnBnFilterPublisherUrl(HWND hwnd, int id, HWND hwndCtl)
 {
+	bFilterFinish = false;
 	EnableWindow(hwnd,FALSE);
 	SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,0,0);
 	BOOL bCheck = Button_GetCheck(GetDlgItem(gMainHwnd,IDC_CHECK_FILTER));
@@ -490,7 +424,7 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 				return;
 			}
 
-			bFinish = false;
+			bAnalysisFinish = false;
 			gFileIndex = 0;
 			dwCastTime = GetTickCount();
 			SendMessage(GetDlgItem(hwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,0,0);
@@ -552,6 +486,14 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 	}
 }
 
+void OnTimer(HWND hwnd,UINT uIdTimer)
+{
+	if(uIdTimer == 1)
+	{
+		SendMessage(GetDlgItem(hwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,gSafeFile.GetCurCnt()*100/gSafeFile.GetTotal(),0);
+	}
+}
+
 INT_PTR CALLBACK DialogProc(
 	__in  HWND hwndDlg,
 	__in  UINT uMsg,
@@ -565,6 +507,7 @@ INT_PTR CALLBACK DialogProc(
 		HANDLE_MSG(hwndDlg,WM_COMMAND,Cls_OnCommand);  return TRUE;
 		HANDLE_MSG(hwndDlg,WM_DROPFILES,Cls_OnDropFiles); return TRUE;
 		HANDLE_MSG(hwndDlg,WM_COPYDATA,Cls_OnCopyData);return TRUE;
+		HANDLE_MSG(hwndDlg,WM_TIMER,OnTimer); return TRUE;
 	case MSG_DOWN_FINISH:
 		{
 			EnableWindow(hwndDlg,TRUE);
@@ -581,68 +524,29 @@ INT_PTR CALLBACK DialogProc(
 
 			return TRUE;
 		}
-	case WM_TIMER:
-		{
-			if(wParam == 1)
-			{
-				SendMessage(GetDlgItem(hwndDlg,IDC_PROGRESS_RESULT),PBM_SETPOS,gSafeFile.GetCurCnt()*100/gSafeFile.GetTotal(),0);
-			}
-			break;
-		}
 	case MSG_FILTER_FINISH:
 		{
 			static int nFilterCount = INT_MAX;
 			static int nCurCount=0;
-			static std::string szTmp;
-			static std::ofstream outchldfile;
-			static std::ofstream outpubfile;
-			static std::ofstream outerrfile;
-			if (szTmp.empty())
-			{
-				szTmp = szAppDir+std::string("RET_CHILD.TXT");
-				outchldfile.open(szTmp,std::ios::out);
-				szTmp = szAppDir+std::string("RET_PUBLISH.TXT");
-				outpubfile.open(szTmp,std::ios::out);
-				szTmp = szAppDir+std::string("RET_ERROR.TXT");
-				outerrfile.open(szTmp,std::ios::out);
 
-			}
-			if (lParam==0)
+			if (lParam!=2)
 			{
 				nCurCount++;
-
-				outchldfile<<*(std::string*)wParam<<std::endl;
+				mapFilterResult[lParam].push_back( *(std::string*)wParam );
 			}
-			else if (lParam == 1)
-			{
-				nCurCount++;
-
-				outpubfile<<*(std::string*)wParam<<std::endl;
-			}
-			else if (lParam == -1)
-			{
-				nCurCount++;
-
-				outerrfile<<*(std::string*)wParam<<std::endl;
-			}
-			else if (lParam == 2)
+			else
 			{
 				nCurCount = 0;
-				nFilterCount = (wParam==0?1:(int)wParam);
+				nFilterCount = (wParam==0?INT_MAX:(int)wParam);
 			}
-
-			//delete (void*)wParam;
 
 			SendMessage(GetDlgItem(gMainHwnd,IDC_PROGRESS_RESULT),PBM_SETPOS,nCurCount*100/nFilterCount,0);
 			
 			if (nCurCount == nFilterCount)
 			{
-				szTmp.clear();
-				outchldfile.close();
-				outpubfile.close();
-				outerrfile.close();
-				MessageBoxA(NULL,"过滤完成\r\nRET_CHILD.TXT-表示子站\r\nRET_PUBLISH.TXT-表示发布站\r\nRET_ERROR.TXT-不能连接的url","温馨提示",MB_OK);
-				EnableWindow(hwndDlg,TRUE);
+				bFilterFinish = true;
+				nFilterCount = INT_MAX;
+				nCurCount=0;
 			}
 			
 			break;

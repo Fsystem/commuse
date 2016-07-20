@@ -98,6 +98,7 @@
     <ClInclude Include="FunctionHelper.h" />
     <ClInclude Include="HttpDownFile.h" />
     <ClInclude Include="JKThread.h" />
+    <ClInclude Include="ProcessResult.h" />
     <ClInclude Include="RegexOpt.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SafeFileFromHttp.h" />
@@ -111,6 +112,7 @@
     <ClCompile Include="CRC.cpp" />
     <ClCompile Include="FunctionHelper.cpp" />
     <ClCompile Include="HttpDownFile.cpp" />
+    <ClCompile Include="ProcessResult.cpp" />
     <ClCompile Include="RegexOpt.cpp" />
     <ClCompile Include="SafeFileFromHttp.cpp" />
     <ClCompile Include="SearchIpAndPort.cpp" />

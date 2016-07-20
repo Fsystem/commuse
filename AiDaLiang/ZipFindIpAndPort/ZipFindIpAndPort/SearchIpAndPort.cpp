@@ -8,6 +8,8 @@ using namespace std;
 char SearchIpAndPort::szAppPath[MAX_PATH]={0};
 char SearchIpAndPort::szErrorPath[MAX_PATH]={0};
 char cbInsteadSpace='|';
+long lCurFilterCnt = 0;
+long lTotalFilterCnt = 0;
 //-------------------------------------------------------------------------------
 SearchIpAndPort::SearchIpAndPort(bool bMakeFile)
 {
@@ -406,6 +408,7 @@ bool SearchIpAndPort::IsUrl(std::string sTxtUrl)
 	return false;
 }
 
+//-------------------------------------------------------------------------------
 bool ParseLineAnd(std::list<std::string> sPartternList,std::string sContent)
 {
 	std::string sParttern;
@@ -603,7 +606,6 @@ void FilterUrlThread(void* pData)
 			sFileData = hdf.DownFile(szTmp);
 		}
 		
-
 		if (sFileData.size()>0)
 		{
 			std::map<string,int> mapRes,mapAnalysis;
@@ -666,12 +668,10 @@ void FilterUrlThread(void* pData)
 			SendMessage(gMainHwnd,MSG_FILTER_FINISH,(WPARAM)&szTmp,0);
 		}
 
-	}
+		InterlockedExchangeAdd(&lCurFilterCnt,1);
 
-	//static long nCount = 0;
-	//InterlockedExchangeAdd(&nCount,1);
-	//LogTrace("当前线程:%d\n",nCount);
-	
+		LogTrace(">>>====当前线程结束[%ld/%ld]\n",lCurFilterCnt,lTotalFilterCnt);
+	}
 }
 
 void SearchIpAndPort::FilterPublisherUrl(void* p)
@@ -698,13 +698,16 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 			vecUrl.push_back(szTmp);
 		}
 
-		SendMessage(gMainHwnd,MSG_FILTER_FINISH,WPARAM(vecUrl.size()),2);
-		
 		int nMaxThread = 1000;
 
 		int nItemCnt = vecUrl.size()/nMaxThread+(vecUrl.size()%nMaxThread>0?1:0);
 
 		int nLast = vecUrl.size()/nItemCnt;
+
+		lTotalFilterCnt = vecUrl.size();
+		lCurFilterCnt = 0;
+
+		SendMessage(gMainHwnd,MSG_FILTER_FINISH,WPARAM(lTotalFilterCnt),2);
 
 		for (int i =0 ;i< nLast;i ++)
 		{
@@ -712,14 +715,19 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 			
 			std::copy(vecUrl.begin()+i*nItemCnt,vecUrl.begin()+i*nItemCnt+nItemCnt,std::back_inserter(*vecs));
 
+			HANDLE hThr = NULL;
 			if(mode==0){
-				_beginthread(FilterUrlThread,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThread,0,vecs);
 			}
 			else
 			{
-				_beginthread(FilterUrlThreadFile,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,0,vecs);
 			}
-			//_beginthread(FilterUrlThreadTr,0,vecs);
+
+			if (hThr == NULL)
+			{
+				OutputDebugStringA(">>>----线程创建失败\n");
+			}
 
 		}
 
@@ -729,12 +737,18 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 
 			std::copy(vecUrl.begin()+nLast*nItemCnt,vecUrl.end(),std::back_inserter(*vecs));
 
+			HANDLE hThr = NULL;
 			if(mode==0){
-				_beginthread(FilterUrlThread,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThread,0,vecs);
 			}
 			else
 			{
-				_beginthread(FilterUrlThreadFile,0,vecs);
+				hThr = (decltype(hThr))_beginthread(FilterUrlThreadFile,0,vecs);
+			}
+
+			if (hThr == NULL)
+			{
+				OutputDebugStringA(">>>----线程创建失败\n");
 			}
 		}
 	}

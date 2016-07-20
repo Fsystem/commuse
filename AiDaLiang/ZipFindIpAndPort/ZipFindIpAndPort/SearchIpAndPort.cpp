@@ -705,7 +705,7 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 			vecUrl.push_back(szTmp);
 		}
 
-		int nMaxThread = 500;
+		int nMaxThread = 1000;
 
 		int nItemCnt = vecUrl.size()/nMaxThread+(vecUrl.size()%nMaxThread>0?1:0);
 

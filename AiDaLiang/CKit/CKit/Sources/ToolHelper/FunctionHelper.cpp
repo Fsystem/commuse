@@ -202,7 +202,7 @@ DWORD GetBootTime()
 	{
 		DWORD startMSCount;//从开机到现在的毫秒数
 		startMSCount = timeGetTime();
-		time_t CurSysTime, BootSysTime;
+		time_t CurSysTime;
 		time(&CurSysTime);
 		//将开机到现在的毫秒数转换为秒数，再用当前的时间减去，获得开机时间
 		BootSysTime = CurSysTime - startMSCount/1000;

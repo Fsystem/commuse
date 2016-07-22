@@ -15,6 +15,8 @@ public:
 	void AddKey(LPCSTR szKey);
 	bool ExistKey(LPCSTR szContent);
 
+	void DelPort();
+
 	LPCSTR GetRetFileName(){return szFileName;};
 	int GetRetCnt(){return nResultCnt;}
 protected:

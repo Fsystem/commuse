@@ -483,6 +483,12 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 			
 			break;
 		}
+	case IDC_BN_DELPORT:
+		{
+			SearchIpAndPort sa(false);
+			sa.DelPort();
+			break;
+		}
 	}
 }
 

@@ -770,3 +770,43 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 		}
 	}
 }
+
+void SearchIpAndPort::DelPort()
+{
+	std::string sFilePath=szAppPath;
+	sFilePath+="RET_CHILD.TXT";
+
+	std::vector<std::string> sFileData;
+
+	std::ifstream ifile(sFilePath);
+	if (ifile.is_open())
+	{
+		std::string sLine;
+		while(std::getline(ifile,sLine,'\n'))
+		{
+			if(sLine.length()==0) break;
+
+			size_t pos = sLine.find(":");
+			if (pos != std::string::npos)
+			{
+				sLine = sLine.substr(0,pos);
+			}
+
+			sFileData.push_back(sLine);
+		}
+	}
+
+	sFilePath=szAppPath;
+	sFilePath+="RET_CHILD.TXT";
+
+	std::ofstream ofile(sFilePath);
+	if (ofile.is_open())
+	{
+		for (auto it = sFileData.begin();it != sFileData.end();it++)
+		{
+			ofile<<*it<<std::endl;
+		}
+	}
+
+	MessageBoxA(NULL,"去除子站端口完成","温馨提示",MB_OK);
+}

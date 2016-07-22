@@ -763,8 +763,8 @@ void SearchIpAndPort::FilterPublisherUrl(void* p)
 			}
 		}
 
-		assert(nLast*nItemCnt+(vecUrl.size()%nItemCnt>0?1:0) == lTotalFilterCnt);
-		if (nLast*nItemCnt+(vecUrl.size()%nItemCnt>0?1:0) != lTotalFilterCnt)
+		assert(nLast*nItemCnt+vecUrl.size()%nItemCnt == lTotalFilterCnt);
+		if (nLast*nItemCnt+vecUrl.size()%nItemCnt != lTotalFilterCnt)
 		{
 			MessageBoxA(NULL,"异常错误",NULL,MB_OK);
 		}
@@ -808,5 +808,5 @@ void SearchIpAndPort::DelPort()
 		}
 	}
 
-	MessageBoxA(NULL,"去除子站端口完成","温馨提示",MB_OK);
+	MessageBoxA(gMainHwnd,"去除子站端口完成","温馨提示",MB_OK);
 }

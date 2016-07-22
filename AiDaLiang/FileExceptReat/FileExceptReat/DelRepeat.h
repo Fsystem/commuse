@@ -1,6 +1,7 @@
 #ifndef __DelRepeat_H
 #define __DelRepeat_H
 
+
 class DelRepeat
 {
 public:
@@ -10,8 +11,8 @@ public:
 	void Execute();
 protected:
 private:
-	std::vector<std::ofstream*> fstreams;
-	std::map<std::string,std::vector<std::string>> mapFileData;
+	std::map<int,std::string> mapFiles;
+	std::map<int,std::vector<std::string>> mapFileData;
 	std::string msRetain;
 };
 #endif //__DelRepeat_H

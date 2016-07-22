@@ -3,9 +3,12 @@
 
 DelRepeat::DelRepeat(const std::vector<std::string>& files,const std::string& sRetain)
 {
+	int index = 0;
 	msRetain = sRetain;
-	for (auto it = files.begin();it!=files.end();it++)
+	for (auto it = files.begin();it!=files.end();it++,index++)
 	{
+		mapFiles[index] = *it;
+
 		std::ifstream ifile(*it);
 		if(ifile.is_open())
 		{
@@ -14,23 +17,19 @@ DelRepeat::DelRepeat(const std::vector<std::string>& files,const std::string& sR
 			{
 				if(sLine.length() == 0) continue;
 
-				mapFileData[*it].push_back(sLine);
+				mapFileData[index].push_back(sLine);
 			}
 
-			std::ofstream* pof = new std::ofstream;
-			fstreams.push_back(pof);
+			//std::ofstream* pof = new std::ofstream;
+			//fstreams.push_back(pof);
 		}
+
 	}
 }
 
 DelRepeat::~DelRepeat()
 {
-	for (auto it = fstreams.begin();it!=fstreams.end();it++)
-	{
-		delete *it;
-	}
 
-	fstreams.clear();
 }
 
 void DelRepeat::Execute()
@@ -58,12 +57,12 @@ void DelRepeat::Execute()
 		}
 	}
 
-	for (auto itMap = mapFileData.begin();itMap != mapFileData.end();itMap++)
+	for (auto itMap = mapFiles.begin();itMap != mapFiles.end();itMap++)
 	{
-		std::ofstream ofile(itMap->first);
+		std::ofstream ofile(itMap->second);
 		if (ofile.is_open())
 		{
-			std::for_each(itMap->second.begin(),itMap->second.end(),[&ofile](std::string sItem){
+			std::for_each(mapFileData[itMap->first].begin(),mapFileData[itMap->first].end(),[&ofile](std::string sItem){
 				ofile<<sItem<<std::endl;
 			});
 		}

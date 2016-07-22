@@ -8,6 +8,8 @@
 #include <fstream>
 #include <map>
 #include <algorithm>
+//boost
+#include <boost/unordered_map.hpp>
 //
 #include <windows.h>
 #include <windowsx.h>

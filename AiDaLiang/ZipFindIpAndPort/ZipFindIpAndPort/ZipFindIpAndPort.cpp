@@ -413,9 +413,17 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 				_mkdir(szDownZipDir);
 				
 				gSafeFile.DownFromHttp(szDownZipConfig,szDownZipDir);
-				::SetTimer(hwnd,1,1000,NULL);
-				EnableWindow(hwnd,FALSE);
-
+				if (gSafeFile.GetTotal()>0)
+				{
+					::SetTimer(hwnd,1,1000,NULL);
+					EnableWindow(hwnd,FALSE);
+				}
+				else
+				{
+					MessageBoxA(hwnd,"无下载URL数据","温馨提示",MB_OK);
+					return;
+				}
+				
 				TCHAR szContent[4096];
 				Edit_GetText(GetDlgItem(hwnd,IDC_EDIT_RESULT),szContent,_countof(szContent));
 				std::string sTmp = T2AString(szContent);

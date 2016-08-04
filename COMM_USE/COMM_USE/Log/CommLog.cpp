@@ -7,6 +7,8 @@
 #include "CommLog.h"
 #include <tchar.h>
 
+#define MAX_BUFFER	5000
+
 #ifdef UNICODE
 #	define TVSPINRTF vswprintf
 #else
@@ -94,12 +96,12 @@ namespace COMMUSE
 		if(_nLogState == 0) return;
 		USES_CONVERSION;
 
-		wchar_t tem[1024]={0};
+		wchar_t tem[MAX_BUFFER]={0};
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
 
-		swprintf_s(tem,1024,L"[PID:%d] [%02d:%02d:%02d] ",
+		swprintf_s(tem,MAX_BUFFER,L"[PID:%d] [%02d:%02d:%02d] ",
 			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
 
 		va_list vl;
@@ -122,12 +124,12 @@ namespace COMMUSE
 		InitLogState();
 		if(_nLogState == 0) return;
 
-		char tem[1024]={0};
+		char tem[MAX_BUFFER]={0};
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
 
-		sprintf_s(tem,1024,"[PID:%d] [%02d:%02d:%02d] ",
+		sprintf_s(tem,MAX_BUFFER,"[PID:%d] [%02d:%02d:%02d] ",
 			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
 
 		va_list vl;

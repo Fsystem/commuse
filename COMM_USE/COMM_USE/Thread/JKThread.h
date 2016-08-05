@@ -22,12 +22,23 @@ class JKThread
 
 	static void thread_func_private(void* pData)
 	{
-		JK_THREAD_INFO<T>* pFuncInfo = (JK_THREAD_INFO<T>*)pData;
-		if (pFuncInfo)
+		try
 		{
-			(pFuncInfo->pOwner->*(pFuncInfo->func))();
-		}
+			if (pData)
+			{
+				JK_THREAD_INFO<T> tagInfo;
+				memcpy(&tagInfo,pData,sizeof tagInfo);
+				delete pData;
 
+				(tagInfo.pOwner->*(tagInfo.func))();
+			}
+			else throw 0;
+		}
+		catch (...)
+		{
+			
+		}
+		
 		Stop();
 	}
 public:

@@ -84,7 +84,8 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 		std::cout<<os.str();
 
 		//WriteDataToFile("IPHead.txt",sLog.c_str());
-
+		if( dwSockPid == 0) return;
+		if(dwSockPid == GetCurrentProcessId()) return;
 		if(mCatchPid != 0 && dwSockPid != mCatchPid) return;
 
 		//判断是不是HTTP协议请求
@@ -130,7 +131,7 @@ void HandleRawData::HandleThread()
 				of<<sData<<std::endl;
 			}
 
-			SendDataByNormalSock(pIpHeader,sData.c_str(),sData.size());
+			SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
 		}
 		else
 		{
@@ -142,13 +143,13 @@ void HandleRawData::HandleThread()
 
 void HandleRawData::SendDataByNormalSock(IPHEADER* pIpHeader,const char* pData,int nLen)
 {
-	if (strstr(pData,"SELF:0xffffffff"))
+	/*if (strstr(pData,"SELF:0xffffffff"))
 	{
 		return;
-	}
+	}*/
 
 	std::string sData = pData;
-	sData += "SELF:0xffffffff";
+	//sData += "SELF:0xffffffff";
 
 	TCPHEADER* pTcpheader = (TCPHEADER*)(pIpHeader+1);
 
@@ -172,22 +173,40 @@ void HandleRawData::SendDataByNormalSock(IPHEADER* pIpHeader,const char* pData,i
 	//	int nLen = sizeof(addr_in);
 	//}
 
-
-	connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
+	std::ostringstream os;
 	std::ofstream ofSend("./Send.log",std::ios::app);
-	if(SOCKET_ERROR == send(sendSock,sData.c_str(),sData.size(),0) )
+
+	linger lin;
+	lin.l_linger=0;
+	lin.l_onoff=1;
+	if( SOCKET_ERROR == setsockopt(sendSock,SOL_SOCKET,SO_LINGER,(char*)&lin,sizeof(linger)) )
 	{
-		if (ofSend.is_open())
-		{
-			ofSend<<"发送失败:["<<GetLastError()<<"]"<<pData<<std::endl;
-		}
+		os<<"设置SO_LINGER失败:["<<GetLastError()<<"]"<<pData<<std::endl;
+		goto CLEAR;
+	}
+	
+	if(SOCKET_ERROR == connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in)) )
+	{
+		os<<"连接失败:["<<GetLastError()<<"]"<<pData<<std::endl;
+		goto CLEAR;
+	}
+	
+	if(SOCKET_ERROR == send(sendSock,pData,nLen,0) )
+	{
+		os<<"发送失败:["<<GetLastError()<<"]"<<pData<<std::endl;
+		goto CLEAR;
 	}
 	else
 	{
-		if (ofSend.is_open())
-		{
-			ofSend<<"发送成功:"<<pData<<std::endl;
-		}
+		os<<"发送成功:"<<pData<<std::endl;
+		goto CLEAR;
+	}
+	//closesocket(sendSock);
+
+CLEAR:
+	if (ofSend.is_open())
+	{
+		ofSend<<os.str();
 	}
 	shutdown(sendSock,SD_BOTH);
 }

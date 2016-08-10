@@ -39,6 +39,9 @@
     <ClInclude Include="SafeCriticalSection\SafeCriticalSection.h">
       <Filter>SafeCriticalSection</Filter>
     </ClInclude>
+    <ClInclude Include="TcpSegment.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -55,6 +58,9 @@
     </ClCompile>
     <ClCompile Include="SafeCriticalSection\SafeCriticalSection.cpp">
       <Filter>SafeCriticalSection</Filter>
+    </ClCompile>
+    <ClCompile Include="TcpSegment.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

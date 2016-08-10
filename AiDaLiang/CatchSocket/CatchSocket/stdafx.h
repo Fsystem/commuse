@@ -25,12 +25,14 @@
 #include <string.h>
 #include <list>
 #include <vector>
+#include <map>
 
 //
 #include "JKThread.h"
 #include "SafeCriticalSection/SafeCriticalSection.h"
 using namespace COMMUSE;
 //
+#include "TcpSegment.h"
 #include "RawSocket.h"
 #include "HandleRawData.h"
 // TODO: 在此处引用程序需要的其他头文件
@@ -40,3 +42,4 @@ using namespace COMMUSE;
 //-------------------------------------------------------------------------------
 extern DWORD GetPidBySocketLink(DWORD dwSrcIp,DWORD dwSrcPort,DWORD dwDesIp,DWORD dwDesPort);
 extern USHORT ChechSum(USHORT *buffer, int size);
+extern unsigned int BKDRHash(char *str);

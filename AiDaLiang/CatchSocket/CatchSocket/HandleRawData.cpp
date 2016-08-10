@@ -35,6 +35,24 @@ HandleRawData::BinaryArr HandleRawData::ReadHttpData()
 	return sHttpData;
 }
 
+void HandleRawData::WriteHttpData(IPHEADER* pIpData,bool first)
+{
+	TCPHEADER* pTcpHeader = (TCPHEADER*)(pIpData+1);
+	std::string sData = (char*)(pTcpHeader+1);
+	char szKey[256];
+	sprintf(szKey,"%u%u%u%u",pIpData->sourceIP,pTcpHeader->sport,pIpData->destIP,pTcpHeader->dport);
+	DWORD dwKey = BKDRHash(szKey);
+	LOCK(mLockHttpsDatas);
+	mTcpSegments.AddPackage(dwKey,pIpData->destIP,pTcpHeader->dport,sData,pTcpHeader->flag,first);
+	
+}
+
+bool HandleRawData::ReadHttpData(TcpSegment::TcpPackageInfo* pack)
+{
+	LOCK(mLockHttpsDatas);
+	return mTcpSegments.GetPackage(pack);
+}
+
 void HandleRawData::HandleData(IPHEADER* pIpHeader)
 {
 	//判断是否是TCP包
@@ -90,20 +108,59 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 
 		//判断是不是HTTP协议请求
 		char* pData = (char*)(pTcpheader+1);
+		std::ofstream of("./ack.log",std::ios::app);
 		if (strstr(pData,"HTTP") && (strnicmp(pData,"POST",4)==0 || strnicmp(pData,"GET",3)==0))
 		{
+			of<<"HTTP:"<<pTcpheader->ack<<pData <<std::endl;
 			printf("\nHTTP数据:%s\n",pData);
 			//WriteDataToFile("./HttpData.txt",pData);
 			std::vector<char> sHttpData;
 			sHttpData.assign((char*)pIpHeader,(char*)pIpHeader+pIpHeader->tatal_len);
-			WriteHttpData(sHttpData);
+			WriteHttpData(pIpHeader,true);
 
 			if (mHandleThread == NULL)
 			{
-				mHandleThread = (HANDLE)JKThread<HandleRawData>::Start(&HandleRawData::HandleThread,this);
+				mHandleThread = (HANDLE)JKThread<HandleRawData>::Start(&HandleRawData::HandleThreadEx,this);
 			}
 
 		}
+		else
+		{
+			WriteHttpData(pIpHeader,false);
+			of<<"ack:"<<pTcpheader->ack<<pData<<std::endl;
+		}
+	}
+}
+
+void HandleRawData::HandleThreadEx()
+{
+	std::ofstream of0("./httpData.log",std::ios::out);
+	std::ofstream ofbegin0("./Send.log",std::ios::out);
+	of0.close();
+	ofbegin0.close();
+
+	while(1)
+	{
+		TcpSegment::TcpPackageInfo info;
+		if (ReadHttpData(&info))
+		{
+			std::string sData = info.sData;
+
+			std::cout<<sData<<std::endl;
+			std::ofstream of("./httpData.log",std::ios::app);
+			if (of.is_open())
+			{
+				of<<sData<<std::endl;
+			}
+
+			//SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
+			SendDataByNormalSockEx(info.mIp,info.mPort,sData.c_str(),sData.size());
+		}
+		else
+		{
+			Sleep(100);
+		}
+		Sleep(10);
 	}
 }
 
@@ -131,7 +188,18 @@ void HandleRawData::HandleThread()
 				of<<sData<<std::endl;
 			}
 
-			SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
+			size_t idx = sData.find("Content-Length:");
+			
+			int nCLen = 0;
+			if( idx != std::string::npos)
+			{
+				std::string sConLen = sData.substr(idx+strlen("Content-Length:"),std::string::npos);
+				size_t idxEnd = sConLen.find("\r\n");
+				if(idxEnd != std::string::npos) sConLen = sConLen.substr(0,idxEnd);
+				nCLen = std::stoi(sConLen);
+			}
+			//SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
+			SendDataByNormalSock(pIpHeader,sData.c_str(),sData.size()+nCLen);
 		}
 		else
 		{
@@ -143,35 +211,23 @@ void HandleRawData::HandleThread()
 
 void HandleRawData::SendDataByNormalSock(IPHEADER* pIpHeader,const char* pData,int nLen)
 {
-	/*if (strstr(pData,"SELF:0xffffffff"))
-	{
-		return;
-	}*/
+	TCPHEADER* pTcpheader = (TCPHEADER*)(pIpHeader+1);
+	SendDataByNormalSockEx(pIpHeader->destIP,pTcpheader->dport,pData,nLen);
+}
+
+void HandleRawData::SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen)
+{
 
 	std::string sData = pData;
-	//sData += "SELF:0xffffffff";
-
-	TCPHEADER* pTcpheader = (TCPHEADER*)(pIpHeader+1);
 
 	SOCKADDR_IN addr_in;
 	memset(&addr_in,0,sizeof(addr_in));
 	addr_in.sin_family=AF_INET;
-	addr_in.sin_port=pTcpheader->dport;
-	addr_in.sin_addr.S_un.S_addr=pIpHeader->destIP;
+	addr_in.sin_port=wPort;
+	addr_in.sin_addr.S_un.S_addr=dwIp;
 
 	SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-	//int nErr = 0;
-	//int one = 1;
-
-	//const int *val = &one;
-	//nErr = setsockopt(sendSock, IPPROTO_IP, IP_HDRINCL, (char*)val, sizeof(one));
-
-	//nErr = ::bind(sendSock,(SOCKADDR*)&addr_in,sizeof(addr_in));
-	//if (nErr != SOCKET_ERROR)
-	//{
-	//	int nLen = sizeof(addr_in);
-	//}
 
 	std::ostringstream os;
 	std::ofstream ofSend("./Send.log",std::ios::app);

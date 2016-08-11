@@ -43,14 +43,14 @@ void HandleRawData::WriteHttpData(IPHEADER* pIpData,bool first)
 	sprintf(szKey,"%u%u%u%u",pIpData->sourceIP,pTcpHeader->sport,pIpData->destIP,pTcpHeader->dport);
 	DWORD dwKey = BKDRHash(szKey);
 	LOCK(mLockHttpsDatas);
-	mTcpSegments.AddPackage(dwKey,pIpData->destIP,pTcpHeader->dport,sData,pTcpHeader->flag,first);
+	mTcpSegments.AddPackage(dwKey,pTcpHeader->ack,pIpData->destIP,pTcpHeader->dport,sData,pTcpHeader->flag,first);
 	
 }
 
-bool HandleRawData::ReadHttpData(TcpSegment::TcpPackageInfo* pack)
+bool HandleRawData::ReadHttpData(std::list<TcpSegment::TcpPackageInfo>& packs)
 {
 	LOCK(mLockHttpsDatas);
-	return mTcpSegments.GetPackage(pack);
+	return mTcpSegments.GetPackage(packs);
 }
 
 void HandleRawData::HandleData(IPHEADER* pIpHeader)
@@ -73,7 +73,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 		os<<"\n源IP："<< (int)(byte)pSip[0]<<"."<<(int)(byte)pSip[1]<<"."<<(int)(byte)pSip[2]<<"."<<(int)(byte)pSip[3];
 		os<<"\n目的IP："<< (int)(byte)pDip[0]<<"."<<(int)(byte)pDip[1]<<"."<<(int)(byte)pDip[2]<<"."<<(int)(byte)pDip[3];
 
-		std::cout<<os.str();
+		//std::cout<<os.str();
 		os.str("");
 
 		os<<"\n#################数据包长度%d"<<pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER);
@@ -99,7 +99,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 		os<<"\nPID："<< dwSockPid<<"\n";
 
 		//sLog+= os.str();
-		std::cout<<os.str();
+		//std::cout<<os.str();
 
 		//WriteDataToFile("IPHead.txt",sLog.c_str());
 		if( dwSockPid == 0) return;
@@ -108,10 +108,10 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 
 		//判断是不是HTTP协议请求
 		char* pData = (char*)(pTcpheader+1);
-		std::ofstream of("./ack.log",std::ios::app);
+		//std::ofstream of("./ack.log",std::ios::app);
 		if (strstr(pData,"HTTP") && (strnicmp(pData,"POST",4)==0 || strnicmp(pData,"GET",3)==0))
 		{
-			of<<"HTTP:"<<pTcpheader->ack<<pData <<std::endl;
+			//of<<"HTTP:"<<pTcpheader->ack<<pData <<std::endl;
 			printf("\nHTTP数据:%s\n",pData);
 			//WriteDataToFile("./HttpData.txt",pData);
 			std::vector<char> sHttpData;
@@ -127,7 +127,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 		else
 		{
 			WriteHttpData(pIpHeader,false);
-			of<<"ack:"<<pTcpheader->ack<<pData<<std::endl;
+			//of<<"ack:"<<pTcpheader->ack<<pData<<std::endl;
 		}
 	}
 }
@@ -141,20 +141,35 @@ void HandleRawData::HandleThreadEx()
 
 	while(1)
 	{
-		TcpSegment::TcpPackageInfo info;
-		if (ReadHttpData(&info))
+		std::list<TcpSegment::TcpPackageInfo> infos;
+		if (ReadHttpData(infos))
 		{
-			std::string sData = info.sData;
-
-			std::cout<<sData<<std::endl;
 			std::ofstream of("./httpData.log",std::ios::app);
-			if (of.is_open())
+
+			SOCKADDR_IN addr_in;
+			memset(&addr_in,0,sizeof(addr_in));
+			addr_in.sin_family=AF_INET;
+			addr_in.sin_port=infos.front().mPort;
+			addr_in.sin_addr.S_un.S_addr=infos.front().mIp;
+
+			SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			int nError = connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
+
+			for(auto it = infos.begin();it!=infos.end();it++)
 			{
-				of<<sData<<std::endl;
+				std::string sData = it->sData;
+				std::cout<<sData<<std::endl;
+				if (of.is_open())
+				{
+					of<<sData<<std::endl;
+				}
+
+				SendDataByNormalSockEx(it->mIp,it->mPort,sData.c_str(),sData.size(),sendSock);
 			}
 
+			shutdown(sendSock,SD_BOTH);
 			//SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
-			SendDataByNormalSockEx(info.mIp,info.mPort,sData.c_str(),sData.size());
+			
 		}
 		else
 		{
@@ -215,37 +230,43 @@ void HandleRawData::SendDataByNormalSock(IPHEADER* pIpHeader,const char* pData,i
 	SendDataByNormalSockEx(pIpHeader->destIP,pTcpheader->dport,pData,nLen);
 }
 
-void HandleRawData::SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen)
+void HandleRawData::SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen,SOCKET sock)
 {
-
-	std::string sData = pData;
-
-	SOCKADDR_IN addr_in;
-	memset(&addr_in,0,sizeof(addr_in));
-	addr_in.sin_family=AF_INET;
-	addr_in.sin_port=wPort;
-	addr_in.sin_addr.S_un.S_addr=dwIp;
-
-	SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-
 	std::ostringstream os;
 	std::ofstream ofSend("./Send.log",std::ios::app);
 
-	linger lin;
-	lin.l_linger=0;
-	lin.l_onoff=1;
-	if( SOCKET_ERROR == setsockopt(sendSock,SOL_SOCKET,SO_LINGER,(char*)&lin,sizeof(linger)) )
+	std::string sData = pData;
+
+	SOCKET sendSock = sock;
+	bool bClean = false;
+	if (sendSock == INVALID_SOCKET)
 	{
-		os<<"设置SO_LINGER失败:["<<GetLastError()<<"]"<<pData<<std::endl;
-		goto CLEAR;
+		bClean = true;
+
+		SOCKADDR_IN addr_in;
+		memset(&addr_in,0,sizeof(addr_in));
+		addr_in.sin_family=AF_INET;
+		addr_in.sin_port=wPort;
+		addr_in.sin_addr.S_un.S_addr=dwIp;
+
+		sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+		if(SOCKET_ERROR == connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in)) )
+		{
+			os<<"连接失败:["<<GetLastError()<<"]"<<pData<<std::endl;
+			goto CLEAR;
+		}
 	}
+
+	//linger lin;
+	//lin.l_linger=0;
+	//lin.l_onoff=1;
+	//if( SOCKET_ERROR == setsockopt(sendSock,SOL_SOCKET,SO_LINGER,(char*)&lin,sizeof(linger)) )
+	//{
+	//	os<<"设置SO_LINGER失败:["<<GetLastError()<<"]"<<pData<<std::endl;
+	//	goto CLEAR;
+	//}
 	
-	if(SOCKET_ERROR == connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in)) )
-	{
-		os<<"连接失败:["<<GetLastError()<<"]"<<pData<<std::endl;
-		goto CLEAR;
-	}
 	
 	if(SOCKET_ERROR == send(sendSock,pData,nLen,0) )
 	{
@@ -264,7 +285,8 @@ CLEAR:
 	{
 		ofSend<<os.str();
 	}
-	shutdown(sendSock,SD_BOTH);
+	if (sendSock == INVALID_SOCKET)
+	if(bClean)shutdown(sendSock,SD_BOTH);
 }
 
 

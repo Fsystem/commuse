@@ -12,7 +12,7 @@ public:
 	BinaryArr ReadHttpData();
 
 	void WriteHttpData(IPHEADER* pIpData,bool first=false);
-	bool ReadHttpData(TcpSegment::TcpPackageInfo* pack);
+	bool ReadHttpData(std::list<TcpSegment::TcpPackageInfo>& packs);
 	//接口实现
 protected:
 	virtual void HandleData(IPHEADER* pIpHeader);
@@ -22,7 +22,7 @@ protected:
 	void HandleThreadEx();
 	void SendData(IPHEADER* pIpHeader);
 	void SendDataByNormalSock(IPHEADER* pIpHeader, const char* pData,int nLen);
-	void SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen);
+	void SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen,SOCKET sock=INVALID_SOCKET);
 private:
 	std::list<BinaryArr> mRawHttpDatas;
 	TcpSegment mTcpSegments;

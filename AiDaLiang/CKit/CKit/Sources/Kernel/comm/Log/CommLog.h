@@ -62,7 +62,7 @@ namespace COMMUSE
 		void LogEvenFW (wchar_t* message);
 		void LogEvenFA (char* message);
 	private:
-		FILE *				_LogFile ;					//打印文件句柄
+		HANDLE				_LogFile ;					//打印文件句柄
 		char				_szLogFilePath[MAX_PATH];	//log文件路径
 		char				_szAppFileName[MAX_PATH];	//应用程序名
 		int					_nLogState;					//是否打印日志

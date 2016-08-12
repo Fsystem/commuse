@@ -7,19 +7,41 @@
 #include "CommLog.h"
 #include <tchar.h>
 
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <io.h>
+
+#define MAX_BUFFER	5000
+#define INVALID_FILE INVALID_HANDLE_VALUE
+
 #ifdef UNICODE
 #	define TVSPINRTF vswprintf
 #else
 #	define TVSPINRTF vsprintf
 #endif
 
+
+
 #pragma warning(disable:4996)
 namespace COMMUSE
 {
+	HMODULE ThisModule()
+	{
+		static HMODULE h = NULL;
+		if (!h)
+		{
+			MEMORY_BASIC_INFORMATION mbi;
+			::VirtualQuery(ThisModule,&mbi,sizeof(mbi));
+			h = (HMODULE)mbi.AllocationBase;
+		}
+		return h;
+	}
+
 	//-------------------------------------------------------------------------------
 	ComPrintLog::ComPrintLog()
 	{
-		_LogFile = NULL;
+		_LogFile = INVALID_FILE;
 		memset((void*)_szLogFilePath,0,sizeof(_szLogFilePath));
 		memset(_szAppFileName,0,sizeof(_szAppFileName));
 		PrintInit();
@@ -27,7 +49,7 @@ namespace COMMUSE
 	//-------------------------------------------------------------------------------
 	ComPrintLog::~ComPrintLog()
 	{
-		_LogFile = NULL;
+		_LogFile = INVALID_FILE;
 		memset((void*)_szLogFilePath,0,sizeof(_szLogFilePath));
 		memset(_szAppFileName,0,sizeof(_szAppFileName));
 		PrintUnInit();
@@ -36,7 +58,7 @@ namespace COMMUSE
 	void ComPrintLog::PrintInit()
 	{
 		char* p = _szLogFilePath;
-		GetModuleFileNameA(NULL,_szLogFilePath,MAX_PATH);
+		GetModuleFileNameA(ThisModule(),_szLogFilePath,MAX_PATH);
 		p += strlen(_szLogFilePath);
 		while(*p != '\\')
 		{
@@ -48,21 +70,8 @@ namespace COMMUSE
 		strrchr(_szLogStateIniPath,'\\')[1]=0;
 		strcat(_szLogStateIniPath,"CommLogOpt.ini");
 		
-		if (!_LogFile)
-		{
-			InitializeCriticalSection(&_cs_log);
-			char tem[1024]={0};
-			
-			SYSTEMTIME t;
-			GetLocalTime(&t);
-
-			memcpy(p+1,"Log\\\0",strlen("Log\\\0")+1 );//添加目录(_szLogFilePath路径)
-
-			CreateDirectoryA(_szLogFilePath,NULL);	//创建LOG文件目录
-			sprintf(tem , "%s%s[%d-%d-%d].log",_szLogFilePath,_szAppFileName,t.wYear , t.wMonth , t.wDay );
-
-			_LogFile = fopen(tem,"a");
-		}
+		InitializeCriticalSection(&_cs_log);
+		memcpy(p+1,"Log\\\0",strlen("Log\\\0")+1 );//添加目录(_szLogFilePath路径)
 
 		InitLogState();
 
@@ -71,10 +80,10 @@ namespace COMMUSE
 	void ComPrintLog::PrintUnInit()
 	{
 		EnterCriticalSection(&_cs_log);
-		if ( _LogFile )
+		if ( _LogFile  != INVALID_FILE )
 		{
-			fclose( _LogFile );
-			_LogFile = NULL;
+			CloseHandle( _LogFile );
+			_LogFile = INVALID_FILE;
 		}
 		LeaveCriticalSection(&_cs_log);
 
@@ -94,12 +103,12 @@ namespace COMMUSE
 		if(_nLogState == 0) return;
 		USES_CONVERSION;
 
-		wchar_t tem[1024]={0};
+		wchar_t tem[MAX_BUFFER]={0};
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
 
-		swprintf_s(tem,1024,L"[PID:%d] [%02d:%02d:%02d] ",
+		swprintf_s(tem,MAX_BUFFER,L"[PID:%d] [%02d:%02d:%02d] ",
 			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
 
 		va_list vl;
@@ -122,12 +131,12 @@ namespace COMMUSE
 		InitLogState();
 		if(_nLogState == 0) return;
 
-		char tem[1024]={0};
+		char tem[MAX_BUFFER]={0};
 		SYSTEMTIME st;
 
 		GetLocalTime(&st);
 
-		sprintf_s(tem,1024,"[PID:%d] [%02d:%02d:%02d] ",
+		sprintf_s(tem,MAX_BUFFER,"[PID:%d] [%02d:%02d:%02d] ",
 			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
 
 		va_list vl;
@@ -161,6 +170,11 @@ namespace COMMUSE
 
 	void ComPrintLog::LogEvenFW (wchar_t* message)
 	{
+		if (_access(_szLogFilePath,0) == -1)
+		{
+			CreateDirectoryA(_szLogFilePath,NULL);	//创建LOG文件目录
+		}
+
 		char	szLogFileName[MAX_PATH];//log文件名(临时用)
 		SYSTEMTIME st;
 
@@ -171,32 +185,51 @@ namespace COMMUSE
 			_szLogFilePath,_szAppFileName,st.wYear , st.wMonth , st.wDay );
 
 		//判断是不是需要重新创建文件
+		EnterCriticalSection(&_cs_log);
 		if( -1 == _access(szLogFileName,0) ) 
 		{
-			if (_LogFile) 
+			HANDLE fileOld = _LogFile;
+			_LogFile = CreateFileA(szLogFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_DELETE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			if (fileOld != INVALID_FILE)
 			{
-				fclose(_LogFile);
-				_LogFile = NULL;
+				CloseHandle(fileOld);
 			}
-			_LogFile = fopen(szLogFileName,"a");
+		}
+		else
+		{
+			if (_LogFile == INVALID_FILE)
+			{
+				_LogFile = CreateFileA(szLogFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_DELETE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			}
 		}
 
-		if (_LogFile)//文件句柄存在
+		
+		if (_LogFile != INVALID_FILE)//文件句柄存在
 		{
+			
 			USES_CONVERSION;
 
-			EnterCriticalSection(&_cs_log);
-
-			fwrite(W2A(message) , 1, strlen(W2A(message)) , _LogFile);
-
-			fflush(_LogFile);
-			LeaveCriticalSection(&_cs_log);
+			DWORD dwWritten = 0;
+			WriteFile(_LogFile,W2A(message) , strlen(W2A(message)),&dwWritten,NULL);
+			//FlushFileBuffers(_LogFile);
+			
 		}
+		else 
+		{
+			DWORD err = 0;
+			err = GetLastError();
+		}
+		LeaveCriticalSection(&_cs_log);
 	}
 
 	//-------------------------------------------------------------------------------
 	void ComPrintLog::LogEvenFA (char* message)
 	{
+		if (_access(_szLogFilePath,0) == -1)
+		{
+			CreateDirectoryA(_szLogFilePath,NULL);	//创建LOG文件目录
+		}
+
 		char	szLogFileName[MAX_PATH];//log文件名(临时用)
 		SYSTEMTIME st;
 
@@ -207,26 +240,37 @@ namespace COMMUSE
 			_szLogFilePath,_szAppFileName,st.wYear , st.wMonth , st.wDay );
 
 		//判断是不是需要重新创建文件
+		EnterCriticalSection(&_cs_log);
 		if( -1 == _access(szLogFileName,0) ) 
 		{
-			if (_LogFile) 
+			HANDLE fileOld = _LogFile;
+			_LogFile = CreateFileA(szLogFileName,GENERIC_WRITE,FILE_SHARE_WRITE|FILE_SHARE_READ|FILE_SHARE_DELETE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			if (fileOld != INVALID_FILE)
 			{
-				fclose(_LogFile);
-				_LogFile = NULL;
+				CloseHandle(fileOld);
 			}
-			_LogFile = fopen(szLogFileName,"a");
 		}
-
-		if (_LogFile)//文件句柄存在
+		else
 		{
-
-			EnterCriticalSection(&_cs_log);
-
-			fwrite(message , 1, strlen(message) , _LogFile);
-
-			fflush(_LogFile);
-			LeaveCriticalSection(&_cs_log);
+			if (_LogFile == INVALID_FILE)
+			{
+				_LogFile = CreateFileA(szLogFileName,GENERIC_WRITE,FILE_SHARE_WRITE|FILE_SHARE_READ|FILE_SHARE_DELETE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+			}
 		}
+
+		
+		if (_LogFile != INVALID_FILE)//文件句柄存在
+		{
+			DWORD dwWritten = 0;
+			WriteFile(_LogFile,message , strlen(message) ,&dwWritten,NULL);
+			//FlushFileBuffers(_LogFile);
+		}
+		else 
+		{
+			DWORD err = 0;
+			err = GetLastError();
+		}
+		LeaveCriticalSection(&_cs_log);
 	}
 	//-------------------------------------------------------------------------------
 //#	ifdef UNICODE

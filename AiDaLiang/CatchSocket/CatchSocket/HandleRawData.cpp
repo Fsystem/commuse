@@ -125,14 +125,14 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 			}
 
 		}
-		//else if (strstr(pData,"HTTP"))
-		//{
-		//	std::ofstream of("./httpres.log",std::ios::app);
-		//	if (of.is_open())
-		//	{
-		//		of<<pData<<std::endl;
-		//	}
-		//}
+		else if (strnicmp(pData,"CONNECT",7) == 0)
+		{
+			std::ofstream of("./httpsres.log",std::ios::app);
+			if (of.is_open())
+			{
+				of<<pData<<std::endl;
+			}
+		}
 		else
 		{
 			WriteHttpData(pIpHeader,false);

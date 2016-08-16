@@ -54,7 +54,8 @@ BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
 	if (__argc > 1)
 	{
-		Edit_SetText(GetDlgItem(hwnd,IDC_DLL_PATH),__argv[1]);
+		strcpy(szDllFilePath,__argv[1]);
+		Edit_SetText(GetDlgItem(hwnd,IDC_DLL_PATH),szDllFilePath);
 	}
 
 	return TRUE;
@@ -67,7 +68,7 @@ void Cls_OnCommand(HWND hwnd, int id, HWND hwndCtl, UINT codeNotify)
 	case IDOK:
 		{
 			_beginthread(LoadDll,0,szDllFilePath);
-			_beginthread(Thread1,0,NULL);
+			//_beginthread(Thread1,0,NULL);
 			break;
 		}
 	case IDCANCEL:

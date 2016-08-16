@@ -52,6 +52,11 @@ BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 
 	SetWindowLong(hwnd,GWL_EXSTYLE,GetWindowLong(hwnd,GWL_EXSTYLE)|WS_EX_ACCEPTFILES);
 
+	if (__argc > 1)
+	{
+		Edit_SetText(GetDlgItem(hwnd,IDC_DLL_PATH),__argv[1]);
+	}
+
 	return TRUE;
 }
 

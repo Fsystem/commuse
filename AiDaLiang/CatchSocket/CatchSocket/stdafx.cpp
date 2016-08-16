@@ -9,6 +9,7 @@
 DWORD GetPidBySocketLink(DWORD dwSrcIp,DWORD dwSrcPort,DWORD dwDesIp,DWORD dwDesPort)
 {
 	DWORD dwSize = 0;
+	DWORD dwPid = 0;
 	if( GetExtendedTcpTable(NULL, &dwSize, TRUE, AF_INET, TCP_TABLE_OWNER_PID_ALL, 0)==ERROR_INSUFFICIENT_BUFFER )
 	{
 		PMIB_TCPTABLE_OWNER_PID pTcpTab = (PMIB_TCPTABLE_OWNER_PID)malloc(dwSize);
@@ -19,13 +20,16 @@ DWORD GetPidBySocketLink(DWORD dwSrcIp,DWORD dwSrcPort,DWORD dwDesIp,DWORD dwDes
 				if (dwSrcIp == pTcpTab->table[i].dwLocalAddr && dwSrcPort == pTcpTab->table[i].dwLocalPort
 					&& dwDesIp == pTcpTab->table[i].dwRemoteAddr && dwDesPort == pTcpTab->table[i].dwRemotePort)
 				{
-					return pTcpTab->table[i].dwOwningPid;
+					dwPid = pTcpTab->table[i].dwOwningPid;
+					break;
 				}
 			}
 		}
+
+		free(pTcpTab);
 	}
 
-	return 0;
+	return dwPid;
 }
 
 //CheckSum:计算校验和的子函数(参数为：tcp伪首部+tcp首部作为缓冲区)

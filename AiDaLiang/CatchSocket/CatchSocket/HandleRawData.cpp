@@ -94,10 +94,10 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 				os<<" ";
 			FlagMask = FlagMask << 1;
 		}
-
+		
 		DWORD dwSockPid = GetPidBySocketLink(pIpHeader->sourceIP,pTcpheader->sport,pIpHeader->destIP,pTcpheader->dport);
 		os<<"\nPID："<< dwSockPid<<"\n";
-
+		
 		//sLog+= os.str();
 		//std::cout<<os.str();
 
@@ -105,7 +105,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 		if( dwSockPid == 0) return;
 		if(dwSockPid == GetCurrentProcessId()) return;
 		if(mCatchPid != 0 && dwSockPid != mCatchPid) return;
-
+		
 		//判断是不是HTTP协议请求
 		char* pData = (char*)(pTcpheader+1);
 		//std::ofstream of("./ack.log",std::ios::app);
@@ -116,6 +116,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 			//WriteDataToFile("./HttpData.txt",pData);
 			std::vector<char> sHttpData;
 			sHttpData.assign((char*)pIpHeader,(char*)pIpHeader+pIpHeader->tatal_len);
+
 			WriteHttpData(pIpHeader,true);
 
 			if (mHandleThread == NULL)
@@ -124,6 +125,14 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 			}
 
 		}
+		//else if (strstr(pData,"HTTP"))
+		//{
+		//	std::ofstream of("./httpres.log",std::ios::app);
+		//	if (of.is_open())
+		//	{
+		//		of<<pData<<std::endl;
+		//	}
+		//}
 		else
 		{
 			WriteHttpData(pIpHeader,false);
@@ -152,23 +161,26 @@ void HandleRawData::HandleThreadEx()
 			addr_in.sin_port=infos.front().mPort;
 			addr_in.sin_addr.S_un.S_addr=infos.front().mIp;
 
+			//
 			SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+			//int flag=1,len=sizeof(int);
+			//setsockopt(sendSock, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, len);
 			int nError = connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
 
 			for(auto it = infos.begin();it!=infos.end();it++)
 			{
-				std::string sData = it->sData;
-				std::cout<<sData<<std::endl;
-				if (of.is_open())
-				{
-					of<<sData<<std::endl;
-				}
+			std::string sData = it->sData;
+			std::cout<<sData<<std::endl;
+			if (of.is_open())
+			{
+			of<<sData<<std::endl;
+			}
 
-				SendDataByNormalSockEx(it->mIp,it->mPort,sData.c_str(),sData.size(),sendSock);
+			SendDataByNormalSockEx(it->mIp,it->mPort,sData.c_str(),sData.size(),sendSock);
 			}
 
 			shutdown(sendSock,SD_BOTH);
-			//SendDataByNormalSock(pIpHeader,(char*)(pTcpheader+1),pIpHeader->tatal_len-sizeof(IPHEADER)-sizeof(TCPHEADER));
+			closesocket(sendSock);
 			
 		}
 		else

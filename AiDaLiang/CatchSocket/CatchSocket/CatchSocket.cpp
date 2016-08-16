@@ -1,6 +1,67 @@
 #include <stdafx.h>
+#include <process.h>
 
+DWORD GetLocalIp()
+{
+	//1.初始化wsa  
+	WSADATA wsaData;  
+	int ret=WSAStartup(MAKEWORD(2,2),&wsaData);  
+	if (ret!=0)  
+	{  
+		return false;  
+	}  
+	//2.获取主机名  
+	char hostname[256];  
+	ret=gethostname(hostname,sizeof(hostname));  
+	if (ret==SOCKET_ERROR)  
+	{  
+		return false;  
+	}  
+	//3.获取主机ip  
+	HOSTENT* host=gethostbyname(hostname);  
+	if (host==NULL)  
+	{  
+		return false;  
+	}  
+	//4.转化为char*并拷贝返回  
+	return ((in_addr*)*host->h_addr_list)->S_un.S_addr;
+}
 
+void StartThread(void* p)
+{
+	(void)p;
+
+	WSADATA wsd;
+	WSAStartup(MAKEWORD(2, 2), &wsd);
+	RawSocket rawSock;
+
+	DWORD dwIp = GetLocalIp();
+	std::string sIp = inet_ntoa(*(in_addr*)&dwIp);
+	HandleRawData handleData(0);
+	rawSock.StartCatch(sIp.c_str(),&handleData);
+
+	while(1) Sleep(1000);
+}
+
+HANDLE hThread = NULL;
+BOOL APIENTRY DllMain( HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved )
+{
+	switch(dwReason)
+	{
+	case DLL_PROCESS_ATTACH:
+		{
+			hThread = (HANDLE)_beginthread(StartThread,0,0);
+			break;
+		}
+	case DLL_PROCESS_DETACH:
+		{
+			if(hThread) ::TerminateThread(hThread,-1);
+			break;
+		}
+	}
+
+	return TRUE;
+}
 
 int _tmain(int argc, char **argv)
 {
@@ -31,7 +92,7 @@ int _tmain(int argc, char **argv)
 	//connect(s,(struct sockaddr*)&addr_in,sizeof(addr_in));
 	//send(s,sSend.c_str(),sSend.size(),0);
 
-	DWORD dwPid=0;
+	/*DWORD dwPid=0;
 	std::string sIp;
 	
 	RawSocket rawSock;
@@ -43,7 +104,9 @@ int _tmain(int argc, char **argv)
 	std::cout<<GetCurrentProcessId()<<std::endl;
 
 	HandleRawData handleData(dwPid);
-	rawSock.StartCatch(sIp.c_str(),&handleData);
+	rawSock.StartCatch(sIp.c_str(),&handleData);*/
+
+	_beginthread(StartThread,0,0);
 
 	while(1) Sleep(1000);
 	return 0;

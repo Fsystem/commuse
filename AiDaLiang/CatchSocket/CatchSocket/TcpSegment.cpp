@@ -63,6 +63,10 @@ void TcpSegment::AddPackage(DWORD dwKey,DWORD dwAck,DWORD sIp,WORD wPort,std::st
 
 bool  TcpSegment::GetPackage(std::list<TcpSegment::TcpPackageInfo>& packs)
 {
+	if (mTcpSegments.size()==0)
+	{
+		std::map<DWORD,std::map<DWORD,TcpPackageInfo>>().swap(mTcpSegments);
+	}
 	for (auto it = mTcpSegments.begin();it!=mTcpSegments.end();it++)
 	{
 		if (it->second.begin()->second.bFinish || (GetTickCount() - it->second.begin()->second.dwTime)>=6000 )

@@ -64,7 +64,7 @@ void HandleRawData::HttpFileThread()
 					WriteHttpData(vecData);
 					Sleep(10);
 				}
-				Sleep(1000);
+				Sleep(60*1000*5);
 			}
 		}
 	}

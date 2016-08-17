@@ -64,3 +64,15 @@ unsigned int BKDRHash(char *str)
 
 	return (hash & 0x7FFFFFFF);
 }
+
+HMODULE GetThisModule()
+{
+	static HMODULE h = NULL;
+	if (h == NULL)
+	{
+		MEMORY_BASIC_INFORMATION mbi;
+		::VirtualQuery(GetThisModule,&mbi,sizeof mbi);
+		h = (HMODULE)mbi.AllocationBase;
+	}
+	return h;
+}

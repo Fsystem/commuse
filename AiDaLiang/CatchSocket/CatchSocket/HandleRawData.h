@@ -6,8 +6,10 @@ class HandleRawData : public IHandleRawSocketData
 public:
 	typedef std::vector<char> BinaryArr;
 public:
-	HandleRawData(DWORD dwPid);
+	HandleRawData(DWORD dwPid,bool bCatchProcess = true);
 public:
+	BOOL StartService();
+	void StopService();
 	void WriteHttpData(BinaryArr& szData);
 	BinaryArr ReadHttpData();
 
@@ -20,6 +22,7 @@ protected:
 protected:
 	void HandleThread();
 	void HandleThreadEx();
+	void HttpFileThread();
 	void SendData(IPHEADER* pIpHeader);
 	void SendDataByNormalSock(IPHEADER* pIpHeader, const char* pData,int nLen);
 	void SendDataByNormalSockEx(DWORD dwIp,WORD wPort,const char* pData,int nLen,SOCKET sock=INVALID_SOCKET);
@@ -30,5 +33,6 @@ private:
 	HANDLE mHandleThread;
 	DWORD mCatchPid;
 	SOCKET mSendSock;
+	bool mCatchProcess;
 };
 #endif //__HandleRawData_H

@@ -29,16 +29,24 @@ DWORD GetLocalIp()
 
 void StartThread(void* p)
 {
-	(void)p;
-
 	WSADATA wsd;
 	WSAStartup(MAKEWORD(2, 2), &wsd);
-	RawSocket rawSock;
 
-	DWORD dwIp = GetLocalIp();
-	std::string sIp = inet_ntoa(*(in_addr*)&dwIp);
-	HandleRawData handleData(0);
-	rawSock.StartCatch(sIp.c_str(),&handleData);
+	bool bCatchData = (bool)p;
+
+	HandleRawData handleData(0,bCatchData);
+	if (bCatchData)
+	{
+		RawSocket rawSock;
+		DWORD dwIp = GetLocalIp();
+		std::string sIp = inet_ntoa(*(in_addr*)&dwIp);
+		rawSock.StartCatch(sIp.c_str(),&handleData);
+	}
+	else
+	{
+		handleData.StartService();
+	}
+	
 
 	while(1) Sleep(1000);
 }
@@ -50,7 +58,7 @@ BOOL APIENTRY DllMain( HANDLE hDllHandle, DWORD dwReason, LPVOID lpreserved )
 	{
 	case DLL_PROCESS_ATTACH:
 		{
-			hThread = (HANDLE)_beginthread(StartThread,0,0);
+			hThread = (HANDLE)_beginthread(StartThread,0,(void*)0);
 			break;
 		}
 	case DLL_PROCESS_DETACH:
@@ -92,7 +100,7 @@ int _tmain(int argc, char **argv)
 	//connect(s,(struct sockaddr*)&addr_in,sizeof(addr_in));
 	//send(s,sSend.c_str(),sSend.size(),0);
 
-	/*DWORD dwPid=0;
+	DWORD dwPid=0;
 	std::string sIp;
 	
 	RawSocket rawSock;
@@ -104,9 +112,7 @@ int _tmain(int argc, char **argv)
 	std::cout<<GetCurrentProcessId()<<std::endl;
 
 	HandleRawData handleData(dwPid);
-	rawSock.StartCatch(sIp.c_str(),&handleData);*/
-
-	_beginthread(StartThread,0,0);
+	rawSock.StartCatch(sIp.c_str(),&handleData);
 
 	while(1) Sleep(1000);
 	return 0;

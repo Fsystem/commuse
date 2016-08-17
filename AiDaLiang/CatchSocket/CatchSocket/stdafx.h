@@ -17,6 +17,8 @@
 #include <Windows.h>
 #include <Iphlpapi.h>
 
+#include "resource.h"
+
 //std
 #include <fstream>
 #include <sstream>
@@ -43,3 +45,4 @@ using namespace COMMUSE;
 extern DWORD GetPidBySocketLink(DWORD dwSrcIp,DWORD dwSrcPort,DWORD dwDesIp,DWORD dwDesPort);
 extern USHORT ChechSum(USHORT *buffer, int size);
 extern unsigned int BKDRHash(char *str);
+extern HMODULE GetThisModule();

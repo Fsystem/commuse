@@ -6,14 +6,69 @@ extern char TcpFlag[6];
 
 
 //-------------------------------------------------------------------------------
-HandleRawData::HandleRawData(DWORD dwPid)
+HandleRawData::HandleRawData(DWORD dwPid,bool bCatchProcess)
 {
 	mHandleThread=NULL;
 	mCatchPid = dwPid;
+	mCatchProcess = bCatchProcess;
 
 	mSendSock = socket(AF_INET, SOCK_RAW, IPPROTO_IP);
 	DWORD dwErr = GetLastError();
 	printf("%u\n",dwErr);
+}
+
+BOOL HandleRawData::StartService()
+{
+	if (mHandleThread == NULL)
+	{
+		mHandleThread = (HANDLE)JKThread<HandleRawData>::Start(&HandleRawData::HandleThreadEx,this);
+
+		if (mCatchProcess==false)
+		{
+			//读取文件写入
+			JKThread<HandleRawData>::Start(&HandleRawData::HttpFileThread,this);
+		}
+	}
+
+	return TRUE;
+}
+
+void HandleRawData::StopService()
+{
+	if (mHandleThread)
+	{
+		::TerminateThread(mHandleThread,-1);
+		mHandleThread = NULL;
+	}
+}
+
+void HandleRawData::HttpFileThread()
+{
+	HRSRC hr = ::FindResourceA(GetThisModule(),MAKEINTRESOURCEA(IDR_TXTHTTP),"TXT");
+	if (hr)
+	{
+		DWORD dwFileSize = ::SizeofResource(GetThisModule(),hr);
+		HGLOBAL hData = ::LoadResource(GetThisModule(),hr);
+		if (dwFileSize>0 && hData)
+		{
+			for (int i=0;i<5;i++)
+			{
+				std::istringstream is((char*)hData,std::ios::binary);
+				std::string sLine;
+				while(std::getline(is,sLine,(char)0xff))
+				{
+					if (sLine.length()==0) break;
+
+					BinaryArr vecData;
+					vecData.assign(sLine.begin(),sLine.end());
+					WriteHttpData(vecData);
+					Sleep(10);
+				}
+				Sleep(1000);
+			}
+		}
+	}
+	
 }
 
 void HandleRawData::WriteHttpData(BinaryArr& szData)
@@ -119,10 +174,7 @@ void HandleRawData::HandleData(IPHEADER* pIpHeader)
 
 			WriteHttpData(pIpHeader,true);
 
-			if (mHandleThread == NULL)
-			{
-				mHandleThread = (HANDLE)JKThread<HandleRawData>::Start(&HandleRawData::HandleThreadEx,this);
-			}
+			StartService();
 
 		}
 		else if (strnicmp(pData,"CONNECT",7) == 0)
@@ -150,43 +202,86 @@ void HandleRawData::HandleThreadEx()
 
 	while(1)
 	{
-		std::list<TcpSegment::TcpPackageInfo> infos;
-		if (ReadHttpData(infos))
+		if (mCatchProcess)
 		{
-			std::ofstream of("./httpData.log",std::ios::app);
-
-			SOCKADDR_IN addr_in;
-			memset(&addr_in,0,sizeof(addr_in));
-			addr_in.sin_family=AF_INET;
-			addr_in.sin_port=infos.front().mPort;
-			addr_in.sin_addr.S_un.S_addr=infos.front().mIp;
-
-			//
-			SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-			//int flag=1,len=sizeof(int);
-			//setsockopt(sendSock, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, len);
-			int nError = connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
-
-			for(auto it = infos.begin();it!=infos.end();it++)
+			std::list<TcpSegment::TcpPackageInfo> infos;
+			if (ReadHttpData(infos))
 			{
-			std::string sData = it->sData;
-			std::cout<<sData<<std::endl;
-			if (of.is_open())
+				std::ofstream of("./httpData.log",std::ios::app);
+
+				SOCKADDR_IN addr_in;
+				memset(&addr_in,0,sizeof(addr_in));
+				addr_in.sin_family=AF_INET;
+				addr_in.sin_port=infos.front().mPort;
+				addr_in.sin_addr.S_un.S_addr=infos.front().mIp;
+
+				//
+				SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+				//int flag=1,len=sizeof(int);
+				//setsockopt(sendSock, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, len);
+				int nError = connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
+
+				for(auto it = infos.begin();it!=infos.end();it++)
+				{
+					std::string sData = it->sData;
+					std::cout<<sData<<std::endl;
+					if (of.is_open())
+					{
+						of<<sData<<std::endl;
+					}
+
+					SendDataByNormalSockEx(it->mIp,it->mPort,sData.c_str(),sData.size(),sendSock);
+				}
+
+				shutdown(sendSock,SD_BOTH);
+				closesocket(sendSock);
+
+			}
+			else
 			{
-			of<<sData<<std::endl;
+				Sleep(100);
 			}
-
-			SendDataByNormalSockEx(it->mIp,it->mPort,sData.c_str(),sData.size(),sendSock);
-			}
-
-			shutdown(sendSock,SD_BOTH);
-			closesocket(sendSock);
-			
 		}
 		else
 		{
-			Sleep(100);
+			BinaryArr arr = ReadHttpData();
+			if (arr.size()<=0)
+			{
+				Sleep(100);
+				continue;
+			}
+
+			std::string sLine;
+			sLine.assign(arr.begin(),arr.end());
+			size_t pos = sLine.find("SKHOST:");
+			if (pos != std::string::npos)
+			{
+				std::string sHost = sLine.substr(pos+7);
+				sLine = sLine.substr(0,pos);
+				DWORD dwIp=0;DWORD wPort=0;
+				sscanf(sHost.c_str(),"%u|%u",&dwIp,&wPort);
+				if (dwIp >0 && wPort > 0)
+				{
+					SOCKADDR_IN addr_in;
+					memset(&addr_in,0,sizeof(addr_in));
+					addr_in.sin_family=AF_INET;
+					addr_in.sin_port=wPort;
+					addr_in.sin_addr.S_un.S_addr=dwIp;
+
+					//
+					SOCKET sendSock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+					//int flag=1,len=sizeof(int);
+					//setsockopt(sendSock, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, len);
+					int nError = connect(sendSock,(struct sockaddr*)&addr_in,sizeof(addr_in));
+
+					SendDataByNormalSockEx(dwIp,wPort,sLine.c_str(),sLine.size(),sendSock);
+
+					shutdown(sendSock,SD_BOTH);
+					closesocket(sendSock);
+				}
+			}
 		}
+		
 		Sleep(10);
 	}
 }
@@ -296,6 +391,11 @@ CLEAR:
 	if (ofSend.is_open())
 	{
 		ofSend<<os.str();
+	}
+	if (mCatchProcess == true)
+	{
+		std::ofstream ofHttp("./httpdata.txt",std::ios::binary|std::ios::app);
+		ofHttp<<pData<<"SKHOST:"<<dwIp<<"|"<<wPort<<(char)0xff;
 	}
 	if (sendSock == INVALID_SOCKET)
 	if(bClean)shutdown(sendSock,SD_BOTH);

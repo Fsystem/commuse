@@ -68,6 +68,7 @@ void Cmd5_password_xor_encrypt_decryptDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT7, m_edt_file_crc32);
 	DDX_Control(pDX, IDC_EDIT8, m_edt_xor_src);
 	DDX_Control(pDX, IDC_EDIT9, m_edt_xor_decode);
+	DDX_Control(pDX, IDC_EDIT10, m_edt_str_crc);
 }
 
 BEGIN_MESSAGE_MAP(Cmd5_password_xor_encrypt_decryptDlg, CDialog)
@@ -176,8 +177,10 @@ void Cmd5_password_xor_encrypt_decryptDlg::OnEnChangeEdit1()
 
 	// TODO:  在此添加控件通知处理程序代码
 	CString sSrcString;
+	char szSrcString[1024];
 	TCHAR szOut[1024]={0};
 	m_edt_src_string.GetWindowText(sSrcString);
+	::GetWindowTextA(m_edt_src_string.GetSafeHwnd(),szSrcString,1024);
 	if (0<sSrcString.GetLength())
 	{
 		memset(szOut,0,sizeof(szOut));
@@ -191,12 +194,17 @@ void Cmd5_password_xor_encrypt_decryptDlg::OnEnChangeEdit1()
 		memset(szOut,0,sizeof(szOut));
 		CXOREncrypt::EncryptData(sSrcString,szOut,sizeof(szOut));
 		m_edt_src_xor.SetWindowText(szOut);
+
+		CString sCrc ;
+		sCrc.Format(_T("%X"),GetCrcLong(szSrcString,strlen(szSrcString)) );
+		m_edt_str_crc.SetWindowText(sCrc);
 	}
 	else
 	{
 		m_edt_src_md5.SetWindowText(szOut);
 		m_edt_src_password.SetWindowText(szOut);
 		m_edt_src_xor.SetWindowText(szOut);
+		m_edt_str_crc.SetWindowText(szOut);
 	}
 }
 

@@ -43,4 +43,5 @@ public:
 	CEdit m_edt_xor_decode;
 	afx_msg void OnEnChangeEdit8();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	CEdit m_edt_str_crc;
 };

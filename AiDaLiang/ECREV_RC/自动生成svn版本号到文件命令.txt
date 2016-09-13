@@ -1,0 +1,2 @@
+..\..\..\..\ECREV_RC.exe "$(ProjectName).rc" "$(ProjectName).tpl"
+subwcrev.exe ..\..\..\..\ $(ProjectName).tpl $(ProjectName).rc -m

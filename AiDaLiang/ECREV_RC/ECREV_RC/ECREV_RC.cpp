@@ -60,6 +60,7 @@ int APIENTRY _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstan
 			{
 				for(int i=index+12;i<sContent.length();i++)
 				{
+					if (sContent[i] == ' ') continue;
 					if (sContent[i] == ',') index = i;
 					if (sContent[i] == '\r' || sContent[i] == '\n')
 					{
@@ -81,6 +82,7 @@ int APIENTRY _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstan
 			{
 				for(int i=index+15;i<sContent.length();i++)
 				{
+					if (sContent[i] == ' ') continue;
 					if (sContent[i] == '.' || sContent[i] == ',') index = i;
 					if (sContent[i] == '"' || sContent[i] == '\\')
 					{

@@ -28,24 +28,20 @@ int APIENTRY _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstan
 		FILE* fp = fopen(sRcFileTpl.c_str(),"rb");
 		fseek(fp,0,SEEK_END);
 		int nLen = ftell(fp);
-		wchar_t* szData = new wchar_t[nLen/2+1];
+		byte* szData = new byte[nLen+1];
 		rewind(fp);
-		fread(szData,sizeof(wchar_t),nLen/2,fp);
+		fread(szData,1,nLen,fp);
 		fclose(fp);
-		szData[nLen/2] = 0;
-		//std::wifstream ifs();
-		//std::wstringstream sbuf;
-		//if (ifs.is_open())
-		//{
-		//	//std::wstring wLine;
-		//	//std::getline(ifs,wLine);
+		szData[nLen] = 0;
 
-		//	sbuf<<ifs.rdbuf();
-		//	ifs.close();
-		//}
-		//std::wstring wsContent = sbuf.str();
-		//wsContent.erase(0,2);
-		std::wstring sContent=szData;
+		std::wstring sContent;
+		//UNICODEÎÄ¼þ
+		if (!(szData[0]==0xff&&szData[1]==0xfe || szData[0]==0xfe&&szData[1]==0xff))
+		{
+			sContent = A2WString((LPCSTR)szData);
+		}
+		else sContent.assign((LPWSTR)(szData+2),nLen/2-1);
+		//else sContent.assign((LPWSTR)(szData),nLen/2);
 		delete[] szData;
 
 		//std::string sContent;// = sbuf.str();
@@ -99,10 +95,11 @@ int APIENTRY _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstan
 				}
 			}
 
-			fp = fopen(sRcFileTpl.c_str(),"wb+,ccs=UNICODE");
+			fp = fopen(sRcFileTpl.c_str(),"wb+");
 			if (fp)
 			{
-				fwrite(sContent.c_str(),sizeof(wchar_t),sContent.length(),fp);
+				std::string sOut = W2AString(sContent.c_str());
+				fwrite(sOut.c_str(),1,sOut.length(),fp);
 				fclose(fp);
 			}
 		}

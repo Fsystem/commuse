@@ -31,6 +31,7 @@ BOOL IsWindows64();
 BOOL IsWow64ProcessEx(HANDLE hProcess);
 BOOL IsWow64ProcessEx(DWORD dwPid);
 BOOL IsWow64ProcessEx(LPCTSTR szExeName);
+BOOL IsPE64ProcessEx(LPCTSTR szExeName);
 
 //文件签名是否可信-微软验证
 //BOOL CheckFileTrust( LPCWSTR lpFileName);
@@ -130,6 +131,7 @@ WCHAR* wcsistr (const WCHAR * str1,const WCHAR * str2);
 std::string	W2AString(LPCWSTR szSrc);
 std::wstring A2WString(LPCSTR szSrc);
 
+#ifdef USE_MD5_CRC
 //-------------------------------------------------------------------------------
 /*
 * !brief 获取文件MD5
@@ -150,6 +152,7 @@ std::string GetFileMd5OrCRC(const char * filename,unsigned int & unCRC);
 ////获取操作Key
 //unsigned int GetActionKeyWithResult(LPCSTR pParantPath,LPCSTR pChildPath,WORD operate,int nResult);
 
+#endif
 //-------------------------------------------------------------------------------
 
 #ifdef UNICODE
@@ -170,4 +173,5 @@ std::string GetFileMd5OrCRC(const char * filename,unsigned int & unCRC);
 #	define _tcsistr stristr
 #endif
 
+#define CountArr(arr) (sizeof(arr)/sizeof(arr[0]))
 #endif //__FunctionHelper_H

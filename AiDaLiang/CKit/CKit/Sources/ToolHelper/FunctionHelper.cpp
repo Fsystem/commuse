@@ -107,6 +107,8 @@ BOOL IsWow64ProcessEx(DWORD dwPid)
 	BOOL bRet = FALSE;
 	if(dwPid == 0) return bRet;
 
+#	define PROCESS_QUERY_LIMITED_INFORMATION (0x100)
+
 	HANDLE hProcess = ::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION ,FALSE,dwPid);
 	if (hProcess)
 	{
@@ -119,6 +121,34 @@ BOOL IsWow64ProcessEx(DWORD dwPid)
 BOOL IsWow64ProcessEx(LPCTSTR szExeName)
 {
 	return IsWow64ProcessEx(GetProcessIdByName(szExeName));
+}
+
+BOOL IsPE64ProcessEx(LPCTSTR szExeName)
+{
+	BOOL b64Proc = 2;
+	PVOID voidT = NULL;
+	if(IsWindows64()) SetDisableOrEnable(FALSE,&voidT);
+	FILE* file = _tfopen(szExeName,TEXT("rb"));
+	if (file)
+	{
+		fseek(file,0,SEEK_END);
+		int nLen = ftell(file);
+		rewind(file);
+		char* pData = new char[nLen];
+		fread(pData,1,nLen,file);
+		PIMAGE_DOS_HEADER pDosH = (PIMAGE_DOS_HEADER)pData;
+		PIMAGE_NT_HEADERS pNtHeaders = (PIMAGE_NT_HEADERS)(pData + pDosH->e_lfanew);
+
+		b64Proc = (pNtHeaders->FileHeader.Machine == IMAGE_FILE_MACHINE_IA64 || pNtHeaders->FileHeader.Machine == IMAGE_FILE_MACHINE_AMD64);
+
+		delete[] pData;
+
+		fclose(file);
+	}
+
+	if(IsWindows64()) SetDisableOrEnable(TRUE,&voidT);
+
+	return b64Proc;
 }
 
 int GetSysVersion()
@@ -181,7 +211,7 @@ void UnixTimeToFileTime(DWORD tmUnixTime, FILETIME& fileTime)
 {  
 	//FILETIME starts from 1601-01-01 UTC, epoch from 1970- 01-01
 	ULARGE_INTEGER ull = {0};
-	ull.QuadPart = tmUnixTime * 10000000ULL + 116444736000000000ULL;  
+	ull.QuadPart = tmUnixTime * 10000000 + 116444736000000000;  
 	fileTime.dwLowDateTime = ull.LowPart;  
 	fileTime.dwHighDateTime = ull.HighPart;  
 }  
@@ -192,7 +222,7 @@ void FileTimeToUnixTime(DWORD& tmUnixTime, const FILETIME& fileTime)
 	ULARGE_INTEGER ull = { 0 };
 	ull.HighPart = fileTime.dwHighDateTime;
 	ull.LowPart = fileTime.dwLowDateTime;
-	tmUnixTime = (DWORD)((ull.QuadPart - 116444736000000000ULL) / 10000000ULL);
+	tmUnixTime = (DWORD)((ull.QuadPart - 116444736000000000) / 10000000);
 }
 
 DWORD GetBootTime()
@@ -205,7 +235,7 @@ DWORD GetBootTime()
 		time_t CurSysTime;
 		time(&CurSysTime);
 		//将开机到现在的毫秒数转换为秒数，再用当前的时间减去，获得开机时间
-		BootSysTime = CurSysTime - startMSCount/1000;
+		BootSysTime = (DWORD)(CurSysTime - startMSCount/1000);
 	}
 	
 	return BootSysTime;
@@ -727,6 +757,7 @@ std::wstring A2WString(LPCSTR szSrc)
 	return sOut;
 }
 
+#ifdef USE_MD5_CRC
 //-------------------------------------------------------------------------------
 std::string GetFileMd5(const char * filename)
 {
@@ -964,6 +995,8 @@ unsigned int GetFileCrc_Old(const char * filename)
 
 	return unRet;
 }
+
+#endif
 
 ////获取操作Key
 //unsigned int GetActionKey(LPCSTR pParantPath,LPCSTR pChildPath,WORD operate)

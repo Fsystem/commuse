@@ -66,6 +66,10 @@
 
 //! 插件管理
 #include "ModuleManager/PlugManager.h"
+
+//! 注入
+#include "InjectHelper/MemoryModule.h"
+#include "InjectHelper/SsdtOper.h"
 //-------------------------------------------------------------------------------
 
 using namespace COMMUSE;

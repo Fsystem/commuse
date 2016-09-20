@@ -401,6 +401,40 @@ char * CToolOper::ReMoveChar(char * src_data,char ch)
 	return src_data;
 }
 
+PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule)
+{
+	HRSRC hRes;
+	HGLOBAL hFileData;
+	BOOL bResult = FALSE;
+
+	PVOID	ret_mem_buffer = NULL;
+	
+	hRes = FindResource(hModule, MAKEINTRESOURCE(resid), restype);
+
+	if(hRes)
+	{
+		hFileData = LoadResource(hModule, hRes);
+		if(hFileData)
+		{
+			DWORD dwSize = SizeofResource(hModule, hRes);
+			if(dwSize)
+			{
+				 ret_mem_buffer = malloc(dwSize + 1);
+
+				 if (ret_mem_buffer == NULL)
+				 {
+					 return ret_mem_buffer;
+				 }
+				 memset(ret_mem_buffer,0,dwSize + 1);
+
+				 memcpy(ret_mem_buffer,hFileData,dwSize);				 
+			}
+		}
+	} 
+
+	return ret_mem_buffer;
+}
+
 
 BOOL CToolOper::ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule)
 {
@@ -612,6 +646,17 @@ int CToolOper::SubstStr(const char * buffer,const char * start_str,const char *e
 	return _str_list.size();
 }
 
+std::string CToolOper::ReplaceStr(std::string s,std::string sOld,std::string sNew)
+{
+	size_t index = s.find(sOld);
+	if(index != std::string::npos)
+	{
+		s.replace(index,index+sOld.length(),sNew);
+	}
+
+	return s;
+}
+
 BOOL CToolOper::AddDll(std::string path, DWORD pid)
 {
 	const DWORD THREADSIZE=1024*4;
@@ -679,6 +724,68 @@ std::string	CToolOper::ReadMapFile(const char* map_name)
 	
 	return ret_str;
 }
+
+DWORD CToolOper::CreateMapFile(const char * map_name,const char *file_buffer)
+{ 
+	DWORD	len = strlen(file_buffer) + 1;
+	DWORD	read_len = len;
+	
+	len = len / 1024;
+	len += 10;
+	len = len * 1024;
+	
+	HANDLE map_file = CreateFileMappingA( (HANDLE)0xFFFFFFFF,NULL,
+		PAGE_READWRITE,0,len,map_name);
+	
+	if (map_file == INVALID_HANDLE_VALUE)
+	{
+		return 2;
+	}
+	
+	
+	//拷贝数据到共享文件里。
+	char * lpMapAddr = (char *)MapViewOfFile(map_file,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+	
+	memcpy(lpMapAddr,&len,sizeof(len));
+	strcpy(lpMapAddr + sizeof(len),file_buffer);
+	
+	FlushViewOfFile(lpMapAddr,len);
+	
+	UnmapViewOfFile(lpMapAddr); 
+	
+	return 0;
+}
+
+DWORD CToolOper::WriteMapFile(const char *map_name,const char *file_buffer)
+{
+	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
+		FALSE,map_name);
+	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
+	{  
+		return TRUE;
+	} 
+	
+	DWORD	file_len = 0;
+	
+	//显示共享的文件数据。
+	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+	
+	memcpy(&file_len,lpMapAddr,sizeof(DWORD));	
+	
+//	memset(lpMapAddr+sizeof(DWORD),0,file_len - sizeof(DWORD));
+	
+	strcpy(lpMapAddr + sizeof(DWORD),file_buffer);
+	
+	FlushViewOfFile(lpMapAddr,file_len);
+	
+	UnmapViewOfFile(lpMapAddr);
+	CloseHandle(m_hMapFile);
+	
+	return TRUE;
+}
+
 //判断是不是有这样的字符，在字符串中
 int CToolOper::isInstr(const char * buffer,int len, char ch)
 {
@@ -690,4 +797,53 @@ int CToolOper::isInstr(const char * buffer,int len, char ch)
 		}
 	}
 	return 0;
+}
+
+DWORD CToolOper::SendRecvData(const char * sever_ip,short port,PVOID send_data,int send_len,PVOID recv_data,int recv_len)
+{
+	yCTcp		oper_tcp;
+
+	if(!oper_tcp.Open())
+	{
+		return 1;
+	}
+
+	if (!oper_tcp.ConnectNoBlock(sever_ip,port,3))
+	{
+		oper_tcp.Close();
+		return 2;
+	}
+
+	if (oper_tcp.Sendn(send_data,send_len) != send_len)
+	{
+		oper_tcp.Close();
+		return 3;
+	}
+
+	if(oper_tcp.Recvn(recv_data,recv_len) != recv_len)
+	{
+		oper_tcp.Close();
+		return 4;
+	}
+
+	oper_tcp.Close();
+	return 0;
+}
+
+std::string CToolOper::GetSystemTime()
+{ 
+	char	time_str[32]; 
+	struct tm sys_time_tm;
+	time_t		sys_time = time(NULL);
+
+	memset(time_str,0,sizeof(time_str));
+	memset(&sys_time_tm,0,sizeof(sys_time_tm));
+
+	memcpy(&sys_time_tm,localtime(&sys_time),sizeof(sys_time_tm));
+
+	sprintf(time_str,"%04d-%02d-%02d %02d:%02d:%02d",sys_time_tm.tm_year + 1900,
+		sys_time_tm.tm_mon + 1,sys_time_tm.tm_mday,sys_time_tm.tm_hour,
+		sys_time_tm.tm_min,sys_time_tm.tm_sec);
+
+	return time_str;
 }

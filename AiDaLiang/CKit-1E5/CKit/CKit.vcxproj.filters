@@ -70,6 +70,9 @@
     <Filter Include="Sources\Kernel\downfile">
       <UniqueIdentifier>{3986d1d9-75e4-457d-9a6b-e9bab0d86423}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\InjectHelper">
+      <UniqueIdentifier>{57db2782-e8d1-4012-b8b1-97b5cbb2c950}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -177,6 +180,15 @@
     <ClInclude Include="Sources\ToolHelper\yCMyseclock.h">
       <Filter>Sources\ToolHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\InjectHelper\MemoryModule.h">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\InjectHelper\SsdtOper.h">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\InjectHelper\SystemCommon.h">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -262,6 +274,12 @@
     </ClCompile>
     <ClCompile Include="Sources\ToolHelper\yCMyseclock.cpp">
       <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\InjectHelper\MemoryModule.cpp">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\InjectHelper\SsdtOper.cpp">
+      <Filter>Sources\InjectHelper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

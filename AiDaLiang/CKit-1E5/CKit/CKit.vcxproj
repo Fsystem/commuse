@@ -179,6 +179,9 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\CKit.h" />
     <ClInclude Include="Sources\ComnDef\cmndef.h" />
     <ClInclude Include="Sources\Director\CltDirector.h" />
+    <ClInclude Include="Sources\InjectHelper\MemoryModule.h" />
+    <ClInclude Include="Sources\InjectHelper\SsdtOper.h" />
+    <ClInclude Include="Sources\InjectHelper\SystemCommon.h" />
     <ClInclude Include="Sources\Interface\CKInterface.h" />
     <ClInclude Include="Sources\Kernel\comm\Log\CommLog.h" />
     <ClInclude Include="Sources\Kernel\comm\Log\DebugLog.h" />
@@ -213,6 +216,8 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\Director\CltDirector.cpp" />
+    <ClCompile Include="Sources\InjectHelper\MemoryModule.cpp" />
+    <ClCompile Include="Sources\InjectHelper\SsdtOper.cpp" />
     <ClCompile Include="Sources\Kernel\comm\Log\CommLog.cpp" />
     <ClCompile Include="Sources\Kernel\comm\Log\DebugLog.cpp" />
     <ClCompile Include="Sources\Kernel\comm\ProcessLock\ProcessLock.cpp" />

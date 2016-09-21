@@ -189,6 +189,9 @@
     <ClInclude Include="Sources\InjectHelper\SystemCommon.h">
       <Filter>Sources\InjectHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\RunExeByRandom.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -280,6 +283,9 @@
     </ClCompile>
     <ClCompile Include="Sources\InjectHelper\SsdtOper.cpp">
       <Filter>Sources\InjectHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\RunExeByRandom.cpp">
+      <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

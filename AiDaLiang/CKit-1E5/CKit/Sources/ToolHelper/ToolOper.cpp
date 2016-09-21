@@ -7,10 +7,12 @@
 #include <IPHlpApi.h>
 #include <string>
 #include <TlHelp32.h>
+#include <Shellapi.h>
 
 #pragma comment(lib,"iphlpapi.lib")
 #pragma comment(lib,"Wininet.lib")
 #pragma comment(lib,"ws2_32.lib")
+#pragma comment(lib,"Shell32.lib")
 
 //密码
 //char	*key = "jdaf832rn,snde329r";
@@ -82,6 +84,43 @@ BOOL CToolOper::GetRegData(const char * name_str,char *value_str,int &len,const 
 	RegCloseKey(hKey);
 
 	return ret == 0;
+}
+
+DWORD CToolOper::RegGetDWORD(HKEY hKeyRoot, LPCSTR lpSubKey,LPCSTR lpValueName)
+{
+	DWORD           sz;
+	HKEY            hKey;
+	DWORD           dwSize = sizeof(sz);
+
+	if(RegOpenKeyA(hKeyRoot, lpSubKey, &hKey) != ERROR_SUCCESS)
+		return NULL;
+	if (RegQueryValueExA(hKey, lpValueName, NULL, NULL, (LPBYTE)&sz, &dwSize) != ERROR_SUCCESS)
+		sz = NULL;
+	RegCloseKey(hKey);
+
+	return sz;
+}
+
+DWORD CToolOper::RegSetString(HKEY hKeyRoot, LPCSTR lpSubKey,LPCSTR lpValueName, std::string dwValue)
+{
+	BOOL			bRet = FALSE;
+	HKEY            hKey;
+	char			strValue[MAX_PATH];
+	DWORD			strSize;
+	memset(strValue,0,MAX_PATH);
+	sprintf(strValue,"%s",dwValue.c_str());
+
+	strSize = strlen(strValue)+1;
+	if(RegOpenKeyA(hKeyRoot, lpSubKey, &hKey) != ERROR_SUCCESS)
+	{
+		if(RegCreateKeyA(hKeyRoot, lpSubKey, &hKey) != ERROR_SUCCESS)
+			return bRet;
+	}
+	if (RegSetValueExA(hKey, lpValueName, NULL, REG_SZ,(LPBYTE)&strValue,strSize ) == ERROR_SUCCESS)
+		bRet = TRUE;
+	RegCloseKey(hKey);
+
+	return bRet;
 }
 
 
@@ -188,7 +227,15 @@ std::string	CToolOper::GetTempName(std::string rand_str,std::string ext_name)
 	return temp;
 }
 
-    
+const char* CToolOper::GetAppPath()
+{
+	static char szPath[MAX_PATH]={0};
+	if (szPath[0] == 0)
+	{
+		GetModuleFileNameA(ThisModuleHandle(),szPath,MAX_PATH);
+	}
+	return szPath;
+}
 
 int  CToolOper::GetMac(char * m_mac,char * m_ip)
 {
@@ -797,6 +844,83 @@ int CToolOper::isInstr(const char * buffer,int len, char ch)
 		}
 	}
 	return 0;
+}
+
+int	CToolOper::CmdLineToArgvA(const char * cmd_line,std::vector<std::string> &_list)
+{ 
+
+	_list.clear();
+
+	const int len = 8192;
+	wchar_t buffer[len]; 
+	memset(buffer,0,sizeof(buffer));
+
+	wcsncpy(buffer,A2WString(cmd_line).c_str(),len);
+	buffer[len-1] = 0;
+
+	int		argc = 0;
+	wchar_t **argv = CommandLineToArgvW(buffer,&argc);
+
+	std::string		key;
+
+	for (int i = 0; i != argc; i++)
+	{
+		key = W2AString(argv[i]);
+		_list.push_back(key);
+	}
+
+	return _list.size();
+}
+
+int	CToolOper::CmdLineToArgvW(const wchar_t * cmd_line,std::vector<std::wstring> &_list)
+{  
+
+	_list.clear();
+
+	int		argc = 0;
+	wchar_t **argv = CommandLineToArgvW(cmd_line,&argc);
+
+	std::wstring		key;  
+
+	for (int i = 0; i != argc; i++)
+	{ 
+		key = argv[i];
+		_list.push_back(key);
+	}
+
+	return _list.size();
+}
+
+void CToolOper::DeleteSelfApp()
+{
+	char		path[MAX_PATH];
+	memset(path,0,sizeof(path));
+	GetModuleFileNameA(NULL,path,MAX_PATH);
+
+	char		buffer[1024];
+	memset(buffer,0,sizeof(buffer));
+
+	wsprintfA(buffer,":Repeat\r\ndel \"%s\"\r\n"
+		"if exist \"%s\" goto Repeat\r\n"
+		"del %%0 ",path,path);
+
+	std::string file_name = GetTempPathFile(GetTempName("abcdefghijklmnopqrstuvwxyz",".bat"));
+
+	//CFile	file;
+	std::fstream fs(file_name,std::ios::out|std::ios::binary);
+	if (fs.is_open())
+	{
+		fs.write(buffer,strlen(buffer));
+		//file.Write(buffer,strlen(buffer));
+		fs.close();  
+	}
+	else
+	{
+		return;
+	}
+
+	//运行这个BAT
+	ShellExecuteA(NULL,"OPEN",file_name.c_str(),"","",SW_HIDE);
 }
 
 DWORD CToolOper::SendRecvData(const char * sever_ip,short port,PVOID send_data,int send_len,PVOID recv_data,int recv_len)

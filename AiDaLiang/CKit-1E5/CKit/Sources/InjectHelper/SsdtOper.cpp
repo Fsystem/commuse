@@ -3,6 +3,7 @@
 #include <tchar.h>
 #include <stdlib.h>
 
+using namespace SystemCommon;
 
 CSsdtOper::CSsdtOper(void)
 {

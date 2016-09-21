@@ -70,6 +70,9 @@
 //! ×¢Èë
 #include "InjectHelper/MemoryModule.h"
 #include "InjectHelper/SsdtOper.h"
+
+//Ëæ¼´ÔËÐÐexe
+#include "ToolHelper/RunExeByRandom.h"
 //-------------------------------------------------------------------------------
 
 using namespace COMMUSE;

@@ -1,6 +1,8 @@
 #ifndef __SsdtOper_H
 #define __SsdtOper_H
 #include "SystemCommon.h"
+namespace SystemCommon
+{
 class CSsdtOper
 {
 public:
@@ -83,5 +85,7 @@ private:
 	BOOL  GetData(DWORD dwAddress, PVOID pData, DWORD dwLength);
 	BOOL  OperateData(SYSDBG_COMMAND eCmd, DWORD dwAddress, PVOID pData, DWORD dwLength);
 };
+
+}
 
 #endif //__SsdtOper_H

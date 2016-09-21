@@ -23,6 +23,7 @@ public:
 	std::string GetCrcString(const char *buf,DWORD len);
 	std::string GetCrcHexString(const char *buf,DWORD len);
 	std::string GetFileCRC(std::string filename,LARGE_INTEGER * m_file);
+	std::string GetFileCRC(std::string filename,DWORD	dwbeing,DWORD dwend);
 
 private:
 	DWORD GetCrC();

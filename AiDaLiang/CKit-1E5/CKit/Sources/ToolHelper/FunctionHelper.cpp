@@ -310,13 +310,13 @@ BOOL hasDll(DWORD processId,LPCTSTR szDllName)
 }
 //-------------------------------------------------------------------------------
 
-BOOL ExtractFile(LPCTSTR restype, int resid, LPCTSTR destpath,HMODULE hModule)
+BOOL ExtractFileA(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule)
 {
 	HRSRC hRes;
 	HGLOBAL hFileData;
 	BOOL bResult = FALSE;
 
-	hRes = FindResource(hModule, MAKEINTRESOURCE(resid), restype);
+	hRes = FindResourceA(hModule, MAKEINTRESOURCEA(resid), restype);
 	if(hRes)
 	{
 		hFileData = LoadResource(hModule, hRes);
@@ -325,7 +325,41 @@ BOOL ExtractFile(LPCTSTR restype, int resid, LPCTSTR destpath,HMODULE hModule)
 			DWORD dwSize = SizeofResource(hModule, hRes);
 			if(dwSize)
 			{
-				HANDLE hFile = CreateFile( destpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, 0);
+				HANDLE hFile = CreateFileA( destpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, 0);
+				if(hFile != INVALID_HANDLE_VALUE)
+				{
+					DWORD dwWritten = 0;
+					BOOL b = WriteFile(hFile, hFileData, dwSize, &dwWritten, NULL);
+					if(b && dwWritten == dwSize)
+					{
+						CloseHandle(hFile);
+						return TRUE;
+					}
+
+					CloseHandle(hFile);
+				}
+			}
+		}
+	} 
+	return bResult;
+}
+
+BOOL ExtractFileW(LPCWSTR restype, int resid, LPCWSTR destpath,HMODULE hModule)
+{
+	HRSRC hRes;
+	HGLOBAL hFileData;
+	BOOL bResult = FALSE;
+
+	hRes = FindResourceW(hModule, MAKEINTRESOURCEW(resid), restype);
+	if(hRes)
+	{
+		hFileData = LoadResource(hModule, hRes);
+		if(hFileData)
+		{
+			DWORD dwSize = SizeofResource(hModule, hRes);
+			if(dwSize)
+			{
+				HANDLE hFile = CreateFileW( destpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, 0);
 				if(hFile != INVALID_HANDLE_VALUE)
 				{
 					DWORD dwWritten = 0;
@@ -437,6 +471,19 @@ std::string GetProcessName(HANDLE hProcess)
 	}
 }
 
+std::string GetProcessName(DWORD dwPid)
+{
+	std::string sRes = "";
+	HANDLE hProcess = ::OpenProcess(dwPid,FALSE,PROCESS_QUERY_INFORMATION|PROCESS_QUERY_LIMITED_INFORMATION);
+	if(hProcess)
+	{
+		sRes = GetProcessName(hProcess);
+		CloseHandle(hProcess);
+	}
+
+	return sRes;
+}
+
 //获得win7进程路径
 std::string GetWin7ProcessName(HANDLE handle)
 {
@@ -463,13 +510,13 @@ std::string GetWin7ProcessName(HANDLE handle)
 			{
 				DWORD dwLastErr = ::GetLastError();
 				dwRet = GetModuleFileNameEx(handle, NULL, procName, MAX_PATH);
-				strRet = T2A(procName);
+				strRet = T2AString(procName);
 			}
 			else
 			{
 				TCHAR cNtPath[MAX_PATH + 1] = {0};
 				DosPath2NtPath(procName, cNtPath);
-				strRet = T2A(cNtPath);
+				strRet = T2AString(cNtPath);
 			}
 
 			//DosPathToNtPath(procName, procName_tmp);

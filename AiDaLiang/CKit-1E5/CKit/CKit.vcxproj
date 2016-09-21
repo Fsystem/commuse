@@ -205,6 +205,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\ToolHelper\Markup.h" />
     <ClInclude Include="Sources\ToolHelper\MemLoadDll.h" />
     <ClInclude Include="Sources\ToolHelper\NetOper.h" />
+    <ClInclude Include="Sources\ToolHelper\RunExeByRandom.h" />
     <ClInclude Include="Sources\ToolHelper\Server.h" />
     <ClInclude Include="Sources\ToolHelper\Service.h" />
     <ClInclude Include="Sources\ToolHelper\ToolOper.h" />
@@ -238,6 +239,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\ToolHelper\Markup.cpp" />
     <ClCompile Include="Sources\ToolHelper\MemLoadDll.cpp" />
     <ClCompile Include="Sources\ToolHelper\NetOper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\RunExeByRandom.cpp" />
     <ClCompile Include="Sources\ToolHelper\Server.cpp" />
     <ClCompile Include="Sources\ToolHelper\Service.cpp" />
     <ClCompile Include="Sources\ToolHelper\ToolOper.cpp" />

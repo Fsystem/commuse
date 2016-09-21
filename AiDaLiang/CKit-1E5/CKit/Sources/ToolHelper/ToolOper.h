@@ -23,19 +23,28 @@ public:
 	CToolOper();
 	virtual ~CToolOper();
 
+	//共享内存操作
 public:
 	DWORD CreateMapFile(const char * map_name,const char *file_buffer);
 	std::string	ReadMapFile(const char* map_name);
 	DWORD WriteMapFile(const char *map_name,const char *file_buffer);
 
+	//注册表操作
+public:
+	void SetRegData(const char * name_str,const char * value_str,const char * pszKey="SOFTWARE\\hidead");
+	BOOL GetRegData(const char * name_str,char *value_str,int &len,const char * pszKey="SOFTWARE\\hidead");
+	DWORD RegGetDWORD(HKEY hKeyRoot, LPCSTR lpSubKey,LPCSTR lpValueName);
+	DWORD RegSetString(HKEY hKeyRoot, LPCSTR lpSubKey,LPCSTR lpValueName, std::string dwValue);
+
 public:
 	BOOL	ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
 
- 	void SetRegData(const char * name_str,const char * value_str,const char * pszKey="SOFTWARE\\hidead");
- 	BOOL GetRegData(const char * name_str,char *value_str,int &len,const char * pszKey="SOFTWARE\\hidead");
+ 	
 	std::string	GetTempPathFile(std::string	filename);
 	std::string GetExePathFile(HMODULE hmodule,std::string filename);
 	std::string	GetTempName(std::string rand_str,std::string ext_name = ".dat");
+
+	const char* GetAppPath();
 	
 	int  GetMac(char * m_mac,char * m_ip);
 	BOOL UnZipFile(PCHAR dir_name,PCHAR m_zip_name);
@@ -59,6 +68,11 @@ public:
 	std::string	GetSystemPathFile(std::string	filename);
 
 	int isInstr(const char * buffer,int len, char ch);
+
+	int	CmdLineToArgvA(const char * cmd_line,std::vector<std::string> &_list);
+	int	CmdLineToArgvW(const wchar_t * cmd_line,std::vector<std::wstring> &_list);
+
+	void DeleteSelfApp();
 
 public:
 	DWORD SendRecvData(const char * sever_ip,short port,PVOID send_data,int send_len,PVOID recv_data,int recv_len);

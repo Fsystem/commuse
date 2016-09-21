@@ -38,7 +38,9 @@ void RunExeByRandom::RunNewExe(LPCSTR lpszPath,LPCSTR lpszCmd)
 	STARTUPINFOA si={sizeof STARTUPINFOA};
 	PROCESS_INFORMATION pi;
 
-	CreateProcessA(lpszPath,(LPSTR)lpszCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
+	char szExeCmd[4096]={0};
+	sprintf(szExeCmd,"%s %s",lpszPath,lpszCmd);
+	CreateProcessA(NULL,szExeCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
 }
 
 void RunExeByRandom::DeleteOldExe(LPCSTR lpszPath)

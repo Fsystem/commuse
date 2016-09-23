@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iterator>
 
+#pragma comment(lib,"Wininet.lib")
+
 #define CountArr(arr) (sizeof(arr)/sizeof(arr[0]))
 
 HttpDownFile::HttpDownFile()
@@ -37,8 +39,8 @@ int HttpDownFile::SetServer(char * ServerIp, INTERNET_PORT ServerPort)
 		return 1;
 	}
 
-	mHttpRequestFlags = HSR_DOWNLOAD | INTERNET_FLAG_EXISTING_CONNECT |INTERNET_FLAG_NO_AUTO_REDIRECT|INTERNET_FLAG_NO_CACHE_WRITE ;
-	mHttpsRequestFlags = INTERNET_FLAG_NO_AUTO_REDIRECT |  
+	mHttpRequestFlags = HSR_DOWNLOAD | INTERNET_FLAG_EXISTING_CONNECT |/*INTERNET_FLAG_NO_AUTO_REDIRECT|*/INTERNET_FLAG_NO_CACHE_WRITE ;
+	mHttpsRequestFlags = /*INTERNET_FLAG_NO_AUTO_REDIRECT |  */
 		INTERNET_FLAG_KEEP_CONNECTION |  
 		INTERNET_FLAG_NO_AUTH |  
 		INTERNET_FLAG_NO_COOKIES |  
@@ -93,6 +95,7 @@ DWORD HttpDownFile::TryUrlDownFile(std::string url,std::string localFile,int nTr
 
 DWORD HttpDownFile::UrlDownFile(std::string url,std::string localFile)
 {
+	DWORD dwRet = 1;
 	std::vector<char> v = DownServerFile(url.c_str());
 
 	std::ofstream of(localFile.c_str(),std::ios::out|std::ios::binary);
@@ -100,11 +103,16 @@ DWORD HttpDownFile::UrlDownFile(std::string url,std::string localFile)
 	if (of.is_open())
 	{
 		std::copy(v.begin(),v.end(),std::ostream_iterator<char>(of));
+		dwRet = (v.size()==0?1:0);
+	}
+	else
+	{
+		LOGEVENA("UrlDownFile>>>Ê§°Ü[%s->%s]\n",url.c_str(),localFile.c_str());
 	}
 
 	of.close();
 
-	return v.size()==0?1:0;
+	return dwRet;
 }
 
 std::string HttpDownFile::UrlDownFile(std::string url)

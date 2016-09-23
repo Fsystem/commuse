@@ -29,7 +29,11 @@ public:
 	std::string	ReadMapFile(const char* map_name);
 	DWORD WriteMapFile(const char *map_name,const char *file_buffer);
 
-	//注册表操作
+	HANDLE CreateMemFile(const char * map_name,size_t len);
+	BOOL ReadMemData(const char * map_name,PVOID buffer,size_t len);
+	BOOL WriteMemData(const char * map_name,PVOID buffer,size_t len);
+
+		//注册表操作
 public:
 	void SetRegData(const char * name_str,const char * value_str,const char * pszKey="SOFTWARE\\hidead");
 	BOOL GetRegData(const char * name_str,char *value_str,int &len,const char * pszKey="SOFTWARE\\hidead");
@@ -39,13 +43,13 @@ public:
 public:
 	BOOL	ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
 
- 	
+
 	std::string	GetTempPathFile(std::string	filename);
 	std::string GetExePathFile(HMODULE hmodule,std::string filename);
 	std::string	GetTempName(std::string rand_str,std::string ext_name = ".dat");
 
 	const char* GetAppPath();
-	
+
 	int  GetMac(char * m_mac,char * m_ip);
 	BOOL UnZipFile(PCHAR dir_name,PCHAR m_zip_name);
 
@@ -61,7 +65,7 @@ public:
 	BOOL	AddDll(std::string path, DWORD pid);
 
 	int		StringSubs(std::string	src_str,std::string begin_str,std::string end_str,RET_STRING_VECTOR &str_list);
-	
+
 	PVOID ExtractMem(LPCTSTR restype, int resid,HMODULE hModule);
 	BOOL ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule);
 	char * ReMoveChar(char * src_data,char ch);

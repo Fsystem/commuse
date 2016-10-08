@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="C:\Users\Administrator\Desktop\upserver" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="配置文件1" publishMethod="FileSystem" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+    <file relUrl="bin/UploadFileServer.pdb" publishTime="09/02/2016 17:21:31" />
+    <file relUrl="Upload.aspx" publishTime="09/02/2016 15:08:02" />
+    <file relUrl="Web.config" publishTime="09/02/2016 17:21:31" />
+    <file relUrl="bin/UploadFileServer.dll" publishTime="09/02/2016 17:21:31" />
+  </publishProfile>
+</publishData>

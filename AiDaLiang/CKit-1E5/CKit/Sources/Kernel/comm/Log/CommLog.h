@@ -15,15 +15,19 @@
 
 #define LOGEVENW G_COM_PRINT_LOG.LogEventW
 #define LOGEVENA G_COM_PRINT_LOG.LogEventA
+#	define LOGF_VW(fmt,...)	G_COM_PRINT_LOG.LogForce_W(1,fmt,##__VA_ARGS__)
+#	define LOGF_FW(fmt,...)	G_COM_PRINT_LOG.LogForce_W(2,fmt,##__VA_ARGS__)
+#	define LOGF_VA(fmt,...)	G_COM_PRINT_LOG.LogForce_A(1,fmt,##__VA_ARGS__)
+#	define LOGF_FA(fmt,...)	G_COM_PRINT_LOG.LogForce_A(2,fmt,##__VA_ARGS__)
 
 #ifdef UNICODE
 #	define LOGEVEN  LOGEVENW
-#	define LOGF_V(fmt,...)	G_COM_PRINT_LOG.LogForce_W(1,fmt,##__VA_ARGS__)
-#	define LOGF_F(fmt,...)	G_COM_PRINT_LOG.LogForce_W(2,fmt,##__VA_ARGS__)
+#	define LOGF_V(fmt,...)	LOGF_VW(fmt,##__VA_ARGS__)
+#	define LOGF_F(fmt,...)	LOGF_FW(fmt,##__VA_ARGS__)
 #else
 #	define LOGEVEN  LOGEVENA
-#	define LOGF_V(fmt,...)	G_COM_PRINT_LOG.LogForce_A(1,fmt,##__VA_ARGS__)
-#	define LOGF_F(fmt,...)	G_COM_PRINT_LOG.LogForce_A(2,fmt,##__VA_ARGS__)
+#	define LOGF_V(fmt,...)	LOGF_VA(fmt,##__VA_ARGS__)
+#	define LOGF_F(fmt,...)	LOGF_FA(fmt,##__VA_ARGS__)
 #endif
 
 namespace COMMUSE

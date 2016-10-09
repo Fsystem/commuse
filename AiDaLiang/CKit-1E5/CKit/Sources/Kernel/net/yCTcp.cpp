@@ -408,7 +408,7 @@ int yCTcp::Recvn (void *pBuf, int nCount, int nMicsec) const
 
 #ifdef WIN32	
 	
-	//SetRecvTimeout (nMicsec);
+	SetRecvTimeout (nMicsec);
 
 	while (nLeft > 0)
 	{

@@ -28,6 +28,7 @@ namespace COMMUSE
 {
 	HMODULE ThisModule()
 	{
+		return NULL;
 		static HMODULE h = NULL;
 		if (!h)
 		{

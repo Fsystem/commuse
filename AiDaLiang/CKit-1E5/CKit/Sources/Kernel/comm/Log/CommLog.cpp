@@ -101,7 +101,6 @@ namespace COMMUSE
 	{
 		InitLogState();
 		if(_nLogState == 0) return;
-		USES_CONVERSION;
 
 		wchar_t tem[MAX_BUFFER]={0};
 		SYSTEMTIME st;
@@ -145,6 +144,57 @@ namespace COMMUSE
 		va_end(vl);
 
 		if(_nLogState == 1)
+		{
+			LogEvenDA(tem);
+		}
+		else
+		{
+			LogEvenFA(tem);
+		}
+	}
+
+	//-------------------------------------------------------------------------------
+	void ComPrintLog::LogForce_W(int ty,wchar_t* format,...)
+	{
+		wchar_t tem[MAX_BUFFER]={0};
+		SYSTEMTIME st;
+
+		GetLocalTime(&st);
+
+		_snwprintf(tem,MAX_BUFFER,L"[PID:%d] [%02d:%02d:%02d] ",
+			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
+
+		va_list vl;
+		va_start(vl,format);
+		vswprintf(&tem[wcslen(tem)],format,vl);
+		va_end(vl);
+
+		if(ty == 1)
+		{
+			LogEvenDW(tem);
+		}
+		else
+		{
+			LogEvenFW(tem);
+		}
+	}
+	//-------------------------------------------------------------------------------
+	void ComPrintLog::LogForce_A(int ty,char* format,...)
+	{
+		char tem[MAX_BUFFER]={0};
+		SYSTEMTIME st;
+
+		GetLocalTime(&st);
+
+		_snprintf(tem,MAX_BUFFER,"[PID:%d] [%02d:%02d:%02d] ",
+			GetCurrentProcessId(),st.wHour,st.wMinute,st.wSecond);
+
+		va_list vl;
+		va_start(vl,format);
+		vsprintf(&tem[strlen(tem)],format,vl);
+		va_end(vl);
+
+		if(ty == 1)
 		{
 			LogEvenDA(tem);
 		}

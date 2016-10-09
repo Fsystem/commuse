@@ -18,8 +18,12 @@
 
 #ifdef UNICODE
 #	define LOGEVEN  LOGEVENW
+#	define LOGF_V(fmt,...)	G_COM_PRINT_LOG.LogForce_W(1,fmt,##__VA_ARGS__)
+#	define LOGF_F(fmt,...)	G_COM_PRINT_LOG.LogForce_W(2,fmt,##__VA_ARGS__)
 #else
 #	define LOGEVEN  LOGEVENA
+#	define LOGF_V(fmt,...)	G_COM_PRINT_LOG.LogForce_A(1,fmt,##__VA_ARGS__)
+#	define LOGF_F(fmt,...)	G_COM_PRINT_LOG.LogForce_A(2,fmt,##__VA_ARGS__)
 #endif
 
 namespace COMMUSE
@@ -52,6 +56,8 @@ namespace COMMUSE
 
 		void LogEventW(wchar_t* format,...);
 		void LogEventA(char* format,...);
+ 		void LogForce_W(int ty,wchar_t* format,...);
+ 		void LogForce_A(int ty,char* format,...);
 
 		//-------------------------------------------------------------------------------
 		//”√debugview¥Ú”°

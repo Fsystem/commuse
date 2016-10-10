@@ -5,17 +5,24 @@
 
 class jkBaseDialog;
 
+class jkWidget
+{
+public:
+protected:
+private:
+};
+
 class jkApp
 {
 	friend class jkBaseDialog;
 public:
 	jkApp();
-	//void SetInstance(HINSTANCE hIns);
+	void SetInstance(HINSTANCE hIns);
 	HINSTANCE GetInstance();
 
-	BOOL SetMainWndInfo(jkBaseDialog* pMainWnd);
-
-	void RunLoop();
+	//BOOL SetMainWndInfo(jkBaseDialog* pMainWnd);
+	jkWidget* GetMainWnd();
+	void RunLoop(jkWidget* wnd);
 protected:
 	
 private:
@@ -23,7 +30,7 @@ private:
 };
 
 
-class jkBaseDialog
+class jkBaseDialog : public jkWidget
 {
 	friend class jkApp;
 	friend BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam);
@@ -53,17 +60,19 @@ protected:
 	HWND mHwnd;
 };
 
-class jkBaseWindow
+class jkBaseWindow : public jkWidget
 {
 	friend class jkApp;
 	friend LRESULT CALLBACK CLS_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 public:
+	jkBaseWindow();
 	operator HWND()const throw();
 	void Create(HWND hParant,LPCSTR szTitle = NULL,DWORD dwStyle = 0,LPCSTR szWndClass = NULL);
 	void Show(int nCmd);
 	void UpdateWindow();
 	BOOL CenterWindow();
 	void MoveWindow(int x,int y,int w,int h,BOOL bRePaint = FALSE);
+	void SetBgColor(COLORREF bgColor);
 
 	virtual void OnCreate(LPCREATESTRUCT pStruct);
 	virtual void OnPaint(HDC hdc);
@@ -76,8 +85,9 @@ public:
 	virtual LRESULT MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 protected:
 	HWND mHwnd;
+	COLORREF mBGColor;
 private:
-	
+	void PaintBG(HDC hdc);
 };
 
 

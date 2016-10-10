@@ -7,7 +7,7 @@ jkApp theJKApp;
 
 //-------------------------------------------------------------------------------
 static HINSTANCE mInstance = NULL;
-static jkBaseDialog* mpMainWnd = NULL;
+static jkWidget* mpMainWnd = NULL;
 static std::map<HWND,jkBaseDialog*> mapDialogHandle;
 static std::map<HWND,jkBaseWindow*> mapWindowHandle;
 static char* szDefaultClass="jkWindowClass";
@@ -152,50 +152,56 @@ HWND CLS_InitInstance(HWND hParant,int nCmdShow,LPARAM lp,DWORD dwStyle,LPCSTR s
 //-------------------------------------------------------------------------------
 HINSTANCE GetThisInstance()
 {
-	static HINSTANCE hInstance = NULL;
-	if (hInstance==NULL)
+	if (mInstance==NULL)
 	{
 		MEMORY_BASIC_INFORMATION mbi;
 		memset(&mbi,0,sizeof(mbi));
 
 		VirtualQuery(GetThisInstance,&mbi,sizeof(mbi));
 
-		hInstance = (HINSTANCE)mbi.AllocationBase;
+		mInstance = (HINSTANCE)mbi.AllocationBase;
 	}
 	
 
-	return hInstance;
+	return mInstance;
 }
 
 jkApp::jkApp()
 {
+	mpMainWnd = NULL;
 	mInstance = GetThisInstance();
 }
 
-BOOL jkApp::SetMainWndInfo(jkBaseDialog* pMainWnd)
-{
-	if(pMainWnd == NULL) return FALSE;
+//BOOL jkApp::SetMainWndInfo(jkBaseDialog* pMainWnd)
+//{
+//	if(pMainWnd == NULL) return FALSE;
+//
+//	if (mpMainWnd == NULL)
+//	{
+//		mpMainWnd = pMainWnd;
+//	}
+//	
+//	return TRUE;
+//}
 
-	if (mpMainWnd == NULL)
-	{
-		mpMainWnd = pMainWnd;
-	}
-	
-	return TRUE;
+void jkApp::SetInstance(HINSTANCE hIns)
+{
+	mInstance = hIns;
 }
 
-//void jkApp::SetInstance(HINSTANCE hIns)
-//{
-//	mInstance = hIns;
-//}
-//
 HINSTANCE jkApp::GetInstance()
 {
 	return GetThisInstance();
 }
 
-void jkApp::RunLoop()
+jkWidget* jkApp::GetMainWnd()
 {
+	return mpMainWnd;
+}
+
+void jkApp::RunLoop(jkWidget* wnd)
+{
+	mpMainWnd = wnd;
 	MSG msg;
 	// 主消息循环:
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -213,7 +219,6 @@ jkBaseDialog::jkBaseDialog(HWND hParant/*= NULL*/)
 {
 	this->hParant = hParant;
 	mHwnd = NULL;
-	theJKApp.SetMainWndInfo(this);
 }
 
 jkBaseDialog::~jkBaseDialog()
@@ -330,6 +335,12 @@ LRESULT jkBaseDialog::OnDropFiles(HDROP hDrop)
 //-------------------------------------------------------------------------------
 // jkBaseWindow
 //-------------------------------------------------------------------------------
+jkBaseWindow::jkBaseWindow()
+{
+	mHwnd = NULL;
+	mBGColor = RGB(50,50,50);
+}
+
 jkBaseWindow::operator HWND()const throw()
 {
 	return mHwnd;
@@ -394,6 +405,11 @@ void jkBaseWindow::MoveWindow(int x,int y,int w,int h,BOOL bRePaint)
 	::MoveWindow(mHwnd,x, y, w, h, bRePaint);
 }
 
+void jkBaseWindow::SetBgColor(COLORREF bgColor)
+{
+	mBGColor = bgColor;
+}
+
 LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -445,6 +461,27 @@ void jkBaseWindow::OnCreate(LPCREATESTRUCT pStruct)
 
 void jkBaseWindow::OnPaint(HDC hdc)
 {
+	PaintBG(hdc);
+}
+
+void jkBaseWindow::PaintBG(HDC hdc)
+{
+	RECT rcClient;
+	GetClientRect(mHwnd,&rcClient);
+	
+	HDC hMemDc = ::CreateCompatibleDC(hdc);
+	HBITMAP hComBmp = ::CreateCompatibleBitmap(hdc,rcClient.right-rcClient.left,rcClient.bottom-rcClient.top);
+	SelectObject(hMemDc,hComBmp);
+
+	HBRUSH hBHBr = ::CreateSolidBrush(mBGColor);
+
+	FillRect(hMemDc,&rcClient,hBHBr);
+
+	::BitBlt(hdc,0,0,rcClient.right-rcClient.left,rcClient.bottom-rcClient.top,hMemDc,0,0,SRCCOPY);
+
+	::DeleteObject(hComBmp);
+	::DeleteDC(hMemDc);
+	::DeleteObject(hBHBr);
 
 }
 
@@ -455,7 +492,7 @@ HBRUSH jkBaseWindow::OnCtrlColor()
 
 BOOL jkBaseWindow::OnEraseBackground(HDC hdc)
 {
-	return FALSE;
+	return TRUE;
 }
 
 void jkBaseWindow::OnLButtonDown(UINT nFlags,int x, int y){}

@@ -1,0 +1,13 @@
+{
+	"menus": {
+		"测试工具1": {
+			"path": "MenuDll.dll"
+		},
+		"测试工具2": {
+			"path": "MenuDll.dll"
+		},
+		"测试工具3": {
+			"path": "MenuDll.dll"
+		}
+	}
+}

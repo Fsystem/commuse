@@ -474,7 +474,7 @@ std::string GetProcessName(HANDLE hProcess)
 std::string GetProcessName(DWORD dwPid)
 {
 	std::string sRes = "";
-	HANDLE hProcess = ::OpenProcess(dwPid,FALSE,PROCESS_QUERY_INFORMATION|PROCESS_QUERY_LIMITED_INFORMATION);
+	HANDLE hProcess = ::OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_QUERY_LIMITED_INFORMATION,FALSE,dwPid);
 	if(hProcess)
 	{
 		sRes = GetProcessName(hProcess);

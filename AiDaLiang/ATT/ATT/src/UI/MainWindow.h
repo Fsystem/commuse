@@ -10,6 +10,7 @@ public:
 protected:
 	virtual void OnCreate(LPCREATESTRUCT pStruct);
 	virtual void OnPaint(HDC hdc);
+	virtual void OnDestroy();
 	//virtual HBRUSH OnCtrlColor();
 	virtual void OnSize(UINT nSizeCmd,int width,int height);
 	virtual LRESULT MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);

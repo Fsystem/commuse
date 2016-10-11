@@ -128,6 +128,11 @@ public:
 	DWORD AdviseToken;
 	DWORD DAdviseToken[100];
 
+	//////////////////////////////////////////////////////////////////////////
+	IWebBrowser* mIWebBrowser;
+	IConnectionPoint* mIeConnectionPoint;
+	DWORD mCookie;
+
 private:
 	CLSID clsid;
 

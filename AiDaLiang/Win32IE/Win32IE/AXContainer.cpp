@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <comdef.h>
 #include <exdisp.h>
+#include <exdispid.h>
 #include <oledlg.h>
 #include "AXContainer.h"
 
@@ -39,6 +40,8 @@ STDMETHODIMP AXClientSite :: QueryInterface(REFIID iid,void**ppvObject)
 		*ppvObject = (IAdviseSink*)this;
 	if (iid == IID_IDispatch)
 		*ppvObject = (IDispatch*)this;
+// 	if (iid == __uuidof(DWebBrowserEvents2))
+// 		*ppvObject = static_cast<IDispatch *>(this);
 	if (ExternalPlace == false)
 	{
 		if (iid == IID_IOleInPlaceSite)
@@ -278,6 +281,11 @@ void AXContainer :: Init(char* cls)
 	AdviseToken = 0;
 	memset(DAdviseToken,0,sizeof(DAdviseToken));
 	Site.ax = this;
+
+	//////////////////////////////////////////////////////////////////////////
+	mIWebBrowser = 0;
+	mIeConnectionPoint = 0;
+	mCookie = 0;
 }
 
 AXContainer :: AXContainer(char* cls)
@@ -316,6 +324,11 @@ void AXContainer :: Clean()
 		memset(DAdviseToken,0,sizeof(DAdviseToken));
 	}
 
+	if (mIeConnectionPoint)
+	{
+		mIeConnectionPoint->Unadvise(mCookie);
+		mCookie = 0;
+	}
 
 	if (Pao) Pao->Release();
 	if (Unk) Unk->Release();
@@ -323,12 +336,15 @@ void AXContainer :: Clean()
 	if (View) View->Release();
 	if (Storage) Storage->Release();
 	if (OleObject) OleObject->Release();
+	if(mIWebBrowser) mIWebBrowser->Release();
+	if(mIeConnectionPoint) mIeConnectionPoint->Release();
 	Unk = 0;
 	Data = 0;
 	View = 0;
 	Storage = 0;
 	OleObject = 0;
-
+	mIWebBrowser = 0;
+	mIeConnectionPoint = 0;
 }
 
 AXContainer :: ~AXContainer()
@@ -424,6 +440,10 @@ HRESULT _stdcall AXClientSite :: Invoke(
 	EXCEPINFO FAR* pExcepInfo,
 	unsigned int FAR* puArgErr)
 {
+	if (dispIdMember == DISPID_NEWWINDOW3)
+	{
+		return S_OK;
+	}
 	return E_NOTIMPL;
 }
 
@@ -457,8 +477,6 @@ LRESULT CALLBACK AXWndProc(HWND hh,UINT mm,WPARAM ww,LPARAM ll)
 		REFIID rid = *ax->iid;
 		hr = OleCreate(ax->GetCLSID(),rid,OLERENDER_DRAW,0,&ax->Site,ax->Storage,(void**)&ax->OleObject);
 
-
-
 		if (!ax->OleObject)
 		{
 			delete ax;
@@ -473,7 +491,27 @@ LRESULT CALLBACK AXWndProc(HWND hh,UINT mm,WPARAM ww,LPARAM ll)
 		if (ax->View)
 			hr = ax->View->SetAdvise(DVASPECT_CONTENT,0,&ax->Site);
 
+		//IE事件
+		hr = ax->OleObject->QueryInterface(IID_IWebBrowser2, (void**)&ax->mIWebBrowser);
 
+		IConnectionPointContainer* pConnContainer = NULL;
+		//获取连接点指针
+		hr = ax->mIWebBrowser->QueryInterface(IID_IConnectionPointContainer,(void**)&pConnContainer);
+		if (SUCCEEDED(hr))
+		{
+			//查找事件连接点
+			hr = pConnContainer->FindConnectionPoint(DIID_DWebBrowserEvents2, &ax->mIeConnectionPoint);
+			if (SUCCEEDED(hr))
+			{
+				//实现连接点地事件接收
+				IUnknown* pIUnknown = NULL;
+				ax->Site.QueryInterface(IID_IUnknown,(void**)&pIUnknown);
+				ax->mIeConnectionPoint->Advise(pIUnknown,&ax->mCookie);
+				pIUnknown->Release();
+			}
+
+			pConnContainer->Release();
+		}
 
 		return 0;
 	}

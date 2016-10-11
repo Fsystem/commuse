@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATT", "ATT\ATT.vcxproj", "{39E25803-80D1-4590-A888-C52DC418EEFE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MenuDll", "MenuDll\MenuDll.vcxproj", "{53333EBD-C542-40CC-A20C-341A876773F3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{39E25803-80D1-4590-A888-C52DC418EEFE} = {39E25803-80D1-4590-A888-C52DC418EEFE}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{E2B7064A-4E04-4864-8D8F-39F3DB5DF364}"
 EndProject

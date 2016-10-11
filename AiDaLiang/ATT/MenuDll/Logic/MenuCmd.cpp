@@ -53,7 +53,7 @@ bool MenuCmd::MenuCall(const char* szMenuName,HWND hClientMain)
 		GetClientRect(hClientMain,&rc);
 
 		mpMainWnd->Create(hClientMain);
-		mpMainWnd->SetBgColor(RGB(255,255,255));
+		mpMainWnd->SetBgColor(RGB(rand()%256,rand()%256,rand()%256));
 		mpMainWnd->MoveWindow(rc.left+5,rc.top+5,rc.Width()-10,rc.Height()-10);
 		mpMainWnd->Show(SW_SHOW);
 	}

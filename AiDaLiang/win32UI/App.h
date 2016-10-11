@@ -79,6 +79,7 @@ public:
 	virtual void OnSize(UINT nSizeCmd,int width,int height);
 	virtual HBRUSH OnCtrlColor();
 	virtual BOOL OnEraseBackground(HDC hdc);
+	virtual void OnDestroy();
 	virtual void OnLButtonDown(UINT nFlags,int x, int y);
 	virtual void OnLButtonUp(UINT nFlags,int x, int y);
 	virtual void OnLButtonDBClick(UINT nFlags,int x, int y);

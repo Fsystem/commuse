@@ -99,6 +99,11 @@ void MainWindow::OnPaint(HDC hdc)
 
 }
 
+void MainWindow::OnDestroy()
+{
+	::PostQuitMessage(0);
+}
+
 // HBRUSH MainWindow::OnCtrlColor()
 // {
 // 	return (HBRUSH)GetStockObject(WHITE_BRUSH);

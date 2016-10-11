@@ -93,15 +93,6 @@ bool MenuMgr::LoadMenu()
 		}
 		nPMenuId++;
 		LOGF_VA(">>>%s:\n",it->name.GetString());
-		//if (it->value.IsArray())
-		//{
-		//	for (int i=0;i<it->value.Size();i++)
-		//	{
-		//		//HMENU hSubPopMenu = GetSubMenu(mRootMenu,GetMenuItemCount(mRootMenu)-1);
-		//		LoadLi
-		//		AppendMenuA(rootPopMenu,MF_STRING,(UINT_PTR)IDR_MenuId_Custom_Base+i,it->value[i]["path"].GetString());
-		//	}
-		//}
 
 		::DestroyMenu(rootPopMenu);
 	}
@@ -111,15 +102,32 @@ bool MenuMgr::LoadMenu()
 
 void MenuMgr::OnMenuCmd(UINT unId)
 {
+	if (mCurMenu == unId) return;
+
+	DWORD dwOldMenu = mCurMenu;
 	mCurMenu = unId;
 
-	if (unId>=IDR_MenuId_Custom_Base && unId <= IDR_MenuId_Custom_Base+mMenuCmds.size()*1000)
+	if (mCurMenu>=IDR_MenuId_Custom_Base && mCurMenu <= IDR_MenuId_Custom_Base+mMenuCmds.size()*1000)
 	{
-		JKMenuData* pMenuData = mMenuCmds[1000*(unId/1000)][unId%1000];
-		(pMenuData->pCallPtr->*pMenuData->MenuCall)(pMenuData->szMenuName,*((MainWindow*)theJKApp.GetMainWnd())->GetMainClientWndPtr() );
+		int nParantMenuId = 1000*(dwOldMenu/1000);
+		int nChildMenuId = dwOldMenu%1000;
+		if (mMenuCmds.find(nParantMenuId) != mMenuCmds.end())
+		{
+			JKMenuData* pMenuDataOld = mMenuCmds[nParantMenuId][nChildMenuId];
+			(pMenuDataOld->pCallPtr->*pMenuDataOld->CloseMenu)(pMenuDataOld->szMenuName);
+		}
+		
+		nParantMenuId = 1000*(mCurMenu/1000);
+		nChildMenuId = mCurMenu%1000;
+		if (mMenuCmds.find(nParantMenuId) != mMenuCmds.end())
+		{
+			JKMenuData* pMenuData = mMenuCmds[nParantMenuId][nChildMenuId];
+			(pMenuData->pCallPtr->*pMenuData->MenuCall)(pMenuData->szMenuName,*((MainWindow*)theJKApp.GetMainWnd())->GetMainClientWndPtr() );
+		}
+		
 		return;
 	}
-	switch(unId)
+	switch(mCurMenu)
 	{
 	case IDR_MenuId_Tool:
 		break;
@@ -149,6 +157,10 @@ void MenuMgr::ReveryfySize()
 {
 	if (mCurMenu==-1) return;
 
-	JKMenuData* pMenuData = mMenuCmds[1000*(mCurMenu/1000)][mCurMenu%1000];
-	(pMenuData->pCallPtr->*pMenuData->ReveryfySize)(pMenuData->szMenuName);
+	if (mCurMenu>=IDR_MenuId_Custom_Base && mCurMenu <= IDR_MenuId_Custom_Base+mMenuCmds.size()*1000)
+	{
+		JKMenuData* pMenuData = mMenuCmds[1000*(mCurMenu/1000)][mCurMenu%1000];
+		(pMenuData->pCallPtr->*pMenuData->ReveryfySize)(pMenuData->szMenuName);
+	}
+	
 }

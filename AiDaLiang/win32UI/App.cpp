@@ -446,8 +446,8 @@ LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPa
  //		OnCtrlColor();
  //		break;
 	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
+		OnDestroy();
+		return 0;
 	default:
 		return DefWindowProc(hWnd,uMsg,wParam,lParam);
 	}
@@ -493,6 +493,12 @@ HBRUSH jkBaseWindow::OnCtrlColor()
 BOOL jkBaseWindow::OnEraseBackground(HDC hdc)
 {
 	return TRUE;
+}
+
+void jkBaseWindow::OnDestroy()
+{
+	::DestroyWindow(mHwnd);
+	mHwnd = NULL;
 }
 
 void jkBaseWindow::OnLButtonDown(UINT nFlags,int x, int y){}

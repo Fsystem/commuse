@@ -159,7 +159,9 @@ void MenuMgr::ReveryfySize()
 
 	if (mCurMenu>=IDR_MenuId_Custom_Base && mCurMenu <= IDR_MenuId_Custom_Base+mMenuCmds.size()*1000)
 	{
-		JKMenuData* pMenuData = mMenuCmds[1000*(mCurMenu/1000)][mCurMenu%1000];
+		int nParantMenuId = 1000*(mCurMenu/1000);
+		int nChildMenuId = mCurMenu%1000;
+		JKMenuData* pMenuData = mMenuCmds[nParantMenuId][nChildMenuId];
 		(pMenuData->pCallPtr->*pMenuData->ReveryfySize)(pMenuData->szMenuName);
 	}
 	

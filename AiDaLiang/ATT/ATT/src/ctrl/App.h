@@ -1,17 +1,20 @@
 #ifndef __App_H
 #define __App_H
-
-
-
-class jkBaseDialog;
-
-class jkWidget
+/**
+ * @brief 
+ *
+ * œÍœ∏√Ë ˆ£∫
+ */
+struct jkWidget
 {
-public:
-protected:
-private:
+	HWND mHwnd;
 };
 
+/**
+ * @brief 
+ *
+ * œÍœ∏√Ë ˆ£∫
+ */
 class jkApp
 {
 	friend class jkBaseDialog;
@@ -29,7 +32,11 @@ private:
 
 };
 
-
+/**
+ * @brief 
+ *
+ * œÍœ∏√Ë ˆ£∫
+ */
 class jkBaseDialog : public jkWidget
 {
 	friend class jkApp;
@@ -43,13 +50,16 @@ public:
 	void UpdateWindow();
 	BOOL CenterWindow();
 	void MoveWindow(int x,int y,int w,int h,BOOL bRePaint = FALSE);
-	
+
+	void SetTimer(UINT unId,int uElapse);
+	void KillTimer(UINT unId);
 
 	virtual void OnInitDialog();
 	virtual void OnOk();
 	virtual void OnCancel();
 	virtual LRESULT OnCommand(WPARAM w,LPARAM l);
 	virtual LRESULT OnDropFiles(HDROP hDrop);
+	virtual void OnTimer(UINT unTimerId);
 
 	virtual LRESULT MessageHandle(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 
@@ -57,9 +67,13 @@ public:
 
 protected:
 	HWND hParant;
-	HWND mHwnd;
 };
 
+/**
+ * @brief 
+ *
+ * œÍœ∏√Ë ˆ£∫
+ */
 class jkBaseWindow : public jkWidget
 {
 	friend class jkApp;
@@ -76,6 +90,7 @@ public:
 
 	virtual void OnCreate(LPCREATESTRUCT pStruct);
 	virtual void OnPaint(HDC hdc);
+	virtual BOOL OnNcPaint(HDC hdc);
 	virtual void OnSize(UINT nSizeCmd,int width,int height);
 	virtual HBRUSH OnCtrlColor();
 	virtual BOOL OnEraseBackground(HDC hdc);
@@ -85,7 +100,6 @@ public:
 	virtual void OnLButtonDBClick(UINT nFlags,int x, int y);
 	virtual LRESULT MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 protected:
-	HWND mHwnd;
 	COLORREF mBGColor;
 private:
 	void PaintBG(HDC hdc);
@@ -95,4 +109,19 @@ private:
 //-------------------------------------------------------------------------------
 
 extern jkApp theJKApp;
+
+//-------------------------------------------------------------------------------
+//edit
+class jkEdit : public jkBaseWindow
+{
+public:
+	jkEdit();
+	virtual ~jkEdit();
+public:
+	virtual void Create(HWND hWnd,int x,int y,int w,int h);
+	virtual void Create(HWND hWnd,RECT rc);
+	virtual void Destroy();
+protected:
+private:
+};
 #endif //__App_H

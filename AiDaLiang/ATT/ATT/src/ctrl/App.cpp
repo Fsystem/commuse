@@ -284,6 +284,16 @@ void jkBaseDialog::MoveWindow(int x,int y,int w,int h,BOOL bRePaint)
 	::MoveWindow(mHwnd,x, y, w, h, bRePaint);
 }
 
+void jkBaseDialog::SetTimer(UINT unId,int uElapse)
+{
+	::SetTimer(mHwnd,unId,uElapse,NULL);
+}
+
+void jkBaseDialog::KillTimer( UINT unId )
+{
+	::KillTimer(mHwnd,unId);
+}
+
 LRESULT jkBaseDialog::MessageHandle(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	switch(uMsg)
@@ -301,6 +311,9 @@ LRESULT jkBaseDialog::MessageHandle(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lPa
 			break;
 		}
 	case WM_DROPFILES:return OnDropFiles((HDROP)wParam);
+	case WM_TIMER:
+		OnTimer((UINT)wParam);
+		break;
 	}
 	return 0L;
 }
@@ -330,6 +343,11 @@ void jkBaseDialog::OnCancel()
 LRESULT jkBaseDialog::OnDropFiles(HDROP hDrop)
 {
 	return 0L;
+}
+
+void jkBaseDialog::OnTimer(UINT unTimerId)
+{
+
 }
 
 //-------------------------------------------------------------------------------
@@ -425,6 +443,18 @@ LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPa
 		OnPaint(hdc);
 		EndPaint(hWnd, &ps);
 		return 0;
+	case WM_NCPAINT:
+		hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+		// Paint into this DC 
+		if(!OnNcPaint(hdc))
+		{
+			ReleaseDC(hWnd, hdc);
+			return DefWindowProc(hWnd,uMsg,wParam,lParam);
+		}
+
+		ReleaseDC(hWnd, hdc);
+		
+		return 0;
 	case WM_SIZE:
 		OnSize((UINT)wParam,LOWORD(lParam),HIWORD(lParam));
 		return 0;
@@ -462,6 +492,11 @@ void jkBaseWindow::OnCreate(LPCREATESTRUCT pStruct)
 void jkBaseWindow::OnPaint(HDC hdc)
 {
 	PaintBG(hdc);
+}
+
+BOOL jkBaseWindow::OnNcPaint(HDC hdc)
+{
+	return FALSE;
 }
 
 void jkBaseWindow::PaintBG(HDC hdc)
@@ -505,3 +540,36 @@ void jkBaseWindow::OnLButtonDown(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnLButtonUp(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnLButtonDBClick(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnSize(UINT nSizeCmd,int width,int height){}
+
+
+//-------------------------------------------------------------------------------
+// edit implement
+//-------------------------------------------------------------------------------
+jkEdit::jkEdit()
+{
+	mHwnd = NULL;
+}
+
+jkEdit::~jkEdit()
+{
+
+}
+
+void jkEdit::Create(HWND hWnd,int x,int y,int w,int h)
+{
+	jkBaseWindow::Create(hWnd,0,0,"EDIT");
+	if (mHwnd)
+	{
+		MoveWindow(x,y,w,h);
+	}
+}
+
+void jkEdit::Create(HWND hWnd,RECT rc)
+{
+	Create(hWnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top);
+}
+
+void jkEdit::Destroy()
+{
+
+}

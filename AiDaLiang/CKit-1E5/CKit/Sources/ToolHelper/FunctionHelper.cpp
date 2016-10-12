@@ -269,19 +269,31 @@ DWORD GetShutTime()
 /*
 通过一个地址取模块句柄
 */
-HMODULE ModuleHandleByAddr(const void* ptrAddr)
-{
-	MEMORY_BASIC_INFORMATION info;
-	::VirtualQuery(ptrAddr, &info, sizeof(info));
-	return (HMODULE)info.AllocationBase;
-}
+//HMODULE ModuleHandleByAddr(const void* ptrAddr)
+//{
+//	MEMORY_BASIC_INFORMATION info;
+//	::VirtualQuery(ptrAddr, &info, sizeof(info));
+//	return (HMODULE)info.AllocationBase;
+//}
 /*
 当前模块句柄
 */
+static HMODULE g_sInstance = NULL;
 HMODULE ThisModuleHandle()
 {
-	static HMODULE sInstance = ModuleHandleByAddr((void*)&ThisModuleHandle);
-	return sInstance;
+	if (g_sInstance == NULL)
+	{
+		MEMORY_BASIC_INFORMATION info;
+		::VirtualQuery((void*)&ThisModuleHandle, &info, sizeof(info));
+		return (HMODULE)info.AllocationBase;
+	}
+
+	return g_sInstance;
+}
+
+void SetThisModuleHandle(HMODULE h)
+{
+	g_sInstance = h;
 }
 
 //-------------------------------------------------------------------------------

@@ -73,6 +73,12 @@ DWORD GetShutTime();
 */
 HMODULE ThisModuleHandle();
 /**
+ * @brief 自定义当前进程的启动实例
+ *
+ * 详细描述：
+ */
+void SetThisModuleHandle(HMODULE h);
+/**
 * !brief 解压文件
 */
 void CheckAndExportFile(const TCHAR* pResName, const TCHAR * path,DWORD dwResource);

@@ -8,18 +8,18 @@ jkApp theJKApp;
 //-------------------------------------------------------------------------------
 static HINSTANCE mInstance = NULL;
 static jkWidget* mpMainWnd = NULL;
-static std::map<HWND,jkBaseDialog*> mapDialogHandle;
-static std::map<HWND,jkBaseWindow*> mapWindowHandle;
+//static std::map<HWND,jkWidget*> mapDialogHandle;
+static std::map<HWND,jkWidget*> mapWindowHandle;
 static char* szDefaultClass="jkWindowClass";
 //-------------------------------------------------------------------------------
 BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
-	jkBaseDialog* pThisDlg = (jkBaseDialog*)lParam;
+	jkWidget* pThisDlg = (jkWidget*)lParam;
 	if (pThisDlg)
 	{
-		mapDialogHandle[hwnd] = pThisDlg;
+		mapWindowHandle[hwnd] = pThisDlg;
 		pThisDlg->mHwnd = hwnd;
-		mapDialogHandle[hwnd]->MessageHandle(hwnd,WM_INITDIALOG,(WPARAM)hwndFocus,lParam);
+		mapWindowHandle[hwnd]->mMessageLoop->MessageHandle(hwnd,WM_INITDIALOG,(WPARAM)hwndFocus,lParam);
 	}
 	return TRUE;
 }
@@ -31,9 +31,9 @@ INT_PTR CALLBACK DialogCallBack(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		HANDLE_MSG(hwnd,WM_INITDIALOG,Cls_OnInitDialog); return TRUE;
 	}
 
-	if (mapDialogHandle[hwnd] != NULL)
+	if (mapWindowHandle[hwnd] != NULL)
 	{
-		return mapDialogHandle[hwnd]->MessageHandle(hwnd,uMsg,wParam,lParam);
+		return mapWindowHandle[hwnd]->mMessageLoop->MessageHandle(hwnd,uMsg,wParam,lParam);
 	}
 
 	return 0L;
@@ -43,18 +43,28 @@ LRESULT CALLBACK CLS_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 {
 	if (message == WM_CREATE)
 	{
-		jkBaseWindow* pWnd = (jkBaseWindow*) ((LPCREATESTRUCT)lParam)-> lpCreateParams  ;
+		jkWidget* pWnd = reinterpret_cast<jkWidget*>( ((LPCREATESTRUCT)lParam)-> lpCreateParams ) ;
 		mapWindowHandle[hWnd] = pWnd;
 		pWnd->mHwnd = hWnd;
 	}
 
 	if (mapWindowHandle.find(hWnd)!=mapWindowHandle.end())
 	{
-		return mapWindowHandle[hWnd]->MessageHandle(hWnd,message,wParam,lParam);
+		return mapWindowHandle[hWnd]->mMessageLoop->MessageHandle(hWnd,message,wParam,lParam);
 	}
 
 	return DefWindowProc(hWnd,message,wParam,lParam);
 }
+
+ LRESULT CALLBACK CLS_ControlWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+ {
+ 	if (mapWindowHandle.find(hWnd)!=mapWindowHandle.end())
+ 	{
+ 		return mapWindowHandle[hWnd]->mMessageLoop->MessageHandle(hWnd,message,wParam,lParam);
+ 	}
+ 
+ 	return DefWindowProc(hWnd,message,wParam,lParam);
+ }
 
 //
 //  函数: MyRegisterClass()
@@ -120,7 +130,7 @@ ATOM CLS_RegisterClass(LPCSTR szWndClass)
 //        在此函数中，我们在全局变量中保存实例句柄并
 //        创建和显示主程序窗口。
 //
-HWND CLS_InitInstance(HWND hParant,int nCmdShow,LPARAM lp,DWORD dwStyle,LPCSTR szWndClass)
+HWND CLS_InitInstance(HWND hParant,int nCmdShow,LPARAM lp,DWORD dwStyle,LPCSTR szWndClass,INT nCtrlId=0)
 {
 	if(dwStyle == 0) 
 	{
@@ -133,7 +143,7 @@ HWND CLS_InitInstance(HWND hParant,int nCmdShow,LPARAM lp,DWORD dwStyle,LPCSTR s
 	if(szWndClass)strcpy(szClass,szWndClass);
 
 	HWND hMainWnd = CreateWindowA(szClass, NULL, dwStyle,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, hParant, NULL, theJKApp.GetInstance(), (LPVOID)lp);
+		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, hParant, (HMENU)nCtrlId, theJKApp.GetInstance(), (LPVOID)lp);
 
 	if (!hMainWnd)
 	{
@@ -217,6 +227,7 @@ void jkApp::RunLoop(jkWidget* wnd)
 //-------------------------------------------------------------------------------
 jkBaseDialog::jkBaseDialog(HWND hParant/*= NULL*/)
 {
+	mMessageLoop = this;
 	this->hParant = hParant;
 	mHwnd = NULL;
 }
@@ -234,7 +245,7 @@ jkBaseDialog::operator HWND()const throw()
 
 void jkBaseDialog::Show(int nResId)
 {
-	DialogBoxParamA(mInstance,MAKEINTRESOURCEA(nResId),hParant,DialogCallBack,(LPARAM)this);
+	DialogBoxParamA(mInstance,MAKEINTRESOURCEA(nResId),hParant,DialogCallBack,(LPARAM)(jkWidget*)this);
 }
 
 void jkBaseDialog::UpdateWindow()
@@ -284,6 +295,16 @@ void jkBaseDialog::MoveWindow(int x,int y,int w,int h,BOOL bRePaint)
 	::MoveWindow(mHwnd,x, y, w, h, bRePaint);
 }
 
+void jkBaseDialog::SetTimer(UINT unId,int uElapse)
+{
+	::SetTimer(mHwnd,unId,uElapse,NULL);
+}
+
+void jkBaseDialog::KillTimer( UINT unId )
+{
+	::KillTimer(mHwnd,unId);
+}
+
 LRESULT jkBaseDialog::MessageHandle(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	switch(uMsg)
@@ -301,6 +322,9 @@ LRESULT jkBaseDialog::MessageHandle(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lPa
 			break;
 		}
 	case WM_DROPFILES:return OnDropFiles((HDROP)wParam);
+	case WM_TIMER:
+		OnTimer((UINT)wParam);
+		break;
 	}
 	return 0L;
 }
@@ -332,6 +356,11 @@ LRESULT jkBaseDialog::OnDropFiles(HDROP hDrop)
 	return 0L;
 }
 
+void jkBaseDialog::OnTimer(UINT unTimerId)
+{
+
+}
+
 //-------------------------------------------------------------------------------
 // jkBaseWindow
 //-------------------------------------------------------------------------------
@@ -339,6 +368,7 @@ jkBaseWindow::jkBaseWindow()
 {
 	mHwnd = NULL;
 	mBGColor = RGB(50,50,50);
+	mMessageLoop = this;
 }
 
 jkBaseWindow::operator HWND()const throw()
@@ -346,10 +376,10 @@ jkBaseWindow::operator HWND()const throw()
 	return mHwnd;
 }
 
-void jkBaseWindow::Create(HWND hParant,LPCSTR szTitle,DWORD dwStyle/* = 0*/,LPCSTR szWndClass /*= NULL*/)
+void jkBaseWindow::Create(HWND hParant,LPCSTR szTitle,DWORD dwStyle/* = 0*/,LPCSTR szWndClass /*= NULL*/,int nCtrlId /*= 0*/)
 {
 	CLS_RegisterClass(szWndClass);
-	mHwnd = CLS_InitInstance(hParant,SW_SHOWNORMAL,(LPARAM)this,dwStyle,szWndClass);
+	mHwnd = CLS_InitInstance(hParant,SW_SHOWNORMAL,(LPARAM)(jkWidget*)this,dwStyle,szWndClass);
 	SetWindowTextA(mHwnd,szTitle);
 }
 
@@ -410,6 +440,16 @@ void jkBaseWindow::SetBgColor(COLORREF bgColor)
 	mBGColor = bgColor;
 }
 
+void jkBaseWindow::SetTimer( UINT unId,int uElapse )
+{
+	::SetTimer(mHwnd,unId,uElapse,NULL);
+}
+
+void jkBaseWindow::KillTimer( UINT unId )
+{
+	::KillTimer(mHwnd,unId);
+}
+
 LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -424,6 +464,18 @@ LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPa
 		hdc = BeginPaint(hWnd, &ps);
 		OnPaint(hdc);
 		EndPaint(hWnd, &ps);
+		return 0;
+	case WM_NCPAINT:
+		hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+		// Paint into this DC 
+		if(!OnNcPaint(hdc))
+		{
+			ReleaseDC(hWnd, hdc);
+			return DefWindowProc(hWnd,uMsg,wParam,lParam);
+		}
+
+		ReleaseDC(hWnd, hdc);
+		
 		return 0;
 	case WM_SIZE:
 		OnSize((UINT)wParam,LOWORD(lParam),HIWORD(lParam));
@@ -448,6 +500,9 @@ LRESULT jkBaseWindow::MessageHandle(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPa
 	case WM_DESTROY:
 		OnDestroy();
 		return 0;
+	case WM_TIMER:
+		OnTimer((UINT)wParam);
+		break;
 	default:
 		return DefWindowProc(hWnd,uMsg,wParam,lParam);
 	}
@@ -462,6 +517,11 @@ void jkBaseWindow::OnCreate(LPCREATESTRUCT pStruct)
 void jkBaseWindow::OnPaint(HDC hdc)
 {
 	PaintBG(hdc);
+}
+
+BOOL jkBaseWindow::OnNcPaint(HDC hdc)
+{
+	return FALSE;
 }
 
 void jkBaseWindow::PaintBG(HDC hdc)
@@ -501,7 +561,306 @@ void jkBaseWindow::OnDestroy()
 	mHwnd = NULL;
 }
 
+void jkBaseWindow::OnTimer( UINT unTimerId )
+{
+
+}
+
 void jkBaseWindow::OnLButtonDown(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnLButtonUp(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnLButtonDBClick(UINT nFlags,int x, int y){}
 void jkBaseWindow::OnSize(UINT nSizeCmd,int width,int height){}
+
+//-------------------------------------------------------------------------------
+// control
+//-------------------------------------------------------------------------------
+
+jkControl::jkControl()
+{
+	mHwnd = NULL;
+	mMessageLoop = this;
+
+	mClassName = "";
+	mParant=NULL;
+	mStyle=WS_CHILD | WS_VISIBLE | WS_TABSTOP;
+	mStyleEx=0;
+	mCtrlId = 0;
+	mOldCall = 0;
+
+	//
+	x = 0;
+	y = 0;
+	wid = 0;
+	hei = 0;
+}
+
+jkControl::~jkControl()
+{
+	Destroy();
+}
+
+jkControl::operator HWND() const throw()
+{
+	return mHwnd;
+}
+
+void jkControl::SetCtrlInfo(LPCSTR wcControl,int nCtrlId)
+{
+	mCtrlId = nCtrlId;
+	mClassName = wcControl;
+}
+
+void jkControl::Create(HWND hWnd, int x,int y,int w,int h )
+{
+	mParant = hWnd;
+
+	this->x = x;
+	this->y = y;
+	this->wid = w;
+	this->hei = h;
+
+	//mHwnd = CLS_InitInstance(mParant,SW_SHOW,(LPARAM)(jkWidget*)this,mStyle,mClassName.c_str(),mCtrlId);
+	mHwnd = CreateWindowA(mClassName.c_str(), NULL, mStyle, \
+		x, y, w, h, mParant, (HMENU)mCtrlId, theJKApp.GetInstance(), NULL); 
+	if (mHwnd)
+	{
+		mapWindowHandle[mHwnd] = (jkWidget*)this;
+		mOldCall = (WNDPROC)SetWindowLong(mHwnd,GWL_WNDPROC,(LONG)CLS_ControlWndProc);
+	}
+}
+
+void jkControl::Create( HWND hWnd,RECT rc )
+{
+	Create(hWnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top);
+}
+
+void jkControl::Destroy()
+{
+	if (IsWindow(mHwnd))
+	{
+		SetWindowLong(mHwnd,GWL_WNDPROC,(LONG)mOldCall);
+		::DestroyWindow(mHwnd);
+		mHwnd = NULL;
+	}
+}
+
+void jkControl::SetStyle( DWORD dwStyle )
+{
+	mStyle = dwStyle;
+	if(IsWindow(mHwnd)) SetWindowLong(mHwnd,GWL_STYLE,dwStyle);
+}
+
+DWORD jkControl::GetStyle()
+{
+	return mStyle;
+}
+
+//void jkControl::OnDestroy()
+//{
+//
+//}
+
+BOOL jkControl::OnPaint( HDC hdc )
+{
+	return FALSE;
+
+	::SetForegroundWindow(mHwnd);  
+
+	PaintBG(hdc);
+
+	return TRUE;
+}
+
+BOOL jkControl::OnNcPaint( HDC hdc )
+{
+	return FALSE;
+
+	::SetForegroundWindow(mHwnd);  
+
+	HBRUSH hBr,hOldBr;
+	hBr = CreateSolidBrush(RGB(255,0,0));
+	//hOldBr = (HBRUSH)SelectObject(hdc,hBr);
+
+	RECT rcFrame = {x+1,y+1,x+wid-1,y+hei-1};
+	::FrameRect(hdc,&rcFrame,hBr);
+
+	//SelectObject(hdc,hOldBr);
+	DeleteObject(hBr);
+
+	return TRUE;
+}
+
+BOOL jkControl::OnEraseBackground( HDC hdc )
+{
+	return FALSE;
+}
+
+BOOL jkControl::OnCtrlColor( HDC hdc )
+{
+	return FALSE;
+
+	::SetForegroundWindow(mHwnd);  
+	PaintBG(hdc);
+
+	return TRUE;
+}
+
+LRESULT jkControl::MessageHandle( HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam )
+{
+	BOOL bHandled = FALSE;
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch(uMsg)
+	{
+	case WM_DRAWITEM:
+		break;
+	case WM_PAINT:
+		hdc = GetDC(hWnd);
+		bHandled = OnPaint(hdc);
+
+		/*hdc = BeginPaint(hWnd, &ps);
+		bHandled = OnPaint(hdc);
+		EndPaint(hWnd, &ps);*/
+		
+		break;
+	case WM_SETFOCUS:
+		InvalidateRect(hWnd,NULL,TRUE);
+		break;
+	case WM_KILLFOCUS:
+		InvalidateRect(hWnd,NULL,TRUE);
+		break;
+	case WM_NCPAINT:
+		hdc = GetDCEx(hWnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+		// Paint into this DC 
+		bHandled = OnNcPaint(hdc);
+		ReleaseDC(hWnd, hdc);
+		break;
+	case WM_CTLCOLOR:
+		//SetBkColor(hdc, RGB(255,0,0)); // Set to red
+		//SetDCBrushColor(hdc, RGB(255,0,0));
+		//return (LRESULT) GetStockObject(DC_BRUSH); // return a DC brush.
+
+		bHandled = OnCtrlColor((HDC)wParam);
+		break;
+	case WM_CTLCOLORSTATIC:
+		//SetBkColor(hdc, RGB(255,0,0)); // Set to red
+		//SetDCBrushColor(hdc, RGB(255,0,0));
+		//return (LRESULT) GetStockObject(DC_BRUSH); // return a DC brush.
+		
+		break;
+	case WM_CTLCOLOREDIT:
+
+		break;
+	case WM_ERASEBKGND:
+		if( OnEraseBackground((HDC)wParam) ) return TRUE;
+		break;
+
+	//case WM_DESTROY:
+	//	OnDestroy();
+	//	break;
+	}
+
+	return ( bHandled?TRUE:CallWindowProc(mOldCall,hWnd,uMsg,wParam,lParam) );
+}
+
+void jkControl::PaintBG( HDC hdc )
+{
+	RECT rcClient;
+	GetClientRect(mHwnd,&rcClient);
+
+	HDC hMemDc = ::CreateCompatibleDC(hdc);
+	HBITMAP hComBmp = ::CreateCompatibleBitmap(hdc,rcClient.right-rcClient.left,rcClient.bottom-rcClient.top);
+	SelectObject(hMemDc,hComBmp);
+
+	HBRUSH hBHBr = ::CreateSolidBrush(RGB(0,0,255));
+
+	FillRect(hMemDc,&rcClient,hBHBr);
+
+	::BitBlt(hdc,0,0,rcClient.right-rcClient.left,rcClient.bottom-rcClient.top,hMemDc,0,0,SRCCOPY);
+
+	::DeleteObject(hComBmp);
+	::DeleteDC(hMemDc);
+	::DeleteObject(hBHBr);
+}
+
+////-------------------------------------------------------------------------------
+//// edit implement
+////-------------------------------------------------------------------------------
+//jkEdit::jkEdit()
+//{
+//	mClassName = WC_EDITA;
+//	mStyle = WS_CHILD|WS_VISIBLE|WS_BORDER | ES_LEFT;
+//}
+//
+//jkEdit::~jkEdit()
+//{
+//	if (IsWindow(mHwnd))
+//	{
+//		Destroy();
+//	}
+//}
+//
+//void jkEdit::Create(HWND hWnd,int x,int y,int w,int h)
+//{
+//	mParant = hWnd;
+//	jkControl::Create(x,y,w,h);
+//}
+//
+//
+//
+////-------------------------------------------------------------------------------
+//// Button
+////-------------------------------------------------------------------------------
+//jkButton::jkButton()
+//{
+//	mClassName = WC_BUTTONA;
+//	mStyle = WS_CHILD|WS_VISIBLE|WS_BORDER | BS_PUSHBUTTON;
+//}
+//
+//jkButton::~jkButton()
+//{
+//
+//}
+//
+////-------------------------------------------------------------------------------
+//// Label
+////-------------------------------------------------------------------------------
+//jkLabel::jkLabel()
+//{
+//
+//}
+//
+//jkLabel::~jkLabel()
+//{
+//	mClassName = WC_STATICA;
+//	mStyle = WS_CHILD|WS_VISIBLE;
+//}
+//
+////-------------------------------------------------------------------------------
+//// combox
+////-------------------------------------------------------------------------------
+//jkComboBox::jkComboBox()
+//{
+//	mClassName = WC_COMBOBOXA;
+//	mStyle = WS_CHILD|WS_VISIBLE;
+//}
+//
+//jkComboBox::~jkComboBox()
+//{
+//
+//}
+//
+////-------------------------------------------------------------------------------
+//// combox
+////-------------------------------------------------------------------------------
+//jkClassCtrl::jkClassCtrl()
+//{
+//	mClassName = WC_LISTVIEWA;
+//	mStyle = WS_CHILD|WS_VISIBLE;
+//}
+//
+//jkClassCtrl::~jkClassCtrl()
+//{
+//	
+//}

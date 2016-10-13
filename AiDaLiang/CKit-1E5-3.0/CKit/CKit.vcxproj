@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="CKit-Debug-Unicode|Win32">
+      <Configuration>CKit-Debug-Unicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="CKit-Release-Unicode|Win32">
+      <Configuration>CKit-Release-Unicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DD4666D2-9535-4AF1-9F72-2C549E51905D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>CommLib</RootNamespace>
+    <ProjectName>CKit-1E5</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Release-Unicode|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Release-Unicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>$(ProjectName)d</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'">
+    <TargetName>$(ProjectName)ud</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Release-Unicode|Win32'">
+    <TargetName>$(ProjectName)u</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
+del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
+del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
+del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+    </PostBuildEvent>
+    <Lib>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Release-Unicode|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <PostBuildEvent>
+      <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
+del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+    </PostBuildEvent>
+    <Lib>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Sources\CKit.h" />
+    <ClInclude Include="Sources\ComnDef\cmndef.h" />
+    <ClInclude Include="Sources\Director\CltDirector.h" />
+    <ClInclude Include="Sources\InjectHelper\MemoryLoad.h" />
+    <ClInclude Include="Sources\InjectHelper\MemoryModule.h" />
+    <ClInclude Include="Sources\InjectHelper\SsdtOper.h" />
+    <ClInclude Include="Sources\InjectHelper\SystemCommon.h" />
+    <ClInclude Include="Sources\Interface\CKInterface.h" />
+    <ClInclude Include="Sources\Kernel\comm\Log\CommLog.h" />
+    <ClInclude Include="Sources\Kernel\comm\Log\DebugLog.h" />
+    <ClInclude Include="Sources\Kernel\comm\ProcessLock\ProcessLock.h" />
+    <ClInclude Include="Sources\Kernel\comm\SafeCriticalSection\SafeCriticalSection.h" />
+    <ClInclude Include="Sources\Kernel\comm\ShareMem\ShareMemry.h" />
+    <ClInclude Include="Sources\Kernel\crypt\CRC.h" />
+    <ClInclude Include="Sources\Kernel\crypt\Md5.h" />
+    <ClInclude Include="Sources\Kernel\crypt\yrc4.h" />
+    <ClInclude Include="Sources\Kernel\downfile\HttpDownFile.h" />
+    <ClInclude Include="Sources\Kernel\net\yCTcp.h" />
+    <ClInclude Include="Sources\Kernel\net\yCUdp.h" />
+    <ClInclude Include="Sources\Kernel\template\SingletonBase.h" />
+    <ClInclude Include="Sources\Kernel\thread\JKThread.h" />
+    <ClInclude Include="Sources\ModuleManager\PlugManager.h" />
+    <ClInclude Include="Sources\NetManager\NetManager.h" />
+    <ClInclude Include="Sources\ToolHelper\DeviceOper.h" />
+    <ClInclude Include="Sources\ToolHelper\DigitSign.h" />
+    <ClInclude Include="Sources\ToolHelper\FileMonitor.h" />
+    <ClInclude Include="Sources\ToolHelper\FunctionHelper.h" />
+    <ClInclude Include="Sources\ToolHelper\Markup.h" />
+    <ClInclude Include="Sources\ToolHelper\MemLoadDll.h" />
+    <ClInclude Include="Sources\ToolHelper\NetOper.h" />
+    <ClInclude Include="Sources\ToolHelper\RunExeByRandom.h" />
+    <ClInclude Include="Sources\ToolHelper\Server.h" />
+    <ClInclude Include="Sources\ToolHelper\Service.h" />
+    <ClInclude Include="Sources\ToolHelper\ToolOper.h" />
+    <ClInclude Include="Sources\ToolHelper\unzip.h" />
+    <ClInclude Include="Sources\ToolHelper\yCMyseclock.h" />
+    <ClInclude Include="Sources\ToolHelper\zip.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sources\Director\CltDirector.cpp" />
+    <ClCompile Include="Sources\InjectHelper\MemoryLoad.cpp" />
+    <ClCompile Include="Sources\InjectHelper\MemoryModule.cpp" />
+    <ClCompile Include="Sources\InjectHelper\SsdtOper.cpp" />
+    <ClCompile Include="Sources\Kernel\comm\Log\CommLog.cpp" />
+    <ClCompile Include="Sources\Kernel\comm\Log\DebugLog.cpp" />
+    <ClCompile Include="Sources\Kernel\comm\ProcessLock\ProcessLock.cpp" />
+    <ClCompile Include="Sources\Kernel\comm\SafeCriticalSection\SafeCriticalSection.cpp" />
+    <ClCompile Include="Sources\Kernel\comm\ShareMem\ShareMemry.cpp" />
+    <ClCompile Include="Sources\Kernel\crypt\CRC.cpp" />
+    <ClCompile Include="Sources\Kernel\crypt\Md5.cpp" />
+    <ClCompile Include="Sources\Kernel\crypt\yrc4.cpp" />
+    <ClCompile Include="Sources\Kernel\downfile\HttpDownFile.cpp" />
+    <ClCompile Include="Sources\Kernel\net\yCTcp.cpp" />
+    <ClCompile Include="Sources\Kernel\net\yCUdp.cpp" />
+    <ClCompile Include="Sources\ModuleManager\PlugManager.cpp" />
+    <ClCompile Include="Sources\NetManager\NetManager.cpp" />
+    <ClCompile Include="Sources\ToolHelper\DeviceOper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\DigitSign.cpp" />
+    <ClCompile Include="Sources\ToolHelper\FileMonitor.cpp" />
+    <ClCompile Include="Sources\ToolHelper\FunctionHelper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\Markup.cpp" />
+    <ClCompile Include="Sources\ToolHelper\MemLoadDll.cpp" />
+    <ClCompile Include="Sources\ToolHelper\NetOper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\RunExeByRandom.cpp" />
+    <ClCompile Include="Sources\ToolHelper\Server.cpp" />
+    <ClCompile Include="Sources\ToolHelper\Service.cpp" />
+    <ClCompile Include="Sources\ToolHelper\ToolOper.cpp" />
+    <ClCompile Include="Sources\ToolHelper\unzip.cpp" />
+    <ClCompile Include="Sources\ToolHelper\yCMyseclock.cpp" />
+    <ClCompile Include="Sources\ToolHelper\zip.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='CKit-Release-Unicode|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

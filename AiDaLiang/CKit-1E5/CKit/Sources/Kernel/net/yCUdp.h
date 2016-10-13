@@ -1,8 +1,8 @@
 
-#include <WINSOCK.H>
 #ifndef __YCUDP_H__
 #define __YCUDP_H__
 
+#include <WinSock2.h>
 /*****************************
 **yCUdp类的定义
 *****************************/

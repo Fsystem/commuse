@@ -4,7 +4,7 @@
 #include <atlconv.h>
 
 #include <WinIoCtl.h>
-#include <WinSock.h>
+#include <WinSock2.h>
 #include  <iphlpapi.h>
 #include <tchar.h>
 #include <TlHelp32.h>

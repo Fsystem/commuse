@@ -16,11 +16,15 @@
 *   备注: 
 *       
 *********************************************************/
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "yCTcp.h"
 /************头文件************/
-	#include <assert.h>
-	#include <WinSock.h>
+#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <WinSock2.h>
+
+#pragma comment(lib,"ws2_32.lib")
 
 #ifdef WIN32
 int yCTcp::SOCK_ERROR = -100;
@@ -548,7 +552,7 @@ int yCTcp::Recv (void *pBuf, int nCount, int nMicsec) const
 		tvlTime.tv_usec = abs (nMicsec - tvlTime.tv_sec * 1000000);
 	}
 #ifdef WIN32
-	//SetRecvTimeout (nMicsec);
+	SetRecvTimeout (nMicsec);
 	if ((rn = recv (m_nSock, ptr, nCount,0)) < 0)
 #else
 	fd_set rdfdset;

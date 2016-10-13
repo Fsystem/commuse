@@ -70,6 +70,7 @@
 //! ×¢Èë
 #include "InjectHelper/MemoryModule.h"
 #include "InjectHelper/SsdtOper.h"
+#include "InjectHelper/MemoryLoad.h"
 
 //Ëæ¼´ÔËÐÐexe
 #include "ToolHelper/RunExeByRandom.h"

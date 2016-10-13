@@ -3,7 +3,7 @@
 #ifndef __YCTCP_H__
 #define __YCTCP_H__
 
-#define TCP_TIMEOUT 2000000	//socket超时值（单位：微妙）
+#define TCP_TIMEOUT (1000 * 1000)	//socket超时值（单位：微妙）
 
 class yCTcp
 {
@@ -28,10 +28,10 @@ virtual	int Listen (int nNum) const;//监听
 virtual	int SetReuseAddr ();//设置地址可重用
 virtual	int Accept () const;//接受连接
 
-virtual	int Sendn (const void *, int, int = TCP_TIMEOUT) const;//发送n个字节数据	
-virtual	int Recvn (void *, int, int = TCP_TIMEOUT) const;//接收n个字节数据
-virtual	int Send (const void *, int , int = TCP_TIMEOUT) const;//发送数据
-virtual	int Recv (void *, int , int = TCP_TIMEOUT) const;//接受数据
+virtual	int Sendn (const void *, int, int = (TCP_TIMEOUT * 60)) const;//发送n个字节数据	
+virtual	int Recvn (void *, int, int = (TCP_TIMEOUT * 60)) const;//接收n个字节数据
+virtual	int Send (const void *, int , int = (TCP_TIMEOUT * 60)) const;//发送数据
+virtual	int Recv (void *, int , int = (TCP_TIMEOUT * 60)) const;//接受数据
 
 virtual	int GetHostName (char *) const;//得到本机机器名
 virtual	int GetPeerName (char *) const;//得到对方机器名

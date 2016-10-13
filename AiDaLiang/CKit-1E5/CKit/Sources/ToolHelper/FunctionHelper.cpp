@@ -6,7 +6,7 @@
 #include <Mmsystem.h>
 #include <time.h>
 
-#include <WinSock.h>
+#include <WinSock2.h>
 
 #include <Psapi.h>
 #include <Tlhelp32.h>
@@ -107,7 +107,9 @@ BOOL IsWow64ProcessEx(DWORD dwPid)
 	BOOL bRet = FALSE;
 	if(dwPid == 0) return bRet;
 
+#ifndef PROCESS_QUERY_LIMITED_INFORMATION
 #	define PROCESS_QUERY_LIMITED_INFORMATION (0x100)
+#endif
 
 	HANDLE hProcess = ::OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION ,FALSE,dwPid);
 	if (hProcess)

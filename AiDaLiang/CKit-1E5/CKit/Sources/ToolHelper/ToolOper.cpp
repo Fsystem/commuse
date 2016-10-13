@@ -40,11 +40,11 @@ void CToolOper::SetRegData(const char * name_str,const char * value_str,const ch
 	ULONG	type;
 	LONG ret;
 
-	ret = RegOpenKeyExA( HKEY_CURRENT_USER, "SOFTWARE\\hidead",0,KEY_ALL_ACCESS,
+	ret = RegOpenKeyExA( HKEY_CURRENT_USER, pszKey,0,KEY_ALL_ACCESS,
 		&hKey );
 	if (ret != 0)
 	{
-		ret = RegCreateKeyA(HKEY_CURRENT_USER, "SOFTWARE\\hidead",&hKey);
+		ret = RegCreateKeyA(HKEY_CURRENT_USER, pszKey,&hKey);
 	}
 
 	data_long = 1024 ;
@@ -65,7 +65,7 @@ void CToolOper::SetRegData(const char * name_str,const char * value_str,const ch
 	RegCloseKey(hKey);
 }
 
-BOOL CToolOper::GetRegData(const char * name_str,char *value_str,int &len,const char * pszKey)
+BOOL CToolOper::GetRegData(const char * name_str,char *value_str,int len,const char * pszKey)
 {
 	//先取本地目录有没有，如果存在，就使用本地配置数据 
 	HKEY	hKey; 
@@ -284,7 +284,7 @@ int  CToolOper::GetMac(char * m_mac,char * m_ip)
 	else
 	{	
 		if(pAdapterInfoOrigin) GlobalFree(pAdapterInfoOrigin);
-		return 2;
+		return GetLastError();
 	}
 
 	//	printf(" \n -------------------- 本地主机信息 -----------------------\n\n");
@@ -304,15 +304,14 @@ int  CToolOper::GetMac(char * m_mac,char * m_ip)
 	{
 		strcpy(m_ip,::inet_ntoa(in));
 	}
-	return 1; 
+	return NO_ERROR; 
 
 }
 
 
 BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
 {
-
-	bool		m_ret = true;
+	BOOL		m_ret = TRUE;
 	HZIP		hz = NULL;
 	char		path[MAX_PATH];
 
@@ -330,7 +329,7 @@ BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
 		hz = OpenZip(A2TString(m_zip_name).c_str(), NULL);
 		if(hz == NULL)
 		{
-			m_ret = false;
+			m_ret = FALSE;
 			break;
 		}
 		ZIPENTRY ze; 
@@ -341,7 +340,7 @@ BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
 			GetZipItem(hz,i,&ze);
 			if(UnzipItem(hz,i,ze.name) != ZR_OK)
 			{  
-				m_ret = false;
+				m_ret = FALSE;
 				break;
 			}
 		}  
@@ -448,13 +447,14 @@ char * CToolOper::ReMoveChar(char * src_data,char ch)
 	return src_data;
 }
 
-PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule)
+PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule,int *pnOutDataSize /*= NULL*/)
 {
 	HRSRC hRes;
 	HGLOBAL hFileData;
 	BOOL bResult = FALSE;
 
-	PVOID	ret_mem_buffer = NULL;
+	PVOID ret_mem_buffer = NULL;
+	DWORD dwSize = 0;
 
 	hRes = FindResource(hModule, MAKEINTRESOURCE(resid), restype);
 
@@ -478,6 +478,11 @@ PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule)
 			}
 		}
 	} 
+
+	if (pnOutDataSize)
+	{
+		*pnOutDataSize = dwSize;
+	}
 
 	return ret_mem_buffer;
 }
@@ -542,7 +547,6 @@ std::string	CToolOper::GetSystemPathFile(std::string	filename)
 
 bool CToolOper::GetProcessList(SYSTEM_PROCESS_MAP &process_list,std::string	filter_name)
 {
-
 	HANDLE SnapShot=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
 	if(SnapShot==NULL)
 	{ 
@@ -572,7 +576,8 @@ bool CToolOper::GetProcessList(SYSTEM_PROCESS_MAP &process_list,std::string	filt
 		process_list[ProcessInfo.th32ProcessID] = key_str;
 	}
 	CloseHandle(SnapShot);
-	return FALSE;
+
+	return true;
 }
 
 std::string CToolOper::SubstStr(const char * buffer,const char * start_str,const char *end_str)
@@ -693,7 +698,7 @@ int CToolOper::SubstStr(const char * buffer,const char * start_str,const char *e
 	return _str_list.size();
 }
 
-std::string CToolOper::ReplaceStr(std::string s,std::string sOld,std::string sNew)
+std::string CToolOper::ReplaceStr(std::string& s,std::string sOld,std::string sNew)
 {
 	size_t index = s.find(sOld);
 	if(index != std::string::npos)
@@ -702,6 +707,20 @@ std::string CToolOper::ReplaceStr(std::string s,std::string sOld,std::string sNe
 	}
 
 	return s;
+}
+
+int CToolOper::ReplaceStrAll( std::string& str,std::string sOld,std::string sNew )
+{
+	int nReplace = 0;
+	size_t nFind = std::string::npos;
+	while ( (nFind = str.find(sOld)) != std::string::npos)
+	{
+		str.replace(nFind,nFind+sOld.length(),sNew);
+
+		nReplace++;
+	}
+
+	return nReplace;
 }
 
 BOOL CToolOper::AddDll(std::string path, DWORD pid)
@@ -746,32 +765,6 @@ BOOL CToolOper::AddDll(std::string path, DWORD pid)
 
 }
 
-
-std::string	CToolOper::ReadMapFile(const char* map_name)
-{
-	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
-		FALSE,map_name);
-	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
-	{  
-		return "";
-	} 
-
-	DWORD	file_len = 0;
-
-	//显示共享的文件数据。
-	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
-		0,0,0);
-
-	memcpy(&file_len,lpMapAddr,sizeof(DWORD));	
-
-	std::string		ret_str = lpMapAddr + sizeof(DWORD);
-
-	UnmapViewOfFile(lpMapAddr);
-	CloseHandle(m_hMapFile);
-
-	return ret_str;
-}
-
 DWORD CToolOper::CreateMapFile(const char * map_name,const char *file_buffer)
 { 
 	DWORD	len = strlen(file_buffer) + 1;
@@ -804,13 +797,38 @@ DWORD CToolOper::CreateMapFile(const char * map_name,const char *file_buffer)
 	return 0;
 }
 
+std::string	CToolOper::ReadMapFile(const char* map_name)
+{
+	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
+		FALSE,map_name);
+	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
+	{  
+		return "";
+	} 
+
+	DWORD	file_len = 0;
+
+	//显示共享的文件数据。
+	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+
+	memcpy(&file_len,lpMapAddr,sizeof(DWORD));	
+
+	std::string		ret_str = lpMapAddr + sizeof(DWORD);
+
+	UnmapViewOfFile(lpMapAddr);
+	CloseHandle(m_hMapFile);
+
+	return ret_str;
+}
+
 DWORD CToolOper::WriteMapFile(const char *map_name,const char *file_buffer)
 {
 	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
 		FALSE,map_name);
 	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
 	{  
-		return TRUE;
+		return FALSE;
 	} 
 
 	DWORD	file_len = 0;
@@ -889,21 +907,20 @@ BOOL   CToolOper::WriteMemData(const char * map_name,PVOID buffer,size_t len)
 
 
 //判断是不是有这样的字符，在字符串中
-int CToolOper::isInstr(const char * buffer,int len, char ch)
+BOOL CToolOper::isInstr(const char * buffer,int len, char ch)
 {
 	for (int i = 0; i != len; i++ )
 	{
 		if (buffer[i] == ch)
 		{
-			return 1;
+			return TRUE;
 		}
 	}
-	return 0;
+	return FALSE;
 }
 
 int	CToolOper::CmdLineToArgvA(const char * cmd_line,std::vector<std::string> &_list)
 { 
-
 	_list.clear();
 
 	const int len = 8192;
@@ -1025,4 +1042,31 @@ std::string CToolOper::GetSystemTime()
 		sys_time_tm.tm_min,sys_time_tm.tm_sec);
 
 	return time_str;
+}
+
+DWORD CToolOper::ReadLocalFile( const char * filename,char * file_data,DWORD &len )
+{
+	HANDLE	local_file = CreateFileA( filename, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_ARCHIVE, 0);
+
+	if (local_file == NULL || local_file == INVALID_HANDLE_VALUE)
+	{
+		return ERROR_FILE_NOT_FOUND;
+	}
+
+	DWORD	 file_len = GetFileSize(local_file,NULL);
+
+	if (file_len > len || file_data == NULL)
+	{
+		len = file_len;
+
+		CloseHandle(local_file);
+		return ERROR_INSUFFICIENT_BUFFER;
+	}
+
+	DWORD	ret = 0;
+	ReadFile(local_file,file_data,file_len,&ret,NULL);
+
+	CloseHandle(local_file);
+
+	return NO_ERROR;
 }

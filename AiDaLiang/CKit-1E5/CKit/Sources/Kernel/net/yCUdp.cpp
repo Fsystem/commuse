@@ -1,8 +1,11 @@
 
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "yCUdp.h"
+#include <stdlib.h>
+#include <stdio.h>
 
+#pragma comment(lib,"ws2_32.lib")
 /***********************************
 **   默认构造函数
 ***********************************/
@@ -13,8 +16,8 @@ yCUdp::yCUdp()
 #ifdef WIN32
 	WSADATA sockData;
 	if (WSAStartup (MAKEWORD (2, 2), &sockData))
-	{
-		printf("UDP加载失败");
+	{ 
+		;
 	}
 #endif
 }

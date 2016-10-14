@@ -6,7 +6,7 @@
 
 #pragma warning(disable:4996)
 
-#define MAX_40K_BUFFER 40*1024
+//#define MAX_40K_BUFFER 40*1024
 //#define MSG_TAG_FLAG 0x19831984
 
 //////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ typedef	struct	_TAG_HEAD
 	DWORD		tag;  //0x2010103
 	DWORD		ver;	//版本号
 	DWORD		msg_len;	//长度
-	UCHAR		msg_info;	//消息头
+	DWORD		msg_info;	//消息头
 
 	void Code()	//编码，把网络
 	{ 
@@ -49,6 +49,28 @@ typedef	struct	_TAG_HEAD
 	}
 }TAG_HEAD,*PTAG_HEAD;
 
+typedef	struct	_TAG_HEAD_UCHAR
+{
+	DWORD		tag;  //0x2010103
+	DWORD		ver;	//版本号
+	DWORD		msg_len;	//长度
+	UCHAR		msg_info;	//消息头
+
+	void Code()	//编码，把网络
+	{ 
+		tag = htonl(tag);
+		msg_len = htonl(msg_len);
+		ver = htonl(ver);		
+	}
+
+	void UnCode()
+	{
+		tag = ntohl(tag);
+		msg_len = ntohl(msg_len);
+		ver = ntohl(ver);
+	}
+}TAG_HEAD_UCHAR,*PTAG_HEAD_UCHAR;
+
 
 //#define		WORK_PORT		6000
 
@@ -56,9 +78,12 @@ typedef	struct	_TAG_HEAD
 //#define		APP_VER			7
 
 
-CNetOper::CNetOper()
+CNetOper::CNetOper(bool bUseDwordHead,DWORD dwTagHead ,LPCSTR lpKey)
 {
-
+	mUseDwordHead = bUseDwordHead;
+	mTagHead = dwTagHead;
+	strncpy(mNetKey,lpKey,sizeof(mNetKey)-1);
+	mNetKey[sizeof(mNetKey)-1] = 0;
 }
 
 CNetOper::~CNetOper()
@@ -104,33 +129,55 @@ void CNetOper::NetOperForUdpWithout(DWORD msg_type,const void* pdata,int ndatale
 
 	udp_server.BindAddr(NULL,0);
 
-	TAG_HEAD				tag_head; 
-
 	char					send_buffer[MAX_40K_BUFFER];
 	int						data_len = 0;
-
+	int						head_len = 0;
 
 	memset(send_buffer,0,sizeof(send_buffer));
-
 	data_len = ndatalen;  
 
-	tag_head.tag = MSG_TAG_FLAG;
-	tag_head.msg_info = msg_type;
-	tag_head.msg_len = sizeof(TAG_HEAD) + data_len;
-	tag_head.ver = HEAD_VER;
+	if (mUseDwordHead)
+	{
+		TAG_HEAD				tag_head; 
 
-	tag_head.Code();
+		head_len = sizeof(tag_head);
 
-	memcpy(send_buffer,&tag_head,sizeof(tag_head));
-	memcpy(send_buffer + sizeof(TAG_HEAD),pdata,data_len);
+		tag_head.tag = mTagHead;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = head_len + data_len;
+		tag_head.ver = HEAD_VER;
+
+		tag_head.Code();
+
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+
+		
+	}
+	else
+	{
+		TAG_HEAD_UCHAR			tag_head; 
+
+		head_len = sizeof(tag_head);
+
+		tag_head.tag = mTagHead;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = head_len + data_len;
+		tag_head.ver = HEAD_VER;
+
+		tag_head.Code();
+
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+	}
+
+	memcpy(send_buffer + head_len,pdata,data_len);
 
 	int		recv_len = 0;
 
-	OperDataCode(send_buffer,data_len + sizeof(TAG_HEAD));
+	OperDataCode(send_buffer,data_len + head_len);
 
 	BOOL			recv_ret = FALSE;
 
-	udp_server.SendDate(addr,iport,send_buffer,data_len + sizeof(TAG_HEAD));
+	udp_server.SendDate(addr,iport,send_buffer,data_len + head_len);
 }
 
 //参数：		agent_id		代理商ID
@@ -155,51 +202,89 @@ std::vector<char> CNetOper::NetOperForUdp(DWORD msg_type,const void* pdata,int n
 
 	udp_server.BindAddr(NULL,0);
 
-	TAG_HEAD				tag_head; 
-
 	char					recv_buffer[MAX_40K_BUFFER];
 	char					send_buffer[MAX_40K_BUFFER];
+	int						head_len = 0;
 	int						data_len = 0;
 
 	memset(send_buffer,0,sizeof(send_buffer));
 
 	data_len = ndatalen;  
 
-	tag_head.tag = MSG_TAG_FLAG;
-	tag_head.msg_info = msg_type;
-	tag_head.msg_len = sizeof(TAG_HEAD) + data_len;
-	tag_head.ver = HEAD_VER;
+	if (mUseDwordHead)
+	{
+		TAG_HEAD				tag_head;
 
-	tag_head.Code();
+		head_len = sizeof(tag_head);
 
-	memcpy(send_buffer,&tag_head,sizeof(tag_head));
-	memcpy(send_buffer + sizeof(TAG_HEAD),pdata,data_len);
+		tag_head.tag = mTagHead;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = head_len + data_len;
+		tag_head.ver = HEAD_VER;
+		tag_head.Code();
 
-	int		recv_len = 0;
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+	}
+	else
+	{
+		TAG_HEAD_UCHAR			tag_head;
 
-	OperDataCode(send_buffer,data_len + sizeof(TAG_HEAD));
+		head_len = sizeof(tag_head);
+
+		tag_head.tag = mTagHead;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = head_len + data_len;
+		tag_head.ver = HEAD_VER;
+		tag_head.Code();
+
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+	}
+	
+	memcpy(send_buffer + head_len,pdata,data_len);
+
+	OperDataCode(send_buffer,data_len + head_len);
 
 	BOOL			recv_ret = FALSE;
+	int				recv_len = 0;
+	int				recv_content_len = 0;
 
 	for (int i = 0; i != 3; i++)
 	{ 
-		if(udp_server.SendDate(addr,iport,send_buffer,data_len + sizeof(TAG_HEAD)) == 0)
+		if(udp_server.SendDate(addr,iport,send_buffer,data_len + head_len) == 0)
 			break;
 
 		memset(recv_buffer,0,sizeof(recv_buffer));
 		recv_len = udp_server.RecvDate(recv_buffer,sizeof(recv_buffer),5);
-		if (recv_len >= sizeof(TAG_HEAD) )
+		if (recv_len >= head_len )
 		{
 
 			OperDataCode(recv_buffer,recv_len);
 
-			memcpy(&tag_head,recv_buffer,sizeof(tag_head));
-			tag_head.UnCode();
-			if (tag_head.msg_info != msg_type + 1)
+			if (mUseDwordHead)
 			{
-				continue;
-			}
+				TAG_HEAD				tag_head;
+				memcpy(&tag_head,recv_buffer,sizeof(tag_head));
+				tag_head.UnCode();
+				if (tag_head.msg_info != msg_type + 1)
+				{
+					continue;
+				}
 
+				recv_content_len = tag_head.msg_len;
+			}
+			else
+			{
+				TAG_HEAD_UCHAR			tag_head;
+				memcpy(&tag_head,recv_buffer,sizeof(tag_head));
+				tag_head.UnCode();
+				if (tag_head.msg_info != msg_type + 1)
+				{
+					continue;
+				}
+				
+				recv_content_len = tag_head.msg_len;
+			}
+			
 			recv_ret = TRUE;
 			//接收成功，处理并退出
 			break;
@@ -208,7 +293,7 @@ std::vector<char> CNetOper::NetOperForUdp(DWORD msg_type,const void* pdata,int n
 
 	if (recv_ret)
 	{    
-		std::copy(recv_buffer+sizeof(TAG_HEAD),recv_buffer+tag_head.msg_len,std::back_inserter(vres));
+		std::copy(recv_buffer+head_len,recv_buffer+recv_content_len,std::back_inserter(vres));
 		return vres;
 	}	
 
@@ -234,30 +319,58 @@ std::string CNetOper::NetOperForTcp(DWORD msg_type,std::string xml,const char *a
 std::vector<char> CNetOper::NetOperForTcp(DWORD msg_type,const void* pdata,int ndatalen,const char *addr,int iport)
 {
 	std::vector<char>		vres;
-	TAG_HEAD				tag_head; 
-
 	char					recv_buffer[MAX_40K_BUFFER];
 	char					send_buffer[MAX_40K_BUFFER];
 	int						send_len = 0;
 	int						data_len = 0; 
+	int						head_len = 0; 
 
 	memset(send_buffer,0,sizeof(send_buffer));
 
 	data_len = ndatalen;
-	memcpy(send_buffer+sizeof(TAG_HEAD),pdata,data_len);
 
-	OperDataCode(send_buffer+sizeof(TAG_HEAD),data_len);
+	if (mUseDwordHead)
+	{
+		TAG_HEAD				tag_head; 
 
-	tag_head.tag = MSG_TAG_FLAG;
-	tag_head.msg_info = msg_type;
-	tag_head.msg_len = sizeof(TAG_HEAD) + data_len;
-	tag_head.ver = HEAD_VER;
+		head_len = sizeof(tag_head);
 
-	send_len = sizeof(TAG_HEAD) + data_len;
+		memcpy(send_buffer+sizeof(tag_head),pdata,data_len);
 
-	tag_head.Code();
+		OperDataCode(send_buffer+sizeof(tag_head),data_len);
 
-	memcpy(send_buffer,&tag_head,sizeof(tag_head));
+		tag_head.tag = MSG_TAG_FLAG;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = sizeof(tag_head) + data_len;
+		tag_head.ver = HEAD_VER;
+
+		send_len = sizeof(tag_head) + data_len;
+
+		tag_head.Code();
+
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+	}
+	else
+	{
+		TAG_HEAD_UCHAR			tag_head; 
+
+		head_len = sizeof(tag_head);
+
+		memcpy(send_buffer+sizeof(tag_head),pdata,data_len);
+
+		OperDataCode(send_buffer+sizeof(tag_head),data_len);
+
+		tag_head.tag = MSG_TAG_FLAG;
+		tag_head.msg_info = msg_type;
+		tag_head.msg_len = sizeof(tag_head) + data_len;
+		tag_head.ver = HEAD_VER;
+
+		send_len = sizeof(tag_head) + data_len;
+
+		tag_head.Code();
+
+		memcpy(send_buffer,&tag_head,sizeof(tag_head));
+	}
 
 	std::string		work_server = addr;
 
@@ -270,6 +383,7 @@ std::vector<char> CNetOper::NetOperForTcp(DWORD msg_type,const void* pdata,int n
 	for (int i = 0; i != 3; i++)
 	{ 
 		yCTcp		oper_tcp;
+		int			recv_len = 0;
 		oper_tcp.Open();
 
 		if(!oper_tcp.ConnectNoBlock(work_server.c_str(),iport,3))
@@ -283,34 +397,71 @@ std::vector<char> CNetOper::NetOperForTcp(DWORD msg_type,const void* pdata,int n
 			continue;
 		}
 
-		memset(&tag_head,0,sizeof(tag_head));
-		if (oper_tcp.Recvn(&tag_head,sizeof(tag_head)) != sizeof(tag_head))
+		if (mUseDwordHead)
 		{
-			oper_tcp.Close();
-			continue;
+			TAG_HEAD				tag_head; 
+			memset(&tag_head,0,sizeof(tag_head));
+			if (oper_tcp.Recvn(&tag_head,sizeof(tag_head)) != sizeof(tag_head))
+			{
+				oper_tcp.Close();
+				continue;
+			}
+
+			tag_head.UnCode();
+
+			tag_head.msg_len -= sizeof(tag_head);
+
+			if (tag_head.msg_len == 0)
+			{
+				oper_tcp.Close(); 
+				return vres;
+			}
+
+			memset(recv_buffer,0,sizeof(recv_buffer));
+			if (oper_tcp.Recvn(recv_buffer,tag_head.msg_len) != (int)tag_head.msg_len)
+			{
+				oper_tcp.Close();
+				continue;
+			}
+
+			recv_len = tag_head.msg_len;
+
 		}
-
-		tag_head.UnCode();
-
-		tag_head.msg_len -= sizeof(tag_head);
-
-		if (tag_head.msg_len == 0)
+		else
 		{
-			oper_tcp.Close(); 
-			return vres;
+			TAG_HEAD_UCHAR			tag_head;
+			memset(&tag_head,0,sizeof(tag_head));
+			if (oper_tcp.Recvn(&tag_head,sizeof(tag_head)) != sizeof(tag_head))
+			{
+				oper_tcp.Close();
+				continue;
+			}
+
+			tag_head.UnCode();
+
+			tag_head.msg_len -= sizeof(tag_head);
+
+			if (tag_head.msg_len == 0)
+			{
+				oper_tcp.Close(); 
+				return vres;
+			}
+
+			memset(recv_buffer,0,sizeof(recv_buffer));
+			if (oper_tcp.Recvn(recv_buffer,tag_head.msg_len) != (int)tag_head.msg_len)
+			{
+				oper_tcp.Close();
+				continue;
+			}
+
+			recv_len = tag_head.msg_len;
 		}
-
-		memset(recv_buffer,0,sizeof(recv_buffer));
-		if (oper_tcp.Recvn(recv_buffer,tag_head.msg_len) != (int)tag_head.msg_len)
-		{
-			oper_tcp.Close();
-			continue;
-		} 		
+		
 		oper_tcp.Close();  
 
-		OperDataCode(recv_buffer,tag_head.msg_len);
+		OperDataCode(recv_buffer,recv_len);
 
-		std::copy(recv_buffer,recv_buffer+tag_head.msg_len,std::back_inserter(vres));
+		std::copy(recv_buffer,recv_buffer+recv_len,std::back_inserter(vres));
 		return vres;
 	} 
 

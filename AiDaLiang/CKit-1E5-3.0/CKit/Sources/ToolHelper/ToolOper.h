@@ -229,7 +229,7 @@ public:
 	 *
 	 * 详细描述：
 	 */
-	PVOID ExtractMem(LPCTSTR restype, int resid,HMODULE hModule,int *pnOutDataSize = NULL);
+	PVOID ExtractMem(LPCSTR restype, int resid,HMODULE hModule,int *pnOutDataSize = NULL);
 
 	/**
 	 * @brief 读取资源到指定的全路径文件
@@ -237,6 +237,20 @@ public:
 	 * 详细描述：destpath全路径目标文件,返回TRUE为成功
 	 */
 	BOOL ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule);
+
+	/**
+	 * @brief 内存加载方式读取资源内存
+	 *
+	 * 详细描述：
+	 */
+	PVOID MemoryExtractMem(LPCSTR restype, int resid,HMODULE hModule,int *pnOutDataSize = NULL);
+
+	/**
+	 * @brief 内存加载方式读取资源到指定的全路径文件
+	 *
+	 * 详细描述：destpath全路径目标文件,返回TRUE为成功
+	 */
+	BOOL MemoryExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule);
 
 	/**
 	 * @brief 删除exe自己

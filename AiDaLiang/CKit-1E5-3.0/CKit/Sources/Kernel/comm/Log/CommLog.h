@@ -44,6 +44,7 @@ namespace COMMUSE
 	*/
 	class ComPrintLog
 	{
+		PropertyMember(int,Testss);
 	public:
 		ComPrintLog();
 		~ComPrintLog();
@@ -53,6 +54,9 @@ namespace COMMUSE
 			static ComPrintLog c;
 			return c;
 		}
+
+		//设置路径
+		void SetLogPath(const char* szLogPath);
 
 		//ini控制打印
 		void InitLogState();

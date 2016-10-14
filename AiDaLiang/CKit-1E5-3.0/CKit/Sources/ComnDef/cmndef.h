@@ -34,7 +34,19 @@
 #define SAFE_CLOSE_HANDLE(ev) if(IsValidHandle(ev)){::CloseHandle(ev);ev=NULL;}
 
 //常用宏
+#define PropertyMember(Type,name) private: Type _##name;\
+	public: void set##name(Type v){_##name=v;}\
+			Type get##name(){return (Type)_##name;}
 
+#define PropertyMemberRef(Type,name) private: Type _##name;\
+	public: void set##name(Type v){_##name=v;}\
+	Type& get##name(){return (Type)_##name;}
+
+#define PropertyMemberReadOnly(Type,name) private: Type _##name;\
+	public: Type get##name(){return (Type)_##name;}
+
+#define PropertyMemberRefReadOnly(Type,name) private: Type _##name;\
+	public: const Type& get##name(){return (Type)_##name;}
 
 //创建单例运行进程锁
 #define CREATE_SINGLE_PROCESS_LOCK(globalName) \
@@ -73,6 +85,13 @@
 }
 
 typedef void* (WINAPI *PFN_CreatePlugInterface)();
+
+//-------------------------------------------------------------------------------
+// 业务插件导出接口
+//-------------------------------------------------------------------------------
+#define  IMP_BUSSINESSPLUGIN_EXPORT(clazz_pointer) extern "C" __declspec(dllexport) PVOID GetPlugProxy (){\
+	return clazz_pointer;\
+}
 
 //-------------------------------------------------------------------------------
 // 网络管理接口

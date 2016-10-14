@@ -12,7 +12,7 @@
 class CNetOper  
 {
 public:
-	CNetOper();
+	CNetOper(bool bUseDwordHead=false,DWORD dwTagHead = 0x19831984,LPCSTR lpKey=STR_NET_KEY);
 	virtual ~CNetOper();
 
 private: 
@@ -29,7 +29,10 @@ public:
 	void			  NetOperForUdpWithout(DWORD msg_type,const void* pdata,int ndatalen,const char *addr,int iport);
 
 	BOOL		OperDataCode(char	* buffer,DWORD len); 
-private:
+protected:
+	bool mUseDwordHead;
+	DWORD mTagHead;
+	char mNetKey[256];
 //	std::string	CreateFlowQPack(char *agent_id);
 
 };

@@ -447,7 +447,7 @@ char * CToolOper::ReMoveChar(char * src_data,char ch)
 	return src_data;
 }
 
-PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule,int *pnOutDataSize /*= NULL*/)
+PVOID CToolOper::ExtractMem(LPCSTR restype, int resid,HMODULE hModule,int *pnOutDataSize /*= NULL*/)
 {
 	HRSRC hRes;
 	HGLOBAL hFileData;
@@ -456,7 +456,7 @@ PVOID CToolOper::ExtractMem(LPCTSTR restype, int resid,HMODULE hModule,int *pnOu
 	PVOID ret_mem_buffer = NULL;
 	DWORD dwSize = 0;
 
-	hRes = FindResource(hModule, MAKEINTRESOURCE(resid), restype);
+	hRes = FindResourceA(hModule, MAKEINTRESOURCEA(resid), restype) ;
 
 	if(hRes)
 	{
@@ -522,6 +522,82 @@ BOOL CToolOper::ExtractFile(LPCSTR restype, int resid, LPCSTR destpath,HMODULE h
 	return bResult;
 }
 
+
+PVOID CToolOper::MemoryExtractMem( LPCSTR restype, int resid,HMODULE hModule,int *pnOutDataSize /*= NULL*/ )
+{
+	HMEMORYMODULE h = (HMEMORYMODULE)hModule;
+	HMEMORYRSRC hRes;
+	PVOID hFileData;
+	BOOL bResult = FALSE;
+
+	PVOID ret_mem_buffer = NULL;
+	DWORD dwSize = 0;
+
+	hRes = MemoryFindResource(h, MAKEINTRESOURCE(resid), A2TString(restype).c_str());
+
+	if(hRes)
+	{
+		hFileData = MemoryLoadResource(hModule, hRes);
+		if(hFileData)
+		{
+			DWORD dwSize = MemorySizeofResource(hModule, hRes);
+			if(dwSize)
+			{
+				ret_mem_buffer = malloc(dwSize + 1);
+
+				if (ret_mem_buffer == NULL)
+				{
+					return ret_mem_buffer;
+				}
+				memset(ret_mem_buffer,0,dwSize + 1);
+
+				memcpy(ret_mem_buffer,hFileData,dwSize);				 
+			}
+		}
+	} 
+
+	if (pnOutDataSize)
+	{
+		*pnOutDataSize = dwSize;
+	}
+
+	return ret_mem_buffer;
+}
+
+BOOL CToolOper::MemoryExtractFile( LPCSTR restype, int resid, LPCSTR destpath,HMODULE hModule )
+{
+	HMEMORYMODULE h = (HMEMORYMODULE)hModule;
+	HMEMORYRSRC hRes;
+	PVOID hFileData;
+	BOOL bResult = FALSE;
+
+	hRes = MemoryFindResource(h , MAKEINTRESOURCE(resid), A2TString(restype).c_str());
+	if(hRes)
+	{
+		hFileData = MemoryLoadResource(hModule, hRes);
+		if(hFileData)
+		{
+			DWORD dwSize = MemorySizeofResource(hModule, hRes);
+			if(dwSize)
+			{
+				HANDLE hFile = CreateFileA( destpath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, 0);
+				if(hFile != INVALID_HANDLE_VALUE)
+				{
+					DWORD dwWritten = 0;
+					BOOL b = WriteFile(hFile, hFileData, dwSize, &dwWritten, NULL);
+					if(b && dwWritten == dwSize)
+					{
+						CloseHandle(hFile);
+						return TRUE;
+					}
+
+					CloseHandle(hFile);
+				}
+			}
+		}
+	} 
+	return bResult;
+}
 
 std::string	CToolOper::GetSystemPathFile(std::string	filename)
 {

@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 #include <io.h>
 
+#include <fstream>
+
 #define MAX_BUFFER	5000
 #define INVALID_FILE INVALID_HANDLE_VALUE
 
@@ -89,6 +91,25 @@ namespace COMMUSE
 		LeaveCriticalSection(&_cs_log);
 
 		DeleteCriticalSection(&_cs_log);
+	}
+
+	void ComPrintLog::SetLogPath(const char* szLogPath)
+	{
+		if(szLogPath==NULL) return;
+		if(strnlen(szLogPath,MAX_PATH)>=MAX_PATH) return;
+
+		_szLogFilePath[0] = 0;
+		if (szLogPath[strlen(szLogPath)-1] != '\\' && szLogPath[strlen(szLogPath)-1] != '/')
+		{
+			_snprintf(_szLogStateIniPath,MAX_PATH-1,"%s\\CommLogOpt.ini",szLogPath);
+			_snprintf(_szLogFilePath,MAX_PATH-1,"%s\\Log\\",szLogPath);
+		}
+		else
+		{
+			_snprintf(_szLogStateIniPath,MAX_PATH-1,"%sCommLogOpt.ini",szLogPath);
+			_snprintf(_szLogFilePath,MAX_PATH-1,"%sLog\\",szLogPath);
+		}
+
 	}
 
 	//-------------------------------------------------------------------------------
@@ -294,6 +315,7 @@ namespace COMMUSE
 		EnterCriticalSection(&_cs_log);
 		if( -1 == _access(szLogFileName,0) ) 
 		{
+			
 			HANDLE fileOld = _LogFile;
 			_LogFile = CreateFileA(szLogFileName,GENERIC_WRITE,FILE_SHARE_WRITE|FILE_SHARE_READ|FILE_SHARE_DELETE,NULL,OPEN_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
 			if (fileOld != INVALID_FILE)

@@ -1,9 +1,17 @@
 #include "stdafx.h"
 #include <WindowsX.h>
 
+#include "regex/regex.h"
+
 extern HWND gMainWnd = NULL;
 
 #define GET_CTRL_HWND(ID) GetDlgItem(hwnd,ID)
+//-------------------------------------------------------------------------------
+void CRegexSearch(std::string sPartten,std::string sContent)
+{
+
+}
+//-------------------------------------------------------------------------------
 BOOL Cls_OnInitDialog(HWND hwnd, HWND hwndFocus, LPARAM lParam)
 {
 	gMainWnd = hwnd;

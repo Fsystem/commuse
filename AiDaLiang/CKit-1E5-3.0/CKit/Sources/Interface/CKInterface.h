@@ -36,21 +36,63 @@ struct IPluginInterface
 #endif
 typedef DWORD (WINAPI * REG_P2P_FUN) (IN DWORD crc,IN const char * file_data,IN DWORD len);		//上传一个文件到内网
 typedef DWORD (WINAPI * DOWNLOAD_P2P_FUN) (IN DWORD crc,OUT char * file_data,INOUT DWORD *len);	//从内网找一个文件，根据CRC值
-class CPlug_Proxy  
+//class  CPlug_Proxy
+//{
+//public:
+//	CPlug_Proxy(){};
+//	//占位虚函数
+//	virtual ~CPlug_Proxy(){};
+//	//初始化服务器，路径，渠道ID
+//	virtual	DWORD InitPlug(const char * server,const char * path_dir,const char *agent_id){return NO_ERROR;};	
+//	//设置WEB下载服务器地址；插件存放自己的网络配置文件
+//	//virtual	void  SetWebServer(const char * web_server) = 0;										
+//	//P2P部分上传，下载
+//	virtual	DWORD PlugP2p(REG_P2P_FUN	_reg_fun,DOWNLOAD_P2P_FUN _down_fun){return NO_ERROR;};	
+//	//初始化完成，不管有多少个初始化，这个函数最后调用
+//	virtual	void  StartPlug(){};
+//};
+
+class CPlug_Proxy
 {
+	//
+	PropertyMember(BOOL,MemLoaded);
 public:
 	CPlug_Proxy(){};
 	virtual ~CPlug_Proxy(){};
 
 	//初始化服务器，路径，渠道ID
-	virtual	DWORD InitPlug(const char * server,const char * path_dir,const char *agent_id){return NO_ERROR;};	
+	virtual	DWORD InitPlug(const char * server,const char * path_dir,const char *agent_id){
+		setMemLoaded(TRUE);
+
+		mServerInfo = server;
+		mMainPath = path_dir;
+		mAgentId = agent_id;
+
+		//G_COM_PRINT_LOG.SetLogPath(mMainPath.c_str());
+
+		return NO_ERROR;
+	};	
 	//设置WEB下载服务器地址；插件存放自己的网络配置文件
-	virtual	void  SetWebServer(const char * web_server){};										
+// 	virtual	void  SetWebServer(const char * web_server){
+// 		mWebServer = web_server;
+// 	};										
 	//P2P部分上传，下载
-	virtual	DWORD PlugP2p(REG_P2P_FUN	_reg_fun,DOWNLOAD_P2P_FUN _down_fun){return NO_ERROR;};	
+	virtual	DWORD PlugP2p(REG_P2P_FUN	_reg_fun,DOWNLOAD_P2P_FUN _down_fun){
+		mpUploadFun = _reg_fun;
+		mpDownloadFun = _down_fun;
+		return NO_ERROR;
+	};	
 	//初始化完成，不管有多少个初始化，这个函数最后调用
 	virtual	void  StartPlug(){};																	
 
+	//基础信息
+protected:
+	std::string					mServerInfo;
+	std::string					mWebServer;
+	std::string					mMainPath;
+	std::string					mAgentId;
+	REG_P2P_FUN					mpUploadFun;
+	DOWNLOAD_P2P_FUN			mpDownloadFun;
 };
 
 #endif //__CKInterface_H

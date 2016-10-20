@@ -73,6 +73,9 @@
     <Filter Include="Sources\InjectHelper">
       <UniqueIdentifier>{57db2782-e8d1-4012-b8b1-97b5cbb2c950}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\NetWork">
+      <UniqueIdentifier>{6c73e65d-a052-4e59-b187-6d6e11a28a98}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -195,6 +198,27 @@
     <ClInclude Include="Sources\InjectHelper\MemoryLoad.h">
       <Filter>Sources\InjectHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\InjectHelper\MemRunExe.h">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetWork\CenterNetTool.h">
+      <Filter>Sources\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetWork\NetTool.h">
+      <Filter>Sources\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetWork\NetWork.h">
+      <Filter>Sources\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetWork\MapToXml.h">
+      <Filter>Sources\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\NetWork\P2pTransmission.h">
+      <Filter>Sources\NetWork</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\downfile\FileDown_C.h">
+      <Filter>Sources\Kernel\downfile</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -292,6 +316,24 @@
     </ClCompile>
     <ClCompile Include="Sources\InjectHelper\MemoryLoad.cpp">
       <Filter>Sources\InjectHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\InjectHelper\MemRunExe.cpp">
+      <Filter>Sources\InjectHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\NetWork\CenterNetTool.cpp">
+      <Filter>Sources\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\NetWork\NetTool.cpp">
+      <Filter>Sources\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\NetWork\MapToXml.cpp">
+      <Filter>Sources\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\NetWork\P2pTransmission.cpp">
+      <Filter>Sources\NetWork</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\downfile\FileDown_C.cpp">
+      <Filter>Sources\Kernel\downfile</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

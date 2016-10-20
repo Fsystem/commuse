@@ -10,7 +10,21 @@
 //#define STR_DRIVER_PD_DLL					TEXT("tmpsys.dll")
 //#define STR_DRIVER_FR_DLL					TEXT("tmpfilereg.dll")
 //#define STR_MSG_PROTECT						TEXT("tmpsysprotect.dll")
+//-------------------------------------------------------------------------------
+// 新框架定义
+//-------------------------------------------------------------------------------
 
+#define		NETWORK_PASSWROD	"dalyT;32*&$@!@@410kdtsdf2"		//网络通信加密，密码
+
+#define		NETWORK_VER			1								//通信协议版本号
+
+#define		UDP_PACK_LEN		(64*1024*1024)					//UDP包的最大长度
+
+#define		UDP_RECV_TIME_OUT	10								//UDP接收数据超时时间
+
+#define		ZIP_PASSWORD		"12edsfi2#R@fwe"				//压缩包，加密
+
+//-------------------------------------------------------------------------------
 //网络定义
 #define	HEAD_VER							1
 #define	APP_VER								7
@@ -50,7 +64,7 @@
 
 //创建单例运行进程锁
 #define CREATE_SINGLE_PROCESS_LOCK(globalName) \
-	HANDLE hMutex = CreateMutex(NULL,FALSE,globalName);\
+	HANDLE hMutex = CreateMutexA(NULL,FALSE,globalName);\
 	if(hMutex && GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(hMutex);return 0;}
 //关闭单例运行进程锁
 #define CLOSE_SINGLE_PROCESS_LOCK if(hMutex){ CloseHandle(hMutex); hMutex = NULL; }

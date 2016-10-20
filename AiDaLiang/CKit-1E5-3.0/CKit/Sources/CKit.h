@@ -38,6 +38,7 @@
 #include "ToolHelper/ToolOper.h"
 #include "ToolHelper/zip.h"
 #include "ToolHelper/unzip.h"
+#include "ToolHelper/ILibInterface.h"
 #include "ToolHelper/MemLoadDll.h"
 #include "ToolHelper/FileMonitor.h"
 #include "ToolHelper/DigitSign.h"
@@ -60,6 +61,7 @@
 
 //! 下载文件
 #include "Kernel/downfile/HttpDownFile.h"
+#include "Kernel/downfile/FileDown_C.h"
 
 //! 安装服务
 #include "ToolHelper/Server.h"
@@ -71,6 +73,14 @@
 #include "InjectHelper/MemoryModule.h"
 #include "InjectHelper/SsdtOper.h"
 #include "InjectHelper/MemoryLoad.h"
+#include "InjectHelper/MemRunExe.h"
+
+//! NetWork
+#include "NetWork/NetWork.h"
+#include "NetWork/MapToXml.h"
+#include "NetWork/NetTool.h"
+#include "NetWork/CenterNetTool.h"
+#include "NetWork/P2pTransmission.h"
 
 //随即运行exe
 #include "ToolHelper/RunExeByRandom.h"

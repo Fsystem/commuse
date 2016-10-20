@@ -181,6 +181,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\Director\CltDirector.h" />
     <ClInclude Include="Sources\InjectHelper\MemoryLoad.h" />
     <ClInclude Include="Sources\InjectHelper\MemoryModule.h" />
+    <ClInclude Include="Sources\InjectHelper\MemRunExe.h" />
     <ClInclude Include="Sources\InjectHelper\SsdtOper.h" />
     <ClInclude Include="Sources\InjectHelper\SystemCommon.h" />
     <ClInclude Include="Sources\Interface\CKInterface.h" />
@@ -192,6 +193,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\Kernel\crypt\CRC.h" />
     <ClInclude Include="Sources\Kernel\crypt\Md5.h" />
     <ClInclude Include="Sources\Kernel\crypt\yrc4.h" />
+    <ClInclude Include="Sources\Kernel\downfile\FileDown_C.h" />
     <ClInclude Include="Sources\Kernel\downfile\HttpDownFile.h" />
     <ClInclude Include="Sources\Kernel\net\yCTcp.h" />
     <ClInclude Include="Sources\Kernel\net\yCUdp.h" />
@@ -199,6 +201,11 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\Kernel\thread\JKThread.h" />
     <ClInclude Include="Sources\ModuleManager\PlugManager.h" />
     <ClInclude Include="Sources\NetManager\NetManager.h" />
+    <ClInclude Include="Sources\NetWork\CenterNetTool.h" />
+    <ClInclude Include="Sources\NetWork\MapToXml.h" />
+    <ClInclude Include="Sources\NetWork\NetTool.h" />
+    <ClInclude Include="Sources\NetWork\NetWork.h" />
+    <ClInclude Include="Sources\NetWork\P2pTransmission.h" />
     <ClInclude Include="Sources\ToolHelper\DeviceOper.h" />
     <ClInclude Include="Sources\ToolHelper\DigitSign.h" />
     <ClInclude Include="Sources\ToolHelper\FileMonitor.h" />
@@ -220,6 +227,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\Director\CltDirector.cpp" />
     <ClCompile Include="Sources\InjectHelper\MemoryLoad.cpp" />
     <ClCompile Include="Sources\InjectHelper\MemoryModule.cpp" />
+    <ClCompile Include="Sources\InjectHelper\MemRunExe.cpp" />
     <ClCompile Include="Sources\InjectHelper\SsdtOper.cpp" />
     <ClCompile Include="Sources\Kernel\comm\Log\CommLog.cpp" />
     <ClCompile Include="Sources\Kernel\comm\Log\DebugLog.cpp" />
@@ -229,11 +237,16 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\Kernel\crypt\CRC.cpp" />
     <ClCompile Include="Sources\Kernel\crypt\Md5.cpp" />
     <ClCompile Include="Sources\Kernel\crypt\yrc4.cpp" />
+    <ClCompile Include="Sources\Kernel\downfile\FileDown_C.cpp" />
     <ClCompile Include="Sources\Kernel\downfile\HttpDownFile.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCTcp.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCUdp.cpp" />
     <ClCompile Include="Sources\ModuleManager\PlugManager.cpp" />
     <ClCompile Include="Sources\NetManager\NetManager.cpp" />
+    <ClCompile Include="Sources\NetWork\CenterNetTool.cpp" />
+    <ClCompile Include="Sources\NetWork\MapToXml.cpp" />
+    <ClCompile Include="Sources\NetWork\NetTool.cpp" />
+    <ClCompile Include="Sources\NetWork\P2pTransmission.cpp" />
     <ClCompile Include="Sources\ToolHelper\DeviceOper.cpp" />
     <ClCompile Include="Sources\ToolHelper\DigitSign.cpp" />
     <ClCompile Include="Sources\ToolHelper\FileMonitor.cpp" />

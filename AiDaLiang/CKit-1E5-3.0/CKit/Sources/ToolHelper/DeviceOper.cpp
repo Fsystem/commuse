@@ -12,6 +12,27 @@
 #pragma comment(lib,"iphlpapi.lib")
 #pragma comment(lib,"ws2_32.lib")
 
+
+#define DFP_GET_VERSION 0x00074080
+#define DFP_RECEIVE_DRIVE_DATA 0x0007c088
+// values for IDEREGS.bCommandReg
+#define IDE_ATAPI_IDENTIFY 0xA1
+#define IDE_ATA_IDENTIFY 0xEC
+#define IDENTIFY_BUFFER_SIZE 512
+
+//save disk information
+
+typedef struct _GETVERSIONOUTPARAMS
+{
+	BYTE bVersion;
+	BYTE bRevision;
+	BYTE bReserved;
+	BYTE bIDEDeviceMap;
+	DWORD fCapabilities;
+	DWORD dwReserved[4];
+} GETVERSIONOUTPARAMS, *PGETVERSIONOUTPARAMS, *LPGETVERSIONOUTPARAMS;
+
+
 CDeviceOper::CDeviceOper(void)
 {
 }
@@ -20,9 +41,7 @@ CDeviceOper::~CDeviceOper(void)
 {
 }
 
-
-
-mystring	CDeviceOper::GetDiskSnId()
+std::string	CDeviceOper::GetDiskSnId()
 {
 	char pchDiskPhysicalSN[ 14 ];
 	BYTE IdOutCmd[530];
@@ -33,7 +52,7 @@ mystring	CDeviceOper::GetDiskSnId()
 	HANDLE drive=CreateFile(_T("\\\\.\\PhysicalDrive0"), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL );
 	if ( drive == INVALID_HANDLE_VALUE )
 	{ 
-		return _T("");
+		return "";
 	}
 	GETVERSIONOUTPARAMS VersionParams;
 	DWORD cbBytesReturned = 0;
@@ -41,12 +60,12 @@ mystring	CDeviceOper::GetDiskSnId()
 	if ( ! DeviceIoControl( drive, DFP_GET_VERSION, NULL, 0, &VersionParams, sizeof( VersionParams ), &cbBytesReturned, NULL ) )
 	{ 
 		CloseHandle(drive);
-		return _T("");
+		return "";
 	}
 	if (VersionParams.bIDEDeviceMap<=0)
 	{ 
 		CloseHandle(drive);
-		return _T("");
+		return "";
 	}
 	BYTE bIDCmd = 0;
 	SENDCMDINPARAMS scip;
@@ -66,7 +85,7 @@ mystring	CDeviceOper::GetDiskSnId()
 	if ( ! DeviceIoControl( drive, DFP_RECEIVE_DRIVE_DATA, &scip, sizeof( SENDCMDINPARAMS)- 1, ( LPVOID )&IdOutCmd, sizeof( SENDCMDOUTPARAMS ) + IDENTIFY_BUFFER_SIZE - 1, &cbBytesReturned, NULL ) )
 	{ 
 		CloseHandle(drive);
-		return _T("");
+		return "";
 	}
 	USHORT *pIdSector = ( USHORT * )( ( PSENDCMDOUTPARAMS )IdOutCmd )->bBuffer;
 	int nPosition = 0;
@@ -84,11 +103,11 @@ mystring	CDeviceOper::GetDiskSnId()
 		nSerial[ i ] &= 0x000000ff;
 	}
 
-	TCHAR		ret_buffer[MAX_PATH];
+	char		ret_buffer[MAX_PATH];
 
 	memset(ret_buffer,0,sizeof(ret_buffer));
 
-	wsprintf( ret_buffer, _T("%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x"),
+	wsprintfA( ret_buffer, "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x",
 		nSerial[ 0 ],
 		nSerial[ 1 ],
 		nSerial[ 2 ],
@@ -109,9 +128,7 @@ mystring	CDeviceOper::GetDiskSnId()
 	return ret_buffer;
 }
 
-
-
-mystring  CDeviceOper::GetMac(std::string &ip_str)
+std::string  CDeviceOper::GetMac()
 {
 	// 全局数据
 	UCHAR	g_ucLocalMac[6];	// 本地MAC地址
@@ -119,11 +136,19 @@ mystring  CDeviceOper::GetMac(std::string &ip_str)
 	DWORD	g_dwLocalIP;		// 本地IP地址
 	DWORD	g_dwMask;			// 子网掩码
 	PIP_ADAPTER_INFO pAdapterInfo = NULL;
+	PVOID	src_buffer = NULL;
 	ULONG ulLen = 0;
 
 	// 为适配器结构申请内存
 	::GetAdaptersInfo(pAdapterInfo,&ulLen);
-	pAdapterInfo = (PIP_ADAPTER_INFO)::GlobalAlloc(GPTR, ulLen);
+
+	src_buffer = ::GlobalAlloc(GPTR, ulLen);
+	if (src_buffer == NULL)
+	{
+		return "";
+	}
+
+	pAdapterInfo = (PIP_ADAPTER_INFO)src_buffer;
 
 	// 取得本地适配器结构信息
 	if(::GetAdaptersInfo(pAdapterInfo,&ulLen) ==  ERROR_SUCCESS)
@@ -156,41 +181,43 @@ mystring  CDeviceOper::GetMac(std::string &ip_str)
 	}
 	else
 	{	
-		return _T("");
+		GlobalFree(src_buffer);
+		return "";
 	}
+
+
+	GlobalFree(src_buffer);
 
 	//	printf(" \n -------------------- 本地主机信息 -----------------------\n\n");
 	in_addr in;
 	in.S_un.S_addr = g_dwLocalIP; 
 	u_char *p = g_ucLocalMac;
-	TCHAR buf[128];
+	char buf[128];
 	memset(buf,0,sizeof(buf));
-	wsprintf(buf,_T("%02X:%02X:%02X:%02X:%02X:%02X"), p[0], p[1], p[2], p[3], p[4], p[5]);
+	wsprintfA(buf,"%02X:%02X:%02X:%02X:%02X:%02X", p[0], p[1], p[2], p[3], p[4], p[5]);
 
-	ip_str = ::inet_ntoa(in);
- 
- 
+
 	return buf; 
 
 }
 
 
-mystring	CDeviceOper::GetIeVer()
+std::string	CDeviceOper::GetIeVer()
 {
 	HKEY	hKey; 
 	ULONG	data_long;
 	ULONG	type;
-	TCHAR	value_str[MAX_PATH];
-	long	 ret;
+	char	value_str[MAX_PATH];
+	long	ret;
 	DWORD	ie_ver = 0;
-	ret = RegOpenKeyEx( HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Internet Explorer"),0,KEY_QUERY_VALUE,
+	ret = RegOpenKeyExA( HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Internet Explorer",0,KEY_QUERY_VALUE,
 		&hKey );
 
 	data_long = sizeof(value_str);
 	memset(value_str,0,sizeof(value_str));
 	type = 0;
 
-	ret = RegQueryValueEx(hKey,_T("svcVersion"),0,&type,(BYTE*)value_str,&data_long);
+	ret = RegQueryValueExA(hKey,"svcVersion",0,&type,(BYTE*)value_str,&data_long);
 	if (ret == ERROR_SUCCESS)
 	{
 		RegCloseKey(hKey);
@@ -201,7 +228,7 @@ mystring	CDeviceOper::GetIeVer()
 	data_long = sizeof(value_str);
 	memset(value_str,0,sizeof(value_str));
 	type = 0;
-	ret = RegQueryValueEx(hKey,_T("Version"),0,&type,(BYTE*)value_str,&data_long);
+	ret = RegQueryValueExA(hKey,"Version",0,&type,(BYTE*)value_str,&data_long);
 
 	if (ret == ERROR_SUCCESS)
 	{
@@ -212,7 +239,7 @@ mystring	CDeviceOper::GetIeVer()
 
 	RegCloseKey(hKey);
 
-	return _T("");
+	return "";
 }
 
 
@@ -220,21 +247,21 @@ mystring	CDeviceOper::GetIeVer()
 
 
 
-mystring	CDeviceOper::GetFlashVer()
+std::string	CDeviceOper::GetFlashVer()
 {
 	HKEY	hKey; 
 	ULONG	data_long;
 	ULONG	type;
-	TCHAR	value_str[MAX_PATH];
-	long	 ret; 
-	ret = RegOpenKeyEx( HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Macromedia\\FlashPlayer"),0,KEY_QUERY_VALUE,
+	char	value_str[MAX_PATH];
+	long	ret; 
+	ret = RegOpenKeyExA( HKEY_LOCAL_MACHINE, "SOFTWARE\\Macromedia\\FlashPlayer",0,KEY_QUERY_VALUE,
 		&hKey );
 
 	data_long = MAX_PATH;
 	memset(value_str,0,sizeof(value_str));
 	type = 0;
 
-	ret = RegQueryValueEx(hKey,_T("CurrentVersion"),0,&type,(BYTE*)value_str,&data_long);
+	ret = RegQueryValueExA(hKey,"CurrentVersion",0,&type,(BYTE*)value_str,&data_long);
 
 	RegCloseKey(hKey);
 
@@ -242,13 +269,13 @@ mystring	CDeviceOper::GetFlashVer()
 	{
 		return value_str;
 	}
-  
-	return _T("");
+
+	return "";
 }
 
 
 
-mystring	CDeviceOper::GetSystemVer()
+std::string	CDeviceOper::GetSystemVer()
 {
 	DWORD  dwMajorVersion;		//主版本号
 	DWORD   dwMinorVersion;		//副版本
@@ -265,50 +292,11 @@ mystring	CDeviceOper::GetSystemVer()
 	dwBuildNumber=osvi.dwBuildNumber;//创建号
 	dwPlatformId=osvi.dwPlatformId;//ID号
 
-	TCHAR		ret_buffer[MAX_PATH];
+	char		ret_buffer[MAX_PATH];
 
 	memset(ret_buffer,0,sizeof(ret_buffer));
 
-	wsprintf(ret_buffer,_T("%d.%d.%d.%d"),dwMajorVersion,dwMinorVersion,dwBuildNumber,dwPlatformId);
+	wsprintfA(ret_buffer,"%d.%d.%d.%d",dwMajorVersion,dwMinorVersion,dwBuildNumber,dwPlatformId);
 
 	return ret_buffer;
-}
-
-//检查指定进程个数
-DWORD	CDeviceOper::GetProcessName(PROCESS_NAME_COUNT_MAP &process_map)
-{ 
-
-	HANDLE SnapShot=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
-	if(SnapShot == NULL)
-	{ 
-		return 0;
-	}
-	
-	PROCESSENTRY32 ProcessInfo;//声明进程信息变量
-	ProcessInfo.dwSize=sizeof(ProcessInfo);//设置ProcessInfo的大小
-	//返回系统中第一个进程的信息
-	BOOL Status=Process32First(SnapShot,&ProcessInfo); 
-	 
-	USES_CONVERSION;
-	std::string		key_str;
-	while(Status)
-	{    
-		std::string		process_name = T2A(ProcessInfo.szExeFile);
-	
-		if (process_map.find(process_name) == process_map.end())
-		{
-			process_map[process_name] = 1;
-		}
-		else
-		{
-			process_map[process_name] ++;
-		}
-		
-		Status=Process32Next(SnapShot,&ProcessInfo);
-	}
-	CloseHandle(SnapShot);
-
-
-	return process_map.size();
-
 }

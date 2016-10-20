@@ -31,26 +31,41 @@ public:
 	//共享内存操作
 public:
 	/**
+	 * @brief 创建一段共享内存(原生)
+	 *
+	 * 详细描述：
+	 */
+	BOOL CreateShareMem(const char * mem_name,size_t len);			
+
+	/**
+	 * @brief 读一段内存字符串(原生)
+	 *
+	 * 详细描述：
+	 */
+	std::string	ReadShareMem(const char * mem_name);
+
+	/**
+	 * @brief 读一段内存，可能包括二进制（原生）
+	 *
+	 * 详细描述：
+	 */
+	BOOL ReadShareMem(TCHAR * mem_name,char* buffer,size_t len);
+
+	/**
+	 * @brief 写一段共享内存（原生）
+	 *
+	 * 详细描述：
+	 */
+	BOOL WriteShareMem(const char * mem_name,const char* buffer,size_t len);
+
+	//-------------------------------------------------------------------------------
+	/**
 	 * @brief 创建共享内存
 	 *
 	 * 详细描述：map_name共享内存名称，内存大小为file_buffer的长度，内容为字符串
 	 *		   结构为：|dword(内存长度)|string...
 	 */
 	DWORD CreateMapFile(const char * map_name,const char *file_buffer);
-
-	/**
-	 * @brief 创建共享内存
-	 *
-	 * 详细描述：map_name共享内存名称，内存大小为len，内容为PAGE_READWRITE未初始化值
-	 */
-	HANDLE CreateMemFile(const char * map_name,size_t len);
-
-	/**
-	 * @brief 读取len个字节的共享内存
-	 *
-	 * 详细描述：返回真为读取成功，内容在buffer中
-	 */
-	BOOL ReadMemData(const char * map_name,PVOID buffer,size_t len);
 
 	/**
 	 * @brief 读取共享内存
@@ -67,6 +82,21 @@ public:
 	 */
 	DWORD WriteMapFile(const char *map_name,const char *file_buffer);
 
+	//-------------------------------------------------------------------------------
+	/**
+	 * @brief 创建共享内存
+	 *
+	 * 详细描述：map_name共享内存名称，内存大小为len，内容为PAGE_READWRITE未初始化值
+	 */
+	HANDLE CreateMemFile(const char * map_name,size_t len);
+
+	/**
+	 * @brief 读取len个字节的共享内存
+	 *
+	 * 详细描述：返回真为读取成功，内容在buffer中
+	 */
+	BOOL ReadMemData(const char * map_name,PVOID buffer,size_t len);
+
 	/**
 	 * @brief 写入共享内存
 	 *
@@ -79,9 +109,8 @@ public:
 	 *
 	 * 详细描述：pszMapName共享内存名，agent_id共享内存值，len为agent_id的字节大小
 	 */
-	BOOL	ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
+	BOOL ReadConfigData(char * agent_id,int len,const char * pszMapName="run_config_data");
 
-	
 	//注册表操作
 public:
 	/**
@@ -155,7 +184,35 @@ public:
 	 * 详细描述：排除filter_name进程名(不区分大小写)
 	 */
 	bool GetProcessList(SYSTEM_PROCESS_MAP &process_list,std::string	filter_name);
-	
+
+	/**
+	 * @brief 创建进程
+	 *
+	 * 详细描述：lpcPath-执行文件的路径（可以为NULL），lpszCmdLine-命令行（可以包含lpcPath），dwShowFlag：SW_SHOW...
+	 */
+	BOOL CreateProcess(LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag,LPPROCESS_INFORMATION pProcessInfo = NULL);
+
+	/**
+	 * @brief 结束进程
+	 *
+	 * 详细描述：
+	 */
+	BOOL KillProcess(DWORD dwPid);
+
+	/**
+	 * @brief 结束进程
+	 *
+	 * 详细描述：
+	 */
+	BOOL KillProcess(HANDLE hProcess);
+
+	/**
+	 * @brief 结束进程
+	 *
+	 * 详细描述：进程名为lpszProcessName的全部结束
+	 */
+	BOOL KillProcess(LPCSTR lpszProcessName);
+
 	//字符串相关
 public:
 	/**
@@ -172,6 +229,20 @@ public:
 	 */
 	int SubstStr(const char * buffer,const char * start_str,const char *end_str,RET_STRING_VECTOR &_str_list);
 	int	StringSubs(std::string	src_str,std::string begin_str,std::string end_str,RET_STRING_VECTOR &str_list);
+
+	/**
+	 * @brief 转大写字符串
+	 *
+	 * 详细描述：
+	 */
+	std::string MakeLower(std::string& str);
+
+	/**
+	 * @brief 转小写字符串
+	 *
+	 * 详细描述：
+	 */
+	std::string MakeUpper(std::string& str);
 
 	/**
 	 * @brief 字符串替换
@@ -292,18 +363,38 @@ public:
 	//文件操作
 public:
 	/**
-	 * @brief 解压文件（没有密码的zip）
+	 * @brief 解压文件（没有密码的zip）-使用老的zip
 	 *
 	 * 详细描述：dir_name解压到的路径，m_zip_name是zip文件路径,返回TRUE成功
 	 */
-	BOOL UnZipFile(PCHAR dir_name,PCHAR m_zip_name);
+	BOOL UnZipFile(LPCSTR dir_name,LPCSTR m_zip_name,LPCSTR lpcPwd = NULL);
 
+	/**
+	 * @brief  解压文件使用zlib库
+	 *
+	 * 详细描述：
+	 */
+	BOOL UnZipFileNew(LPCSTR dir_name,LPCSTR m_zip_name,LPCSTR lpcPwd = NULL);
 	/**
 	 * @brief 读取本地文件
 	 *
 	 * 详细描述：file_data=NULL表示只去长度,返回0表示成功
 	 */
 	DWORD ReadLocalFile(const char * filename,char * file_data,DWORD &len);
+
+	/**
+	 * @brief 写本地文件
+	 *
+	 * 详细描述：
+	 */
+	DWORD WriteLocalFile(const char * filename,const char * file_data,DWORD len);
+
+	/**
+	 * @brief 文件是否存在且可读
+	 *
+	 * 详细描述：
+	 */
+	BOOL IsFileAccess(LPCSTR lpcPath);
 };
 
 #endif // !defined(AFX_TOOLOPER_H__6B192A69_20B7_492D_8BDC_3C3D94122A6F__INCLUDED_)

@@ -364,6 +364,18 @@ std::string CCRC::GetCrcHexString(const char *buf,DWORD len)
 
 std::string CCRC::GetFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	dwbeing,DWORD dwend)
 {
+	ULONG m_crc = GetFileCRCNumber(filename,m_file,dwbeing,dwend);
+	CHAR ch[16];
+	itoa(m_crc, ch, 16);
+
+	_strupr_s(ch,15);
+	ch[15] = 0;
+
+	return ch;
+}
+
+DWORD CCRC::GetFileCRCNumber( std::string filename,LARGE_INTEGER * m_file /*= NULL*/,DWORD dwbeing /*= 0*/,DWORD dwend /*= 0*/ )
+{
 	HANDLE hand;///句柄
 	hand=CreateFileA(filename.c_str(),GENERIC_READ,///打开方式，可读
 		FILE_SHARE_READ,//共享读
@@ -375,7 +387,7 @@ std::string CCRC::GetFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	d
 	{
 		//CDebugLog g_log;
 		//g_log.SaveLog(1,"c:\\start.log","打开文件失败，文件名是%s",filename.c_str());
-		return "";
+		return 0;
 	}
 
 	LARGE_INTEGER m_file_len;
@@ -399,7 +411,7 @@ std::string CCRC::GetFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	d
 		if (m_file_len.QuadPart <= dwend)
 		{
 			CloseHandle(hand);
-			return "";
+			return 0;
 		}
 
 		m_file_len.QuadPart = dwend;	//只取其中一段
@@ -408,7 +420,7 @@ std::string CCRC::GetFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	d
 
 		m_file_len.QuadPart = m_file_len.QuadPart - dwbeing;
 	}
-	
+
 	ULONG re;
 	char buf[1024*8];
 	DWORD	try_read = 1024 * 8;
@@ -420,21 +432,16 @@ std::string CCRC::GetFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	d
 		{
 			CloseHandle(hand);
 			///读取文件失败
-			return "";
+			return 0;
 		}
 		m_file_len.QuadPart = m_file_len.QuadPart - re;
 		Get_CRC((unsigned char *)buf,re);
 	}
 	CloseHandle(hand);
-	ULONG m_crc = GetCrC();
-	CHAR ch[16];
-	itoa(m_crc, ch, 16);
-
-	_strupr_s(ch,15);
-	ch[15] = 0;
-	std::string m_csCRC32 = ch;
+	DWORD crcRes = GetCrC();
 	crc=0xffffffff;
-	return m_csCRC32;
+	
+	return crcRes;
 }
 
 //std::string CCRC::GetStdFileCRC(std::string filename,LARGE_INTEGER * m_file,DWORD	dwbeing,DWORD dwend)

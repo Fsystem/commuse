@@ -9,6 +9,8 @@
 #include <TlHelp32.h>
 #include <Shellapi.h>
 
+#include "unzip.h"
+
 #pragma comment(lib,"iphlpapi.lib")
 #pragma comment(lib,"Wininet.lib")
 #pragma comment(lib,"ws2_32.lib")
@@ -308,8 +310,7 @@ int  CToolOper::GetMac(char * m_mac,char * m_ip)
 
 }
 
-
-BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
+BOOL CToolOper::UnZipFile( LPCSTR dir_name,LPCSTR m_zip_name,LPCSTR lpcPwd /*= NULL*/ )
 {
 	BOOL		m_ret = TRUE;
 	HZIP		hz = NULL;
@@ -326,7 +327,7 @@ BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
 	do 
 	{  
 
-		hz = OpenZip(A2TString(m_zip_name).c_str(), NULL);
+		hz = OpenZip((LPCTSTR)A2TString(m_zip_name).c_str(), (LPCSTR)NULL);
 		if(hz == NULL)
 		{
 			m_ret = FALSE;
@@ -354,7 +355,31 @@ BOOL CToolOper::UnZipFile(PCHAR dir_name,PCHAR m_zip_name)
 	return m_ret;
 }
 
+BOOL CToolOper::UnZipFileNew( LPCSTR dir_name,LPCSTR m_zip_name,LPCSTR lpcPwd /*= NULL*/ )
+{
+	bool		m_ret = FALSE;
+	char		path[MAX_PATH];
 
+	memset(path,0,sizeof(path));
+	GetCurrentDirectoryA(MAX_PATH,path);
+	if(!SetCurrentDirectoryA(dir_name))
+	{
+		//创建目录
+		CreateDirectoryA(dir_name,NULL);
+		SetCurrentDirectoryA(dir_name);
+	}
+	HZIPHANDLE zip_handle = ZOpenZip(m_zip_name,lpcPwd);
+	if (zip_handle != 0)
+	{
+		if(ZUnZipFile(zip_handle,dir_name,lpcPwd) != 0)
+			m_ret = TRUE;
+
+		ZCloseZip(zip_handle,true);
+	}
+
+	SetCurrentDirectoryA(path);
+	return m_ret;
+}
 
 BOOL CToolOper::FindLocalIp(const char * ip_str)
 {
@@ -429,6 +454,18 @@ int		CToolOper::StringSubs(std::string	src_str,std::string begin_str,std::string
 	return (int)str_list.size();
 }
 
+
+std::string CToolOper::MakeLower( std::string& str )
+{
+	std::transform(str.begin(),str.end(),str.begin(),::tolower);
+	return str;
+}
+
+std::string CToolOper::MakeUpper( std::string& str )
+{
+	std::transform(str.begin(),str.end(),str.begin(),::toupper);
+	return str;
+}
 
 char * CToolOper::ReMoveChar(char * src_data,char ch)
 {
@@ -656,6 +693,81 @@ bool CToolOper::GetProcessList(SYSTEM_PROCESS_MAP &process_list,std::string	filt
 	return true;
 }
 
+BOOL CToolOper::CreateProcess( LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag ,LPPROCESS_INFORMATION pProcessInfo)
+{
+	STARTUPINFOA si; 
+	PROCESS_INFORMATION pi;
+
+	ZeroMemory(&si,sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO); 
+	si.lpReserved = NULL;
+	si.lpDesktop = NULL;
+	si.lpTitle = NULL;
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = dwShowFlag;
+	si.cbReserved2 = NULL;
+	si.lpReserved2 = NULL;
+
+	if(!::CreateProcessA(lpcPath,lpszCmdLine,NULL,NULL,FALSE,NULL,NULL,NULL,&si,&pi))
+	{
+		return FALSE;
+	}
+
+	if (pProcessInfo)
+	{
+		memcpy(pProcessInfo,&pi,sizeof pi);
+	}
+	else
+	{
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
+	}
+
+	return TRUE;
+}
+
+BOOL CToolOper::KillProcess( DWORD dwPid )
+{
+	HANDLE hProcess = ::OpenProcess(PROCESS_TERMINATE,FALSE,dwPid);
+	return KillProcess(hProcess);
+}
+
+BOOL CToolOper::KillProcess( HANDLE hProcess )
+{
+	if (IsValidHandle(hProcess))
+	{
+		return TerminateProcess(hProcess,-1);
+	}
+
+	return FALSE;
+}
+
+BOOL CToolOper::KillProcess( LPCSTR lpszProcessName )
+{
+	HANDLE SnapShot=CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
+	if(SnapShot==NULL)
+	{ 
+		return FALSE;
+	}
+
+	PROCESSENTRY32 ProcessInfo;//声明进程信息变量
+	ProcessInfo.dwSize=sizeof(ProcessInfo);//设置ProcessInfo的大小
+	//返回系统中第一个进程的信息
+	BOOL Status=Process32First(SnapShot,&ProcessInfo); 
+
+	while(Status)
+	{    
+		if (strnicmp(lpszProcessName,T2AString(ProcessInfo.szExeFile).c_str(),MAX_PATH) == 0)
+		{
+			KillProcess(ProcessInfo.th32ProcessID);			
+		}
+
+		Status=Process32Next(SnapShot,&ProcessInfo);
+	}
+	CloseHandle(SnapShot);
+	return TRUE;
+}
+
 std::string CToolOper::SubstStr(const char * buffer,const char * start_str,const char *end_str)
 { 
 	std::string		ret_find_str = "";
@@ -839,6 +951,88 @@ BOOL CToolOper::AddDll(std::string path, DWORD pid)
 	CloseHandle(hRemoteProcess);
 	return FALSE;
 
+}
+
+std::string	CToolOper::ReadShareMem(const char * mem_name)
+{ 
+	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
+		FALSE,mem_name);
+	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
+	{  
+		return "";
+	} 
+
+	//显示共享的文件数据。
+	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+	if (strlen(lpMapAddr) == 0)
+	{ 
+		CloseHandle(m_hMapFile);
+		return "";
+	} 
+
+	std::string		ret_str = lpMapAddr;	
+
+	UnmapViewOfFile(lpMapAddr);
+	CloseHandle(m_hMapFile);
+
+	return ret_str;
+}
+
+
+BOOL CToolOper::ReadShareMem(TCHAR * mem_name,char* buffer,size_t len)
+{
+	HANDLE m_hMapFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,
+		FALSE,mem_name);
+	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
+	{  
+		return FALSE;
+	} 
+
+	//显示共享的文件数据。
+	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+
+	memcpy(buffer,lpMapAddr,len);
+
+	UnmapViewOfFile(lpMapAddr);
+	CloseHandle(m_hMapFile);
+
+	return TRUE;
+}
+
+BOOL CToolOper::CreateShareMem(const char * mem_name,size_t len)
+{
+	HANDLE map_file = CreateFileMappingA( (HANDLE)INVALID_HANDLE_VALUE,NULL,
+		PAGE_READWRITE,0,len,mem_name);
+
+	if (map_file == INVALID_HANDLE_VALUE)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+
+BOOL CToolOper::WriteShareMem(const char * mem_name,const char* buffer,size_t len)
+{
+	HANDLE m_hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
+		FALSE,mem_name);
+	if (m_hMapFile == INVALID_HANDLE_VALUE || m_hMapFile == NULL)
+	{  
+		return FALSE;
+	} 
+
+	//显示共享的文件数据。
+	char* lpMapAddr = (char*)MapViewOfFile(m_hMapFile,FILE_MAP_ALL_ACCESS,
+		0,0,0);
+
+	memcpy(lpMapAddr,buffer,len);
+
+	UnmapViewOfFile(lpMapAddr);
+	CloseHandle(m_hMapFile);
+	return TRUE;
 }
 
 DWORD CToolOper::CreateMapFile(const char * map_name,const char *file_buffer)
@@ -1145,4 +1339,26 @@ DWORD CToolOper::ReadLocalFile( const char * filename,char * file_data,DWORD &le
 	CloseHandle(local_file);
 
 	return NO_ERROR;
+}
+
+DWORD CToolOper::WriteLocalFile( const char * filename,const char * file_data,DWORD len )
+{
+	HANDLE	local_file = CreateFileA( filename, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_ARCHIVE, 0);
+
+	if (local_file == NULL || local_file == INVALID_HANDLE_VALUE)
+	{
+		return ERROR_FILE_NOT_FOUND;
+	}
+
+	DWORD	ret = 0;
+	WriteFile(local_file,file_data,len,&ret,NULL);
+
+	CloseHandle(local_file);
+	return NO_ERROR;
+}
+
+BOOL CToolOper::IsFileAccess( LPCSTR lpcPath )
+{
+	std::fstream fs(lpcPath,std::ios::in | std::ios::binary,_SH_DENYRD);
+	return (BOOL)fs.good();
 }

@@ -1,5 +1,5 @@
  
-#include "stdafx.h"
+#include "StdAfx.h"
 
 
 #if UINT_MAX > 0xFFFFL		/* System has 32-bit ints */

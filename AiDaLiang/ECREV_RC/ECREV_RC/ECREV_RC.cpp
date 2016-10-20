@@ -5,6 +5,7 @@
 #include <boost/regex.h>
 #include<stdio.h>
 #include <algorithm>
+#include <io.h>
 
 #pragma comment(linker,"/subsystem:windows")
 
@@ -23,6 +24,11 @@ int APIENTRY _tWinMain( __in HINSTANCE hInstance, __in_opt HINSTANCE hPrevInstan
 		//OutputDebugStringA(__argv[2]);
 		std::string sRcFile = T2AString(__targv[1]);
 		std::string sRcFileTpl = T2AString(__targv[2]);
+		if (_access(sRcFile.c_str(),0) == -1)
+		{
+			OutputDebugStringA("没有资源文件\n");
+			return 0;
+		}
 		CopyFileA(sRcFile.c_str(),sRcFileTpl.c_str(),FALSE);
 
 		FILE* fp = fopen(sRcFileTpl.c_str(),"rb");

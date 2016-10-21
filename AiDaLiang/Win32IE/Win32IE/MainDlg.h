@@ -6,6 +6,7 @@ public:
 	virtual void OnInitDialog();
 protected:
 private:
-	HWND hIe;
+	//HWND hIe;
+
 };
 #endif //__MainDlg_H

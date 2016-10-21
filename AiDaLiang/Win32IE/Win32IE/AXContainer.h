@@ -13,6 +13,20 @@
 // Registration function
 ATOM AXRegister();
 
+//
+class jkWebBroser;
+
+//WebBrowser callback
+class IWebNotifyCallback2
+{
+public:
+	virtual HRESULT OnIeEventCallBack(DISPID dispIdMember
+		,REFIID riid,LCID lcid,WORD wFlags
+		,DISPPARAMS FAR* pDispParams
+		,VARIANT FAR* pVarResult
+		,EXCEPINFO FAR* pExcepInfo
+		,unsigned int FAR* puArgErr) = 0;
+};
 
 // Class AXClientSite
 class AXClientSite :
@@ -35,6 +49,8 @@ public:
 	bool InPlace;
 	bool ExternalPlace;
 	bool CalledCanInPlace;
+
+	IWebNotifyCallback2* mCallBack;
 
 	class AXContainer* ax;
 
@@ -129,12 +145,36 @@ public:
 	DWORD DAdviseToken[100];
 
 	//////////////////////////////////////////////////////////////////////////
-	IWebBrowser* mIWebBrowser;
+	IWebBrowser2* mIWebBrowser;
 	IConnectionPoint* mIeConnectionPoint;
 	DWORD mCookie;
 
 private:
 	CLSID clsid;
+
+};
+
+
+
+//WebBrowser
+class jkWebBroser
+{
+	friend class AXContainer;
+public:
+	jkWebBroser();
+	virtual ~jkWebBroser();
+public:
+	BOOL Create(HWND hParantWnd,RECT rcWeb);
+	void SetCallBack(IWebNotifyCallback2* callback);
+	IWebNotifyCallback2* GetCallBack();
+	IWebBrowser2* GetWebObject();
+	void SetIePtr(IWebBrowser2* iWeb){mIePtr = iWeb;};
+	HWND GetIeWnd(){return mIeWnd;}
+protected:
+	IWebBrowser2*			mIePtr;
+	IWebNotifyCallback2*	mCallBack;
+	HWND					mIeWnd;
+private:
 
 };
 

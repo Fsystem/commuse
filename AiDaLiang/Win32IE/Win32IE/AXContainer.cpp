@@ -6,6 +6,7 @@
 #include <exdispid.h>
 #include <oledlg.h>
 #include "AXContainer.h"
+#include <mshtmdid.h>
 
 
 #pragma warning (disable: 4311)
@@ -21,6 +22,7 @@ AXClientSite :: AXClientSite()
 	refNum = 0;
 	CalledCanInPlace = 0;
 	InPlace = 0;
+	mCallBack = NULL;
 }
 
 AXClientSite :: ~AXClientSite()
@@ -440,10 +442,22 @@ HRESULT _stdcall AXClientSite :: Invoke(
 	EXCEPINFO FAR* pExcepInfo,
 	unsigned int FAR* puArgErr)
 {
-	if (dispIdMember == DISPID_NEWWINDOW3)
+	if (mCallBack)
 	{
-		return S_OK;
+		return mCallBack->OnIeEventCallBack(dispIdMember,riid,lcid,wFlags,pDispParams,pVarResult,pExcepInfo,puArgErr);
 	}
+	/*switch(dispIdMember)
+	{
+	case DISPID_AMBIENT_DLCONTROL:
+		{
+			return S_OK;
+		}
+	case DISPID_NEWWINDOW3:
+		{
+			return S_OK;
+		}
+	}*/
+	
 	return E_NOTIMPL;
 }
 
@@ -463,6 +477,8 @@ LRESULT CALLBACK AXWndProc(HWND hh,UINT mm,WPARAM ww,LPARAM ll)
 		HRESULT hr;
 
 		GetWindowTextA(hh,tit,1000);
+
+		jkWebBroser* pWebHost = reinterpret_cast<jkWebBroser*>( ((LPCREATESTRUCT)ll)-> lpCreateParams ) ;
 
 		AXContainer* ax;
 		ax = new AXContainer(tit);
@@ -489,7 +505,7 @@ LRESULT CALLBACK AXWndProc(HWND hh,UINT mm,WPARAM ww,LPARAM ll)
 		hr = ax->OleObject->QueryInterface(IID_IViewObject,(void**)&ax->View);
 		hr = ax->OleObject->QueryInterface(IID_IDataObject,(void**)&ax->Data);
 		if (ax->View)
-			hr = ax->View->SetAdvise(DVASPECT_CONTENT,0,&ax->Site);
+		hr = ax->View->SetAdvise(DVASPECT_CONTENT,0,&ax->Site);
 
 		//IEÊÂ¼þ
 		hr = ax->OleObject->QueryInterface(IID_IWebBrowser2, (void**)&ax->mIWebBrowser);
@@ -511,6 +527,11 @@ LRESULT CALLBACK AXWndProc(HWND hh,UINT mm,WPARAM ww,LPARAM ll)
 			}
 
 			pConnContainer->Release();
+		}
+
+		if(pWebHost){
+			pWebHost->SetIePtr(ax->mIWebBrowser);
+			ax->Site.mCallBack = pWebHost->GetCallBack();
 		}
 
 		return 0;
@@ -660,6 +681,11 @@ ATOM AXRegister()
 {
 	WNDCLASSEXA wC = {0};
 
+	if ( GetClassInfoExA(GetModuleHandle(0),"AXContainer",&wC) )
+	{
+		return TRUE;
+	}
+
 	wC.cbSize = sizeof(wC);
 	wC.style = CS_GLOBALCLASS | CS_DBLCLKS;
 	wC.lpfnWndProc = AXWndProc;
@@ -669,3 +695,62 @@ ATOM AXRegister()
 	return RegisterClassExA(&wC);
 }
 
+jkWebBroser::jkWebBroser()
+{
+	mIePtr = NULL;
+	mIeWnd = NULL;
+}
+
+jkWebBroser::~jkWebBroser()
+{
+	if (mIePtr)
+	{
+		mIePtr->Release();
+		mIePtr = NULL;
+	}
+
+	if (IsWindow(mIeWnd))
+	{
+		DestroyWindow(mIeWnd);
+		mIeWnd = NULL;
+	}
+}
+
+//-------------------------------------------------------------------------------
+BOOL jkWebBroser::Create( HWND hParantWnd,RECT rcWeb )
+{
+	if (!AXRegister())
+		return FALSE;
+
+	RECT rc = rcWeb;
+	mIeWnd = ::CreateWindowExA(CS_HREDRAW | CS_VREDRAW,"AXContainer","{8856F961-340A-11D0-A96B-00C04FD705A2}"
+		,WS_VISIBLE|WS_CHILD,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,hParantWnd,NULL,theJKApp.GetInstance(),(jkWebBroser*)this);
+	if (mIeWnd)
+	{
+		SendMessage(mIeWnd,AX_INPLACE,1,0);
+
+		SendMessage(mIeWnd,AX_QUERYINTERFACE,(WPARAM)&IID_IWebBrowser2,(LPARAM)&mIePtr);
+	}
+
+	return mIePtr != NULL;
+}
+
+void jkWebBroser::SetCallBack( IWebNotifyCallback2* callback )
+{
+	mCallBack = callback;
+}
+
+IWebNotifyCallback2* jkWebBroser::GetCallBack()
+{
+	return mCallBack;
+}
+
+IWebBrowser2* jkWebBroser::GetWebObject()
+{
+	return mIePtr;
+}
+
+// void jkWebBroser::SetAxContainer( AXContainer* container )
+// {
+// 	mAx = container;
+// }

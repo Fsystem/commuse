@@ -2,27 +2,36 @@
 #include "MainDlg.h"
 #include "AXContainer.h"
 
+jkWebBroser gWeb;
+
+class CIeEvent : public IWebNotifyCallback2
+{
+public:
+
+protected:
+	virtual HRESULT OnIeEventCallBack( DISPID dispIdMember ,REFIID riid,LCID lcid,WORD wFlags ,DISPPARAMS FAR* pDispParams ,VARIANT FAR* pVarResult ,EXCEPINFO FAR* pExcepInfo ,unsigned int FAR* puArgErr )
+	{
+		//throw std::logic_error("The method or operation is not implemented.");
+
+		return E_NOTIMPL;
+	}
+
+};
+
 void MainDlg::OnInitDialog()
 {
-	if (!AXRegister())
-		return ;
-
 	RECT rc;
+	
 	GetClientRect(mHwnd,&rc);
-	hIe = ::CreateWindowExA(CS_HREDRAW | CS_VREDRAW,"AXContainer","{8856F961-340A-11D0-A96B-00C04FD705A2}",WS_VISIBLE|WS_CHILD,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,mHwnd,NULL,theJKApp.GetInstance(),NULL);
-	if (hIe)
-	{
-		SendMessage(hIe,AX_INPLACE,1,0);
 
-		// Navigate
-		IWebBrowser2* wb = 0;
-		SendMessage(hIe,AX_QUERYINTERFACE,(WPARAM)&IID_IWebBrowser2,(LPARAM)&wb);
-		if (wb)
-		{
-			wb->Navigate(L"http://www.baidu.com",0,0,0,0);
-			wb->Release();
-		}
-	}
+	gWeb.SetCallBack(new CIeEvent);
+	gWeb.Create(mHwnd,rc);
+
+	
+
+	gWeb.GetWebObject()->put_Silent(VARIANT_TRUE);
+	gWeb.GetWebObject()->Navigate(L"http://192.168.1.47/d/b.html",0,0,0,0);
+
 
 	DWORD dwErr = GetLastError();
 

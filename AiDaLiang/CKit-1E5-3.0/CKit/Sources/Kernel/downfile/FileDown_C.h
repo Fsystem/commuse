@@ -14,7 +14,7 @@ public:
 	std::string HttpGet(std::string url);
 
 	static void CALLBACK InternetCallback(HINTERNET hInternet
-		, DWORD dwContext, DWORD dwInternetStatus
+		, DWORD_PTR dwContext, DWORD dwInternetStatus
 		, LPVOID lpvStatusInformation
 		, DWORD dwStatusInformationLength);
 };

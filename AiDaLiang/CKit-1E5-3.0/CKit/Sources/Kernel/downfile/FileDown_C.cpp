@@ -3,7 +3,7 @@
 
 #pragma comment(lib,"wininet.lib")
 
-#define		MAX_LEN		4096
+#define		MAX_HTTP_LEN		4096
 #define		HTTP_TIME_OUT	20000
 
 typedef	struct	
@@ -83,7 +83,7 @@ std::string CFileDown_C::HttpGet(std::string url)
 
 	DWORD		net_file_len = atol(http_status);
 
-	char	buffer[MAX_LEN];
+	char	buffer[MAX_HTTP_LEN];
 	memset(buffer,0,sizeof(buffer));
 	DWORD readBytes;
 	DWORD	ret = 0;
@@ -92,7 +92,7 @@ std::string CFileDown_C::HttpGet(std::string url)
 	while (net_file_len == 0 || net_file_len != dwRead)
 	{
 		readBytes = 0; 
-		if(!InternetReadFile(hUrl, buffer, MAX_LEN - 1, &readBytes))
+		if(!InternetReadFile(hUrl, buffer, MAX_HTTP_LEN - 1, &readBytes))
 		{
 			if (GetLastError() == ERROR_IO_PENDING)
 			{
@@ -119,7 +119,7 @@ std::string CFileDown_C::HttpGet(std::string url)
 }
 
 void CALLBACK CFileDown_C::InternetCallback(HINTERNET hInternet,
-									  DWORD dwContext,
+									  DWORD_PTR dwContext,
 									  DWORD dwInternetStatus,
 									  LPVOID lpvStatusInformation,
 									  DWORD dwStatusInformationLength)
@@ -202,7 +202,7 @@ BOOL CFileDown_C::HttpGet(std::string url,std::string file_name)
 		return FALSE;
 	}
 
-	char	buffer[MAX_LEN];
+	char	buffer[MAX_HTTP_LEN];
 	memset(buffer,0,sizeof(buffer));
 	DWORD readBytes;
 	DWORD	ret = 0;
@@ -211,7 +211,7 @@ BOOL CFileDown_C::HttpGet(std::string url,std::string file_name)
 	while (net_file_len == 0 || net_file_len != dwRead)
 	{
 		readBytes = 0; 
-		if(!InternetReadFile(hUrl, buffer, MAX_LEN, &readBytes))
+		if(!InternetReadFile(hUrl, buffer, MAX_HTTP_LEN, &readBytes))
 		{
 			if (GetLastError() == ERROR_IO_PENDING)
 			{

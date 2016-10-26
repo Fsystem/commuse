@@ -7,6 +7,7 @@
 #include <memory.h>
 #include <windows.h>
 #include <tchar.h>
+#include <WinSock2.h>
 
 #include <string>
 #include <sstream>
@@ -54,10 +55,16 @@
 #include "Kernel/comm/ProcessLock/ProcessLock.h"
 #include "Kernel/comm/Log/DebugLog.h"
 
+//! 内存池
+#include "Kernel/mempool/PoolMemData.h"
+
 //! 网络操作类
+#include "Kernel/net/iocp_def.h"
 #include "Kernel/net/yCTcp.h"
 #include "Kernel/net/yCUdp.h"
 #include "NetManager/NetManager.h"
+#include "Kernel/net/TcpClient.h"
+#include "Kernel/net/UdpClient.h"
 
 //! 下载文件
 #include "Kernel/downfile/HttpDownFile.h"
@@ -65,6 +72,7 @@
 
 //! 安装服务
 #include "ToolHelper/Server.h"
+#include "ToolHelper/WinServer.h"
 
 //! 插件管理
 #include "ModuleManager/PlugManager.h"

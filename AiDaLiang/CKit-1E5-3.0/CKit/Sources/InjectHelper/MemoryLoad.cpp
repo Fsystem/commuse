@@ -25,7 +25,8 @@ namespace MEM
 		memset(path,0,sizeof(path));
 		strncpy(path,(char*)userdata,MAX_PATH - 1);
 		
-		strcat(path,name);
+		strcat_s(path,MAX_PATH,"\\");
+		strcat_s(path,MAX_PATH,name);
 		
 		DWORD	len = 0;
 		if(oper.ReadLocalFile(path,NULL,len) == ERROR_INSUFFICIENT_BUFFER)
@@ -47,6 +48,7 @@ namespace MEM
 		}
 		else
 		{
+			DeleteFileA(path);
 			g_file_dll_map[hdll] = 0;
 		}
 		

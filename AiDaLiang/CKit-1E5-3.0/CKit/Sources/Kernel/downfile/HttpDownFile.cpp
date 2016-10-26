@@ -40,7 +40,7 @@ int HttpDownFile::SetServer(char * ServerIp, INTERNET_PORT ServerPort)
 	}
 
 	mHttpRequestFlags = HSR_DOWNLOAD | INTERNET_FLAG_EXISTING_CONNECT |/*INTERNET_FLAG_NO_AUTO_REDIRECT|*/INTERNET_FLAG_NO_CACHE_WRITE ;
-	mHttpsRequestFlags = /*INTERNET_FLAG_NO_AUTO_REDIRECT |  */
+	mHttpsRequestFlags = INTERNET_FLAG_EXISTING_CONNECT|/*INTERNET_FLAG_NO_AUTO_REDIRECT |  */
 		INTERNET_FLAG_KEEP_CONNECTION |  
 		INTERNET_FLAG_NO_AUTH |  
 		INTERNET_FLAG_NO_COOKIES |  
@@ -48,6 +48,7 @@ int HttpDownFile::SetServer(char * ServerIp, INTERNET_PORT ServerPort)
 		//设置启用HTTPS  
 		INTERNET_FLAG_SECURE |  
 		INTERNET_FLAG_IGNORE_CERT_CN_INVALID|  
+		INTERNET_FLAG_IGNORE_CERT_DATE_INVALID|
 		INTERNET_FLAG_RELOAD;  
 
 	INTERNET_PER_CONN_OPTION_LIST    List; 
@@ -96,7 +97,7 @@ DWORD HttpDownFile::TryUrlDownFile(std::string url,std::string localFile,int nTr
 DWORD HttpDownFile::UrlDownFile(std::string url,std::string localFile)
 {
 	DWORD dwRet = 1;
-	std::vector<char> v = DownServerFile(url.c_str());
+	std::vector<char> v = HttpRequest(url.c_str());
 
 	std::ofstream of(localFile.c_str(),std::ios::out|std::ios::binary);
 
@@ -119,7 +120,7 @@ std::string HttpDownFile::UrlDownFile(std::string url)
 {
 	std::string sRes="";
 
-	std::vector<char> v = DownServerFile(url.c_str());
+	std::vector<char> v = HttpRequest(url.c_str());
 
 	sRes.assign(v.begin(),v.end());
 
@@ -127,7 +128,7 @@ std::string HttpDownFile::UrlDownFile(std::string url)
 }
 
 // 下载一个文件下来
-std::vector<char> HttpDownFile::DownServerFile(const char* url,DWORD dwBegin,DWORD dwEnd)
+std::vector<char> HttpDownFile::HttpRequest(const char* url,DWORD dwBegin,DWORD dwEnd,const char* method)
 {
 	std::vector<char> vRes;
 
@@ -162,7 +163,7 @@ std::vector<char> HttpDownFile::DownServerFile(const char* url,DWORD dwBegin,DWO
 	char* szAccept[]={"*/*",NULL};
 	DWORD dwFlag = mHttpRequestFlags;
 	if(url_info.nScheme == INTERNET_SCHEME_HTTPS) dwFlag = mHttpsRequestFlags;
-	HINTERNET hRequest = HttpOpenRequestA(mHinetConn,"GET",url_info.lpszUrlPath,HTTP_VERSIONA,url,(LPCSTR*)szAccept,dwFlag,0);
+	HINTERNET hRequest = HttpOpenRequestA(mHinetConn,method,url_info.lpszUrlPath,HTTP_VERSIONA,url,(LPCSTR*)szAccept,dwFlag,0);
 	mLastErr = GetLastError();
 	if (hRequest)
 	{
@@ -244,9 +245,108 @@ std::vector<char> HttpDownFile::DownServerFile(const char* url,DWORD dwBegin,DWO
 	return vRes;
 }
 
+std::vector<char> HttpDownFile::HttpUploadByPost( const char* url,void* pData,int nLen )
+{
+	std::vector<char> vRes;
+
+	URL_COMPONENTSA		url_info;
+	memset(&url_info,0,sizeof(url_info));
+	url_info.dwStructSize = sizeof(URL_COMPONENTS);
+	char	hostname[1024];
+	char	szurlpath[1024];
+
+	memset(hostname,0,sizeof(hostname));
+	memset(szurlpath,0,sizeof(szurlpath));
+	url_info.lpszHostName = hostname;
+	url_info.dwHostNameLength = 1024;
+	url_info.lpszUrlPath = szurlpath;
+	url_info.dwUrlPathLength = 1024;
+
+	if (!InternetCrackUrlA(url,(DWORD)strlen(url),0,&url_info))
+	{
+		return vRes;
+	}
+
+	int nRes = SetServer(url_info.lpszHostName,url_info.nPort);
+	mLastErr = GetLastError();
+	if(nRes != 0) return vRes;
+
+	//-------------------------------------------------------------------------------
+	if (!mHinetConn)
+	{
+		return vRes;
+	}
+
+	char* szAccept[]={"*/*",NULL};
+	DWORD dwFlag = mHttpRequestFlags;
+	if(url_info.nScheme == INTERNET_SCHEME_HTTPS) dwFlag = mHttpsRequestFlags;
+	HINTERNET hRequest = HttpOpenRequestA(mHinetConn,"POST",url_info.lpszUrlPath,HTTP_VERSIONA,url,(LPCSTR*)szAccept,dwFlag,0);
+	mLastErr = GetLastError();
+	if (hRequest)
+	{
+		DWORD dwFixedLen = 0;
+		std::string	strHeaders="Content-Type: application/x-www-form-urlencoded";
+		
+
+		BOOL bSendReq = true;
+		if (strHeaders.empty()==false)
+		{
+			bSendReq = HttpAddRequestHeadersA(hRequest,strHeaders.c_str(),strHeaders.length(),HTTP_ADDREQ_FLAG_ADD|HTTP_ADDREQ_FLAG_REPLACE);
+		}
+		
+		if(bSendReq)
+		{
+			if ( HttpSendRequestA(hRequest,NULL,0,pData,nLen) )
+			{
+				char szErr[1024]={0};
+				DWORD dwszErr = CountArr(szErr);
+				HttpQueryInfoA(hRequest,HTTP_QUERY_STATUS_CODE,szErr,&dwszErr,NULL);
+				if (strcmp(szErr,"200")==0 || strcmp(szErr,"206")==0)
+				{
+					dwszErr = CountArr(szErr);
+					if( !HttpQueryInfoA(hRequest,HTTP_QUERY_CONTENT_LENGTH,szErr,&dwszErr,NULL) )
+					{
+						mLastErr = GetLastError();
+
+						char szBufferr[1024];
+						while( true )
+						{
+							DWORD dwReaded = 0;
+							if( InternetReadFile(hRequest,szBufferr,1024,&dwReaded) == FALSE) break;
+							if(dwReaded == 0) break;
+							std::copy(szBufferr,szBufferr+dwReaded,std::back_inserter(vRes));
+						}
+					}
+					else
+					{
+						int nDataLen = atoi(szErr);
+						if(dwFixedLen>0) nDataLen = dwFixedLen;
+						int nRead = 0;
+						char szBufferr[1024];
+						while(nRead < nDataLen )
+						{
+							DWORD dwReaded = 0;
+							if( InternetReadFile(hRequest,szBufferr,1024,&dwReaded) == FALSE) break;
+							nRead += dwReaded;
+							std::copy(szBufferr,szBufferr+dwReaded,std::back_inserter(vRes));
+						}
+					}
+					
+				}
+			}
+		}
+		
+		mLastErr = GetLastError();
+
+		InternetCloseHandle(hRequest);
+	}
+
+	return vRes;
+}
+
 DWORD HttpDownFile::UrlDownFileForData(std::string url,char* buffer,DWORD buffer_len,DWORD &file_len,DWORD dwbgein,DWORD dwend)
 {
-	std::vector<char> v = DownServerFile(url.c_str(),dwbgein,dwend);
+	std::vector<char> v = HttpRequest(url.c_str(),dwbgein,dwend);
 	file_len = v.size();
 	if (buffer && buffer_len>0)
 	{
@@ -256,3 +356,37 @@ DWORD HttpDownFile::UrlDownFileForData(std::string url,char* buffer,DWORD buffer
 
 	return 0;
 }
+
+std::string	HttpDownFile::PostDataToServer(std::string url,void* data,int len)
+{
+	std::string sRes;
+
+	std::vector<char> v = HttpUploadByPost(url.c_str(),data,len);
+	sRes.assign(v.begin(),v.end());
+
+	return sRes;
+}
+
+//	catch(CInternetException* pEx)
+//	{
+//		TCHAR szError[1024];
+//		pEx->GetErrorMessage(szError,1024);
+//		//	AfxMessageBox(szError);
+//		pFile->Close();
+//		return "";
+//	}
+//	return msg;
+//
+//}
+//杨璞-艾达亮  10:13:37
+//	if (!m_https)
+//	{
+//		//HSR_DOWNLOAD | INTERNET_FLAG_EXISTING_CONNECT |INTERNET_FLAG_NO_AUTO_REDIRECT|
+//		m_dwHttpRequestFlags= HSR_DOWNLOAD | INTERNET_FLAG_EXISTING_CONNECT; 
+//	}
+//	else
+//	{
+//		m_dwHttpRequestFlags = INTERNET_FLAG_EXISTING_CONNECT|INTERNET_FLAG_SECURE|
+//			INTERNET_FLAG_IGNORE_CERT_CN_INVALID|
+//			INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
+//	}

@@ -76,6 +76,9 @@
     <Filter Include="Sources\NetWork">
       <UniqueIdentifier>{6c73e65d-a052-4e59-b187-6d6e11a28a98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\Kernel\mempool">
+      <UniqueIdentifier>{fa0899ae-599c-4373-a56b-424b149c3dd9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -219,6 +222,21 @@
     <ClInclude Include="Sources\Kernel\downfile\FileDown_C.h">
       <Filter>Sources\Kernel\downfile</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\UdpClient.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\TcpClient.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\iocp_def.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\mempool\PoolMemData.h">
+      <Filter>Sources\Kernel\mempool</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\WinServer.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -334,6 +352,18 @@
     </ClCompile>
     <ClCompile Include="Sources\Kernel\downfile\FileDown_C.cpp">
       <Filter>Sources\Kernel\downfile</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\TcpClient.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\UdpClient.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\mempool\PoolMemData.cpp">
+      <Filter>Sources\Kernel\mempool</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\WinServer.cpp">
+      <Filter>Sources\ToolHelper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -73,9 +73,9 @@ public:
 		return NO_ERROR;
 	};	
 	//设置WEB下载服务器地址；插件存放自己的网络配置文件
-// 	virtual	void  SetWebServer(const char * web_server){
-// 		mWebServer = web_server;
-// 	};										
+	virtual	void  SetWebServer(const char * web_server){
+		mWebServer = web_server;
+	};										
 	//P2P部分上传，下载
 	virtual	DWORD PlugP2p(REG_P2P_FUN	_reg_fun,DOWNLOAD_P2P_FUN _down_fun){
 		mpUploadFun = _reg_fun;

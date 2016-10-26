@@ -693,7 +693,7 @@ bool CToolOper::GetProcessList(SYSTEM_PROCESS_MAP &process_list,std::string	filt
 	return true;
 }
 
-BOOL CToolOper::CreateProcess( LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag ,LPPROCESS_INFORMATION pProcessInfo)
+BOOL CToolOper::CreateProcess( LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag ,LPPROCESS_INFORMATION pProcessInfo,LPCSTR lpcWorkDir)
 {
 	STARTUPINFOA si; 
 	PROCESS_INFORMATION pi;
@@ -708,7 +708,7 @@ BOOL CToolOper::CreateProcess( LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag
 	si.cbReserved2 = NULL;
 	si.lpReserved2 = NULL;
 
-	if(!::CreateProcessA(lpcPath,lpszCmdLine,NULL,NULL,FALSE,NULL,NULL,NULL,&si,&pi))
+	if(!::CreateProcessA(lpcPath,lpszCmdLine,NULL,NULL,FALSE,NULL,NULL,lpcWorkDir,&si,&pi))
 	{
 		return FALSE;
 	}

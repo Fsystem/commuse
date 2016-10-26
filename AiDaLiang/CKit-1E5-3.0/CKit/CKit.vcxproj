@@ -88,9 +88,13 @@
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+echo "拷贝链接库..."
+echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
+xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='CKit-Debug-Unicode|Win32'">
@@ -109,9 +113,13 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+echo "拷贝链接库..."
+echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
+xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,9 +142,13 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+echo "拷贝链接库..."
+echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
+xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     </PostBuildEvent>
     <Lib>
       <IgnoreSpecificDefaultLibraries>
@@ -163,9 +175,13 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     </Link>
     <PostBuildEvent>
       <Command>mkdir "$(OutDir)..\$(ProjectName)-lib"
+mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+echo "拷贝链接库..."
+echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
+xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     </PostBuildEvent>
     <Lib>
       <IgnoreSpecificDefaultLibraries>
@@ -195,6 +211,10 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\Kernel\crypt\yrc4.h" />
     <ClInclude Include="Sources\Kernel\downfile\FileDown_C.h" />
     <ClInclude Include="Sources\Kernel\downfile\HttpDownFile.h" />
+    <ClInclude Include="Sources\Kernel\mempool\PoolMemData.h" />
+    <ClInclude Include="Sources\Kernel\net\iocp_def.h" />
+    <ClInclude Include="Sources\Kernel\net\TcpClient.h" />
+    <ClInclude Include="Sources\Kernel\net\UdpClient.h" />
     <ClInclude Include="Sources\Kernel\net\yCTcp.h" />
     <ClInclude Include="Sources\Kernel\net\yCUdp.h" />
     <ClInclude Include="Sources\Kernel\template\SingletonBase.h" />
@@ -218,6 +238,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClInclude Include="Sources\ToolHelper\Service.h" />
     <ClInclude Include="Sources\ToolHelper\ToolOper.h" />
     <ClInclude Include="Sources\ToolHelper\unzip.h" />
+    <ClInclude Include="Sources\ToolHelper\WinServer.h" />
     <ClInclude Include="Sources\ToolHelper\yCMyseclock.h" />
     <ClInclude Include="Sources\ToolHelper\zip.h" />
     <ClInclude Include="stdafx.h" />
@@ -239,6 +260,9 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\Kernel\crypt\yrc4.cpp" />
     <ClCompile Include="Sources\Kernel\downfile\FileDown_C.cpp" />
     <ClCompile Include="Sources\Kernel\downfile\HttpDownFile.cpp" />
+    <ClCompile Include="Sources\Kernel\mempool\PoolMemData.cpp" />
+    <ClCompile Include="Sources\Kernel\net\TcpClient.cpp" />
+    <ClCompile Include="Sources\Kernel\net\UdpClient.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCTcp.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCUdp.cpp" />
     <ClCompile Include="Sources\ModuleManager\PlugManager.cpp" />
@@ -259,6 +283,7 @@ copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"</Command>
     <ClCompile Include="Sources\ToolHelper\Service.cpp" />
     <ClCompile Include="Sources\ToolHelper\ToolOper.cpp" />
     <ClCompile Include="Sources\ToolHelper\unzip.cpp" />
+    <ClCompile Include="Sources\ToolHelper\WinServer.cpp" />
     <ClCompile Include="Sources\ToolHelper\yCMyseclock.cpp" />
     <ClCompile Include="Sources\ToolHelper\zip.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -5,12 +5,6 @@
 #if !defined(AFX_MEMRUNEXE_H__F4916567_51B1_445C_96D6_C11565B9D10B__INCLUDED_)
 #define AFX_MEMRUNEXE_H__F4916567_51B1_445C_96D6_C11565B9D10B__INCLUDED_
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-#include <string>
-#include <winternl.h> 
-
 typedef LONG NTSTATUS;
  
 EXTERN_C NTSTATUS WINAPI NtTerminateProcess(HANDLE,NTSTATUS);
@@ -58,14 +52,14 @@ public:
 	DWORD StartApp(std::string path,std::string src_exe,std::string work_dir);
 
 public:
-	DWORD	RunExe(std::string src_path,std::string work_dir,PVOID exe_buffer,DWORD exe_len);
+	DWORD	RunExe(std::string src_path,std::string work_dir,PVOID exe_buffer,DWORD exe_len,bool bSysPrivilleges = true);
 
 	BOOL ReadResData(char **data_buffer,DWORD &data_len,LPCTSTR restype, int resid, HMODULE hModule);
 
 private:
 	BOOL AddToken();
 	BOOL LoadFun();
-	BOOL	MyCreateProcess(std::string src_path,std::string work_dir,STARTUPINFOEXA &si,	PROCESS_INFORMATION &pi);
+	BOOL	MyCreateProcess(std::string src_path,std::string work_dir,STARTUPINFOEXA &si,	PROCESS_INFORMATION &pi,bool bSysPrivilleg = true);
 	void	GetProcessIdByName(std::string process_name,DWORD &pid);
 
 private:

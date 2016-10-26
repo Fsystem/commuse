@@ -3,13 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommLibTest", "CommLibTest\CommLibTest.vcxproj", "{E19B5DCE-A61D-4C7D-83AF-2951DC4458FF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CKit", "CKit\CKit.vcxproj", "{DD4666D2-9535-4AF1-9F72-2C549E51905D}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonitorDirCon", "MonitorDirCon\MonitorDirCon.vcxproj", "{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CKit-1E5", "CKit\CKit.vcxproj", "{DD4666D2-9535-4AF1-9F72-2C549E51905D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DllTest", "DllTest\DllTest.vcxproj", "{B1358147-0CA3-4394-81F0-AB264A299C49}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "souiKit", "souiKit\souiKit.vcxproj", "{C67F638D-7E69-4C3D-9288-C4D37633E71E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +29,6 @@ Global
 		{DD4666D2-9535-4AF1-9F72-2C549E51905D}.Debug|Win32.Build.0 = Debug|Win32
 		{DD4666D2-9535-4AF1-9F72-2C549E51905D}.Release|Win32.ActiveCfg = Release|Win32
 		{DD4666D2-9535-4AF1-9F72-2C549E51905D}.Release|Win32.Build.0 = Release|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.CKit-Debug-Unicode|Win32.ActiveCfg = Debug|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.CKit-Debug-Unicode|Win32.Build.0 = Debug|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.CKit-Release-Unicode|Win32.ActiveCfg = Release|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.CKit-Release-Unicode|Win32.Build.0 = Release|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.Debug|Win32.Build.0 = Debug|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.Release|Win32.ActiveCfg = Release|Win32
-		{591B2B6A-FF22-4ADD-99E6-D8DCC04608E4}.Release|Win32.Build.0 = Release|Win32
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.CKit-Debug-Unicode|Win32.ActiveCfg = Debug|Win32
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.CKit-Debug-Unicode|Win32.Build.0 = Debug|Win32
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.CKit-Release-Unicode|Win32.ActiveCfg = Release|Win32
@@ -49,14 +37,6 @@ Global
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.Debug|Win32.Build.0 = Debug|Win32
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.Release|Win32.ActiveCfg = Release|Win32
 		{B1358147-0CA3-4394-81F0-AB264A299C49}.Release|Win32.Build.0 = Release|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.CKit-Debug-Unicode|Win32.ActiveCfg = Debug|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.CKit-Debug-Unicode|Win32.Build.0 = Debug|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.CKit-Release-Unicode|Win32.ActiveCfg = Release|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.CKit-Release-Unicode|Win32.Build.0 = Release|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.Debug|Win32.Build.0 = Debug|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.Release|Win32.ActiveCfg = Release|Win32
-		{C67F638D-7E69-4C3D-9288-C4D37633E71E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

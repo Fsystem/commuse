@@ -17,12 +17,14 @@ typedef	std::map<DWORD,std::string>		SYSTEM_PROCESS_MAP;
 
 typedef	std::vector<std::string>		RET_STRING_VECTOR;
 
+#define ToolHelper CToolOper::Instance()
+
 /**
  * @brief 工作操作类
  *
  * 详细描述：工作操作类
  */
-class CToolOper  
+class CToolOper:public SingletonBase<CToolOper>
 {
 public:
 	CToolOper();
@@ -190,7 +192,7 @@ public:
 	 *
 	 * 详细描述：lpcPath-执行文件的路径（可以为NULL），lpszCmdLine-命令行（可以包含lpcPath），dwShowFlag：SW_SHOW...
 	 */
-	BOOL CreateProcess(LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag,LPPROCESS_INFORMATION pProcessInfo = NULL);
+	BOOL CreateProcess(LPCSTR lpcPath,LPSTR lpszCmdLine,DWORD dwShowFlag,LPPROCESS_INFORMATION pProcessInfo = NULL,LPCSTR lpcWorkDir = NULL);
 
 	/**
 	 * @brief 结束进程

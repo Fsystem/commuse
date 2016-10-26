@@ -465,6 +465,7 @@ HMEMORYMODULE MemoryLoadLibraryEx(const void *data,
     // get entry point of loaded library
     if (result->headers->OptionalHeader.AddressOfEntryPoint != 0) {
         if (result->isDLL) {
+		//	 "DLL", 701
             DllEntryProc DllEntry = (DllEntryProc) (code + result->headers->OptionalHeader.AddressOfEntryPoint);
             // notify library about attaching to process
             successfull = (*DllEntry)((HINSTANCE)code, DLL_PROCESS_ATTACH, 0);
@@ -475,6 +476,7 @@ HMEMORYMODULE MemoryLoadLibraryEx(const void *data,
             result->initialized = 1;
         } else {
             result->exeEntry = (ExeEntryProc) (code + result->headers->OptionalHeader.AddressOfEntryPoint);
+			
         }
     } else {
         result->exeEntry = NULL;

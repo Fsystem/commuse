@@ -6,7 +6,7 @@
 #include "MemRunExe.h"
 #include "TlHelp32.h"
 
-#pragma comment(lib,"lib/ntdll.lib")
+//#pragma comment(lib,"lib/ntdll.lib")
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -34,6 +34,7 @@ BOOL CMemRunExe::AddToken()
 	if(! LookupPrivilegeValue(NULL, SE_DEBUG_NAME,&tkp.Privileges[0].Luid))//获得本地机唯一的标识
 	{ 
 		//	AfxMessageBox("从本地计算机提取权限失败！");
+		CloseHandle(hToken);
 		return false;
 	}
 	tkp.PrivilegeCount = 1;  
@@ -42,8 +43,10 @@ BOOL CMemRunExe::AddToken()
 	if (GetLastError() != ERROR_SUCCESS) 
 	{
 		//	MessageBox("AdjustTokenPrivileges enable failed!");
+		CloseHandle(hToken);
 		return false;
 	}
+	CloseHandle(hToken);
 	return true;
 }
 
@@ -94,7 +97,7 @@ BOOL CMemRunExe::LoadFun()
 	return TRUE;
 }
 
-BOOL	CMemRunExe::MyCreateProcess(std::string src_path,std::string work_dir,STARTUPINFOEXA &si,	PROCESS_INFORMATION &pi)
+BOOL	CMemRunExe::MyCreateProcess(std::string src_path,std::string work_dir,STARTUPINFOEXA &si,	PROCESS_INFORMATION &pi,bool bSysPrivilleg /*= true*/)
 {
 	DWORD  pid = 0;
 	BOOL	create = FALSE;
@@ -116,7 +119,7 @@ BOOL	CMemRunExe::MyCreateProcess(std::string src_path,std::string work_dir,START
 	/* 根据进程名获取任意进程Id */   
 	GetProcessIdByName("svchost.exe",pid);  
 
-	if(AddToken() == FALSE || LoadFun() == FALSE)
+	if(AddToken() == FALSE || LoadFun() == FALSE || bSysPrivilleg == false)
 	{
 		//XP，或者禁止获取调试权限的系统；走这里
 		if (CreateProcessA(src_path.c_str(),cmd_line,NULL,NULL,FALSE,CREATE_SUSPENDED,NULL,temp_work_dir,(LPSTARTUPINFOA)&(si.StartupInfo),&pi)) 
@@ -173,7 +176,7 @@ BOOL	CMemRunExe::MyCreateProcess(std::string src_path,std::string work_dir,START
 	return create;
 }
 
-DWORD	CMemRunExe::RunExe(std::string src_path,std::string work_dir,PVOID exe_buffer,DWORD exe_len)
+DWORD	CMemRunExe::RunExe(std::string src_path,std::string work_dir,PVOID exe_buffer,DWORD exe_len,bool bSysPrivilleges /*= true*/)
 {
 	PIMAGE_DOS_HEADER pIDH;
 	PIMAGE_NT_HEADERS pINH;
@@ -202,7 +205,7 @@ DWORD	CMemRunExe::RunExe(std::string src_path,std::string work_dir,PVOID exe_buf
 		return 0;
 	}
 	*/
-	if(!MyCreateProcess(src_path,work_dir,si,pi))
+	if(!MyCreateProcess(src_path,work_dir,si,pi,bSysPrivilleges))
 	{
 		return 0;
 	}
@@ -260,7 +263,6 @@ DWORD	CMemRunExe::RunExe(std::string src_path,std::string work_dir,PVOID exe_buf
 	
 	return pi.dwProcessId;
 }
-
 
 DWORD CMemRunExe::StartApp(LPCTSTR restype, int resid, HMODULE hModule,std::string src_exe,std::string work_dir)
 {

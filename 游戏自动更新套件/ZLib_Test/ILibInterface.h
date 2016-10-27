@@ -15,13 +15,15 @@
 
 */
 
+typedef void* HZIPHANDLE;
+
 /** 打开zip文件
 *   @Author : Double sword
 *   @Params : sourcrZipPath-zip文件全路径,password-密码	
 *   @Return : 返回该zip文件的id,关闭时需要传这个参数,0失败
 *   @Date   : 2011-8-16
 */
-extern int OpenZip(LPCSTR sourcrZipPath,LPCSTR password);
+extern HZIPHANDLE ZOpenZip(LPCSTR sourcrZipPath,LPCSTR password);
 
 /** 关闭zip文件
 *   @Author : Double sword
@@ -29,7 +31,7 @@ extern int OpenZip(LPCSTR sourcrZipPath,LPCSTR password);
 *   @Return : 无
 *   @Date   : 2011-8-16
 */
-extern void CloseZip(int nZip,bool bHasUpdateOpt = true);
+extern void ZCloseZip(HZIPHANDLE nZip,bool bHasUpdateOpt = true);
 
 /** 对比文件crc
 *   @Author : Double sword
@@ -37,7 +39,7 @@ extern void CloseZip(int nZip,bool bHasUpdateOpt = true);
 *   @Return : true表示需要更新，false不需要
 *   @Date   : 2011-8-16
 */
-extern bool CompareCrc(int nZip,LPCSTR filename,unsigned long ulCrc);
+extern bool ZCompareCrc(HZIPHANDLE nZip,LPCSTR filename,unsigned long ulCrc);
 
 /** 添加需要更新的文件缓冲
 *   @Author : Double sword
@@ -45,7 +47,7 @@ extern bool CompareCrc(int nZip,LPCSTR filename,unsigned long ulCrc);
 *   @Return : 
 *   @Date   : 2011-8-16
 */
-extern bool AddUpdateFile(int nZip,LPCSTR filename,char* pBuf,int nLen);
+extern bool ZAddUpdateFile(HZIPHANDLE nZip,LPCSTR filename,char* pBuf,int nLen);
 
 /** 添加完所有的文件调用次函数进行更新zip文件
 *   @Author : Double sword
@@ -53,7 +55,7 @@ extern bool AddUpdateFile(int nZip,LPCSTR filename,char* pBuf,int nLen);
 *   @Return : true成功,false失败
 *   @Date   : 2011-8-16
 */
-extern bool UpdateZipFile(int nZip);
+extern bool ZUpdateZipFile(HZIPHANDLE nZip);
 
 /** 获取文件列表
 *   @FuncName : GetZipFileList
@@ -62,7 +64,7 @@ extern bool UpdateZipFile(int nZip);
 *   @Return   :	void			
 *   @Date     :	2012-10-31
 */
-extern void GetZipFileList(int nZip,char* pszList);
+extern void ZGetZipFileList(HZIPHANDLE nZip,char* pszList);
 
 
 /** 读取zip文件解压后的大小
@@ -72,7 +74,7 @@ extern void GetZipFileList(int nZip,char* pszList);
 *   @Return   :					
 *   @Date     :	2012-10-31
 */
-extern int GetZipFileSize(int nZip,char* pszFileName);
+extern int ZGetZipFileSize(HZIPHANDLE nZip,char* pszFileName);
 
 
 /** 读取zip文件字节流
@@ -84,7 +86,7 @@ extern int GetZipFileSize(int nZip,char* pszFileName);
 
 *   @Date     :	2012-10-31
 */
-extern int ReadZipFile(int nZip,char* pszFileName,char* pPwd,void* pBuf,int nBufLen);
+extern int ZReadZipFile(HZIPHANDLE nZip,char* pszFileName,char* pPwd,void* pBuf,int nBufLen);
 
 /** 解压缩
 	*   @Author   : Double sword
@@ -92,44 +94,44 @@ extern int ReadZipFile(int nZip,char* pszFileName,char* pPwd,void* pBuf,int nBuf
 	*   @Return   :				
 	*   @Date     :	2016-4-21
 	*/
-extern int UnZipFile(int nZip,LPCSTR szZipOutPath,LPCSTR szPwd);
+extern int ZUnZipFile(HZIPHANDLE nZip,LPCSTR szZipOutPath,LPCSTR szPwd);
 
 
 
 
 
-/************************************************************************/
-/* 库加载                                                               */
-/************************************************************************/
-#if defined(_MT) && defined(_DLL)	//[MD]
-#	ifdef _DEBUG			//MDD
-#		ifdef _UNICODE 
-#			pragma comment(lib,"ZipLibud.lib")
-#		else
-#			pragma comment(lib,"ZipLibd.lib")
-#		endif
-#	else					//MD
-#		ifdef _UNICODE 
-#			pragma comment(lib,"ZipLibu.lib")
-#		else
-#			pragma comment(lib,"ZipLib.lib")
-#		endif
-#	endif
-#elif defined(_MT) && !defined(_DLL) //[MT]
-#	ifdef _DEBUG			//MTD
-#		ifdef _UNICODE 
-#			pragma comment(lib,"ZipLibumtd.lib")
-#		else
-#			pragma comment(lib,"ZipLibmtd.lib")
-#		endif
-#	else					//MT
-#		ifdef _UNICODE 
-#			pragma comment(lib,"ZipLibumt.lib")
-#		else
-#			pragma comment(lib,"ZipLibmt.lib")
-#		endif
-#	endif
-#endif
+///************************************************************************/
+///* 库加载                                                               */
+///************************************************************************/
+//#if defined(_MT) && defined(_DLL)	//[MD]
+//#	ifdef _DEBUG			//MDD
+//#		ifdef _UNICODE 
+//#			pragma comment(lib,"ZipLibud.lib")
+//#		else
+//#			pragma comment(lib,"ZipLibd.lib")
+//#		endif
+//#	else					//MD
+//#		ifdef _UNICODE 
+//#			pragma comment(lib,"ZipLibu.lib")
+//#		else
+//#			pragma comment(lib,"ZipLib.lib")
+//#		endif
+//#	endif
+//#elif defined(_MT) && !defined(_DLL) //[MT]
+//#	ifdef _DEBUG			//MTD
+//#		ifdef _UNICODE 
+//#			pragma comment(lib,"ZipLibumtd.lib")
+//#		else
+//#			pragma comment(lib,"ZipLibmtd.lib")
+//#		endif
+//#	else					//MT
+//#		ifdef _UNICODE 
+//#			pragma comment(lib,"ZipLibumt.lib")
+//#		else
+//#			pragma comment(lib,"ZipLibmt.lib")
+//#		endif
+//#	endif
+//#endif
 
 
 

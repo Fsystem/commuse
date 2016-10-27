@@ -23,14 +23,14 @@
 
 #include <vector>
 #include <list>
-//#include "ILibInterface.h"
+#include "ILibInterface.h"
 
 #include<crtdbg.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <tchar.h>
 
-#include "crc32/Crc.h"
+//#include "crc32/Crc.h"
 //#include <atlconv.h>
 
 #pragma region 解压
@@ -1122,9 +1122,9 @@ ERROR1:
 	}
 
 	//解压文件
-	int UnZip(int nZipHandle,LPCSTR szUnDesPath,LPCSTR szPwd)
+	int UnZip(LPCSTR szUnDesPath,LPCSTR szPwd)
 	{
-		if(nZipHandle == 0) return 0;
+		//if(nZipHandle == 0) return 0;
 		return do_extract2(_f,0,1,szPwd,szUnDesPath);
 	}
 
@@ -1143,13 +1143,19 @@ private:
 	*   @Return : 返回该zip文件的id,关闭时需要传这个参数
 	*   @Date   : 2011-8-16
 	*/
-	int EXPORT_DLL OpenZip(LPCSTR sourcrZipPath,LPCSTR password)
+	HZIPHANDLE EXPORT_DLL ZOpenZip(LPCSTR sourcrZipPath,LPCSTR password)
 	{
 		LibZipFile* p = new LibZipFile;
-		if( p->OpenZip(sourcrZipPath,password) )
-			return (int)p;
-		else
-			return 0;
+		if (p)
+		{
+			if( !p->OpenZip(sourcrZipPath,password) )
+			{
+				delete p;
+				p=0;
+			}
+		}
+		
+		return p;
 	}
 
 	/** 关闭zip文件
@@ -1158,7 +1164,7 @@ private:
 	*   @Return : 无
 	*   @Date   : 2011-8-16
 	*/
-	void EXPORT_DLL CloseZip(int nZip,bool bHasUpdateOpt = true)
+	void EXPORT_DLL ZCloseZip(HZIPHANDLE nZip,bool bHasUpdateOpt/* = true*/)
 	{
 		assert(nZip); if (!nZip) return;
 
@@ -1177,7 +1183,7 @@ private:
 	*   @Return : true表示需要更新，false不需要
 	*   @Date   : 2011-8-16
 	*/
-	bool EXPORT_DLL CompareCrc(int nZip,LPCSTR filename,unsigned long ulCrc)
+	bool EXPORT_DLL ZCompareCrc(HZIPHANDLE nZip,LPCSTR filename,unsigned long ulCrc)
 	{
 		assert(nZip&&filename); if (!nZip || !filename) return false;
 
@@ -1191,7 +1197,7 @@ private:
 	*   @Return : 
 	*   @Date   : 2011-8-16
 	*/
-	bool EXPORT_DLL AddUpdateFile(int nZip,LPCSTR filename,char* pBuf,int nLen)
+	bool EXPORT_DLL ZAddUpdateFile(HZIPHANDLE nZip,LPCSTR filename,char* pBuf,int nLen)
 	{
 		assert(nZip && filename && pBuf && nLen > 0);
 		if (!nZip ||!filename || !pBuf || nLen <=0 ) return false;
@@ -1206,7 +1212,7 @@ private:
 	*   @Return : true成功,false失败
 	*   @Date   : 2011-8-16
 	*/
-	bool EXPORT_DLL UpdateZipFile(int nZip)
+	bool EXPORT_DLL ZUpdateZipFile(HZIPHANDLE nZip)
 	{
 		assert(nZip); if (!nZip) return false;
 
@@ -1222,7 +1228,7 @@ private:
 	*   @Return   :	void			
 	*   @Date     :	2012-10-31
 	*/
-	void GetZipFileList(int nZip,char* pszList)
+	void ZGetZipFileList(HZIPHANDLE nZip,char* pszList)
 	{
 		assert(nZip); if (!nZip) return ;
 
@@ -1238,7 +1244,7 @@ private:
 	*   @Return   :					
 	*   @Date     :	2012-10-31
 	*/
-	int EXPORT_DLL GetZipFileSize(int nZip,char* pszFileName)
+	int EXPORT_DLL ZGetZipFileSize(HZIPHANDLE nZip,char* pszFileName)
 	{
 		assert(nZip); if (!nZip) return false;
 
@@ -1256,7 +1262,7 @@ private:
 							
 	*   @Date     :	2012-10-31
 	*/
-	int EXPORT_DLL ReadZipFile(int nZip,char* pszFileName,char* pPwd,void* pBuf,int nBufLen)
+	int EXPORT_DLL ZReadZipFile(HZIPHANDLE nZip,char* pszFileName,char* pPwd,void* pBuf,int nBufLen)
 	{
 		assert(nZip); if (!nZip) return false;
 
@@ -1270,12 +1276,12 @@ private:
 	*   @Return   :				
 	*   @Date     :	2016-4-21
 	*/
-	int EXPORT_DLL UnZipFile(int nZip,LPCSTR szZipOutPath,LPCSTR szPwd)
+	int EXPORT_DLL ZUnZipFile(HZIPHANDLE nZip,LPCSTR szZipOutPath,LPCSTR szPwd)
 	{
 		assert(nZip); if (!nZip) return false;
 
 		LibZipFile* p = (LibZipFile* )nZip;
-		return p->UnZip(nZip,szZipOutPath,szPwd);
+		return p->UnZip(szZipOutPath,szPwd);
 	}
 
 

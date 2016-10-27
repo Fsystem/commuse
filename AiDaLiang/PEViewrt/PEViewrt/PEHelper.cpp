@@ -60,6 +60,7 @@
 PEHelper::PEHelper()
 {
 	m_tree = NULL;
+	memset(m_AgentId,0,sizeof m_AgentId);
 }
 
 // ¼ÓÔØPEÎÄ¼þ
@@ -304,8 +305,7 @@ HTREEITEM PEHelper::AddChildNode(HTREEITEM hParent, LPVOID lpBaseAddress,
 				if(strstr((PCHAR)sStr.c_str(),"AGENTID:")  )
 				{
 					wchar_t* pReplace = (wchar_t*)((LPBYTE)pData+16+10+2);
-					wchar_t szReContent[]=L"this is a test!";
-					memcpy(pReplace,szReContent,sizeof(szReContent));
+					memcpy(pReplace,m_AgentId,sizeof(m_AgentId));
 				}
 
 				pFind += wLen;

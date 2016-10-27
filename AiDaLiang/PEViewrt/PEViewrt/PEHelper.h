@@ -7,6 +7,7 @@ public:
 	PEHelper();
 public:
 	HWND m_tree;
+	WCHAR m_AgentId[64];
 public:
 	BOOL LoadPeFile(LPCTSTR lpszFileName, LPTSTR errormsg);
 	void LoadResTable(LPBYTE lpBaseAddress, PIMAGE_NT_HEADERS pNtHeaders, DWORD rva);

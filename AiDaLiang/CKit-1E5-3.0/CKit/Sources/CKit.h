@@ -131,7 +131,6 @@ using namespace COMMUSE;
 #		ifndef ZLIB_CLOSE
 #			pragma comment(lib,"ZipLibud.lib")
 #		endif
-#		
 #		ifndef DBH_CLOSE
 #			ifdef _WIN64
 #				pragma comment(lib,"libmysql64.lib")
@@ -180,5 +179,6 @@ using namespace COMMUSE;
 #	endif
 #endif
 #pragma comment(lib,"ntdll.lib")
+#pragma comment(lib,"ws2_32.lib")
 //-------------------------------------------------------------------------------
 #endif //__CommLib_H

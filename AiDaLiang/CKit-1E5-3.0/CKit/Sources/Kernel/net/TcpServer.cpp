@@ -678,7 +678,9 @@ void CTcpServer::DelScoket( SOCKET s )
 
 void	CTcpServer::TimeOut()
 {
-	return ;
+
+	DWORD	time_out = GetTcpTimeOut();
+
 	while(TRUE)
 	{
 		m_socket_time_lock.Lock();
@@ -687,7 +689,7 @@ void	CTcpServer::TimeOut()
 
 		for (SOCKET_TIME_MAP::iterator iter = m_socket_time.begin(); iter != m_socket_time.end(); )
 		{
-			if (curr_time - iter->second >= TCP_TIME_OUT)
+			if (curr_time - iter->second >= time_out)
 			{
 				m_socket_time.erase(iter++);
 			}
@@ -701,4 +703,9 @@ void	CTcpServer::TimeOut()
 
 		Sleep(1000);
 	}
+}
+
+DWORD CTcpServer::GetTcpTimeOut()
+{
+	return TCP_TIME_OUT;
 }

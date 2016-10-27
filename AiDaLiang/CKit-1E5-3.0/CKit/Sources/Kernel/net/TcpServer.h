@@ -30,6 +30,7 @@ public:
 
 	virtual BOOL StartWork(DWORD dport = DEFAULT_PORT);
 	virtual BOOL StopWork();
+	virtual	DWORD GetTcpTimeOut();
 
 private:
 

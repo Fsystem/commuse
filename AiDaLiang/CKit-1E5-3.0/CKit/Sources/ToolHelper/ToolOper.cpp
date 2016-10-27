@@ -374,7 +374,7 @@ BOOL CToolOper::UnZipFileNew( LPCSTR dir_name,LPCSTR m_zip_name,LPCSTR lpcPwd /*
 		if(ZUnZipFile(zip_handle,dir_name,lpcPwd) != 0)
 			m_ret = TRUE;
 
-		ZCloseZip(zip_handle,true);
+		ZCloseZip(zip_handle,false);
 	}
 
 	SetCurrentDirectoryA(path);

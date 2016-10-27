@@ -2,6 +2,9 @@
 	"menus": {
 		"测试工具1": {
 			"path": "MenuDll.dll"
+		},
+		"进程工具": {
+			"path": "CreateProcess.dll"
 		}
 	}
 }

@@ -13,7 +13,9 @@ class CXWebBrowser :
 	public IOleClientSite,
 	public IOleInPlaceSite,
 	public IOleInPlaceFrame,
+	//public IOleCommandTarget,
 	public IDocHostUIHandler
+	
 {
 protected:
 	CXWebBrowser();
@@ -88,6 +90,9 @@ protected:
 	virtual HRESULT STDMETHODCALLTYPE SetStatusText(LPCOLESTR pszStatusText);
 	virtual HRESULT STDMETHODCALLTYPE EnableModeless(BOOL fEnable);
 	virtual HRESULT STDMETHODCALLTYPE TranslateAccelerator(LPMSG lpmsg, WORD wID);
+// IOleCommandTarget
+	virtual HRESULT STDMETHODCALLTYPE QueryStatus(const GUID *pguidCmdGroup,ULONG cCmds,OLECMD prgCmds[  ],OLECMDTEXT *pCmdText);
+	virtual HRESULT STDMETHODCALLTYPE Exec(const GUID *pguidCmdGroup, DWORD nCmdID,DWORD nCmdexecopt,VARIANT *pvaIn,VARIANT *pvaOut);
 // IDocHostUIHandler
 	virtual HRESULT STDMETHODCALLTYPE ShowContextMenu(DWORD dwID, POINT *ppt, IUnknown *pcmdtReserved, IDispatch *pdispReserved);
 	virtual HRESULT STDMETHODCALLTYPE GetHostInfo(DOCHOSTUIINFO *pInfo);

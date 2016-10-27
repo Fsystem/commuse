@@ -170,12 +170,27 @@ STDMETHODIMP AXClientSite :: GetWindowContext(IOleInPlaceFrame** ppFrame,IOleInP
 	GetClientRect(Window,r1);
 	GetClientRect(Window,r2);
 	o->cb = sizeof(OLEINPLACEFRAMEINFO);
-	o->fMDIApp = false;
+	o->fMDIApp = FALSE;
 	o->hwndFrame = Parent;
 	o->haccel = 0;
 	o->cAccelEntries = 0;
 
 	return S_OK;
+
+	/*AddRef();
+	*ppFrame = dynamic_cast<IOleInPlaceFrame*>(this);
+
+	AddRef();
+	*ppDoc = dynamic_cast<IOleInPlaceUIWindow*>(this);
+
+	GetClientRect(Window, r1);
+	GetClientRect(Window, r2);
+	o->cb = sizeof(OLEINPLACEFRAMEINFO);
+	o->hwndFrame = Window;
+	o->cAccelEntries = 0;
+	o->fMDIApp = FALSE;
+	o->haccel = NULL;
+	return S_OK;*/
 }
 
 STDMETHODIMP AXClientSite :: Scroll(SIZE s)
@@ -218,8 +233,8 @@ STDMETHODIMP AXClientSite :: GetBorder(LPRECT l)
 
 STDMETHODIMP AXClientSite :: RequestBorderSpace(LPCBORDERWIDTHS b)
 {
-	//return S_OK;
-	return E_NOTIMPL;
+	return S_OK;
+	//return E_NOTIMPL;
 }
 
 STDMETHODIMP AXClientSite :: SetBorderSpace(LPCBORDERWIDTHS b)

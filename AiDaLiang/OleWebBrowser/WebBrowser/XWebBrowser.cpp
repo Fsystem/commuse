@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "XWebBrowser.h"
 #include <Psapi.h>
+#include <MsHTML.h>
 #pragma comment(lib, "psapi.lib")
 
 CXWebBrowser::CXWebBrowser()
@@ -179,6 +180,10 @@ HRESULT STDMETHODCALLTYPE CXWebBrowser::QueryInterface(REFIID riid, void **ppvOb
 	{
 		*ppvObject = dynamic_cast<IOleInPlaceFrame*>(this);
 		hr = S_OK;
+	}
+	else if (riid == IID_IOleCommandTarget)
+	{
+		*ppvObject = dynamic_cast<IOleCommandTarget*>(this);
 	}
 	else if (riid == DIID_DWebBrowserEvents2)
 	{
@@ -389,6 +394,95 @@ HRESULT STDMETHODCALLTYPE CXWebBrowser::TranslateAccelerator(LPMSG lpmsg, WORD w
 {
 	return S_OK;
 }
+
+HRESULT STDMETHODCALLTYPE CXWebBrowser::QueryStatus( const GUID *pguidCmdGroup,ULONG cCmds,OLECMD prgCmds[ ],OLECMDTEXT *pCmdText )
+{
+	return OLECMDERR_E_NOTSUPPORTED; 
+}
+
+HRESULT STDMETHODCALLTYPE CXWebBrowser::Exec( const GUID *pguidCmdGroup, DWORD nCmdID,DWORD nCmdexecopt,VARIANT *pvaIn,VARIANT *pvaOut )
+{
+	HRESULT hr = OLECMDERR_E_NOTSUPPORTED;  
+	//return S_OK;  
+	if (pguidCmdGroup && IsEqualGUID(*pguidCmdGroup, CGID_DocHostCommandHandler))  
+	{  
+
+		switch (nCmdID)   
+		{  
+
+		case OLECMDID_SHOWSCRIPTERROR:  
+			{  
+				IHTMLDocument2*             pDoc = NULL;  
+				IHTMLWindow2*               pWindow = NULL;  
+				IHTMLEventObj*              pEventObj = NULL;  
+				BSTR                        rgwszNames[5] =   
+				{   
+					SysAllocString(L"errorLine"), 
+					SysAllocString(L"errorCharacter"), 
+					SysAllocString(L"errorCode"), 
+					SysAllocString(L"errorMessage"), 
+					SysAllocString(L"errorUrl")
+				};  
+				DISPID                      rgDispIDs[5];  
+				VARIANT                     rgvaEventInfo[5];  
+				DISPPARAMS                  params;  
+				BOOL                        fContinueRunningScripts = true;  
+
+				params.cArgs = 0;  
+				params.cNamedArgs = 0;  
+
+				hr = pvaIn->punkVal->QueryInterface(IID_IHTMLDocument2, (void **) &pDoc);      
+
+				hr = pDoc->get_parentWindow(&pWindow);  
+				pDoc->Release();  
+
+				hr = pWindow->get_event(&pEventObj);  
+
+				for (int i = 0; i < 5; i++)   
+				{    
+
+					hr = pEventObj->GetIDsOfNames(IID_NULL, &rgwszNames[i], 1,   
+						LOCALE_SYSTEM_DEFAULT, &rgDispIDs[i]);  
+
+					hr = pEventObj->Invoke(rgDispIDs[i], IID_NULL,  
+						LOCALE_SYSTEM_DEFAULT,  
+						DISPATCH_PROPERTYGET, &params, &rgvaEventInfo[i],  
+						NULL, NULL);  
+					//可以在此记录错误信息
+
+					//必须使用SysFreeString来释放SysAllocString分配的内存,SysAllocString在分配的内存中记录了字符的长度
+					SysFreeString(rgwszNames[i]);  
+				}  
+
+				// At this point, you would normally alert the user with   
+				// the information about the error, which is now contained  
+				// in rgvaEventInfo[]. Or, you could just exit silently.  
+
+				(*pvaOut).vt = VT_BOOL;  
+				if (fContinueRunningScripts)  
+				{  
+					// 在页面中继续执行脚本 
+					(*pvaOut).boolVal = VARIANT_TRUE;  
+				}  
+				else
+				{  
+					// 停止在页面中执行脚本  
+					(*pvaOut).boolVal = VARIANT_FALSE;     
+				}   
+				break;  
+			}  
+		default:  
+			hr =OLECMDERR_E_NOTSUPPORTED; 
+			break;  
+		}  
+	}  
+	else
+	{  
+		hr = OLECMDERR_E_UNKNOWNGROUP;
+	}  
+	return (hr); 
+}
+
 //////////////////////////////////////////////////////////////////////////
 // IDocHostUIHandler
 HRESULT STDMETHODCALLTYPE CXWebBrowser::ShowContextMenu(DWORD dwID, POINT *ppt, IUnknown *pcmdtReserved, IDispatch *pdispReserved)

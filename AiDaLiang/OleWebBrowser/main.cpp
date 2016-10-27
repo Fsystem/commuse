@@ -36,7 +36,7 @@ protected:
 		// 若需要, 请附加DLCTL_SILENT标志
 		
 		// 例子: 只下载文字和图片, 且禁止ActiveX插件
-		nFlags = DLCTL_SILENT|DLCTL_DLIMAGES|DLCTL_NO_DLACTIVEXCTLS|DLCTL_NO_RUNACTIVEXCTLS;
+		//nFlags = DLCTL_SILENT|DLCTL_DLIMAGES|DLCTL_NO_DLACTIVEXCTLS|DLCTL_NO_RUNACTIVEXCTLS;
 		return TRUE;
 	}
 
@@ -77,14 +77,15 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				wbe = new EventCallback(wb);
 				wb->SetCallback2(wbe);
 				argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-				wb->Silent(TRUE);
+				BOOL BS = wb->Silent(TRUE);
 				if (argc > 1)
 				{
 					wb->Navigate(argv[1]);
 				}
 				else
 				{
-					wb->Navigate(L"www.baidu.com");
+					//wb->Navigate(L"http://tv.sohu.com/20161019/n470725463.shtml");
+					wb->Navigate(L"http://www.baidu.com");
 				}
 			}
 		}
@@ -132,7 +133,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	wc.lpszClassName = WND_CLASSNAME;
 	RegisterClassEx(&wc);
 
-	CXWebBrowser2::SetIEVersion(CXWebBrowser2::IE10);
+	CXWebBrowser2::SetIEVersion(CXWebBrowser2::IE11);
 
 	if (HWND hWnd = CreateWindowEx(0, WND_CLASSNAME, TEXT("Ole WebBrowser"), WS_OVERLAPPEDWINDOW, 10, 10, 1024, 768, HWND_DESKTOP, NULL, hInstance, NULL))
 	{

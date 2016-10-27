@@ -1,4 +1,4 @@
-#include "..\ATT\src\ctrl\App.h"
+
 #ifndef __MainWnd_H
 #define __MainWnd_H
 class MainWnd : public jkBaseWindow

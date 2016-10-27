@@ -23,6 +23,8 @@ void MainDlg::OnInitDialog()
 	RECT rc;
 	
 	GetClientRect(mHwnd,&rc);
+	rc.right -= 30;
+	rc.bottom-=20;
 
 	gWeb.SetCallBack(new CIeEvent);
 	gWeb.Create(mHwnd,rc);
@@ -30,7 +32,7 @@ void MainDlg::OnInitDialog()
 	
 
 	gWeb.GetWebObject()->put_Silent(VARIANT_TRUE);
-	gWeb.GetWebObject()->Navigate(L"http://192.168.1.47/d/b.html",0,0,0,0);
+	gWeb.GetWebObject()->Navigate(L"http://tv.sohu.com",0,0,0,0);
 
 
 	DWORD dwErr = GetLastError();

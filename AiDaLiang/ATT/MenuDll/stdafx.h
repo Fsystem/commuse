@@ -40,7 +40,7 @@
 #include "../Interface/jkInterface.h"
 
 //
-#include "App.h"
+#include "../common/ui/App.h"
 #include "MainWnd.h"
 //
 #include "Logic/MenuCmd.h"

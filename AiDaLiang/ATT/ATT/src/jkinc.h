@@ -11,7 +11,7 @@
 #include "render/jkRender.h"
 
 //- menu
-#include "ctrl/App.h"
+#include "../common/ui/App.h"
 #include "menu/MenuMgr.h"
 
 //- ctrl

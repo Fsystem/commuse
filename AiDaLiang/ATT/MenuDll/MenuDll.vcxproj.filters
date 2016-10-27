@@ -16,6 +16,12 @@
     <Filter Include="Logic">
       <UniqueIdentifier>{833c0bec-f9a6-4777-b842-d4af92a2604b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{3eebb8d5-c444-434c-925c-c98df8d4bb3a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\ui">
+      <UniqueIdentifier>{5e7bceb1-9afd-45ff-9b19-708540c68616}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -33,11 +39,11 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="App.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="MainWnd.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\ui\App.h">
+      <Filter>common\ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,11 +59,11 @@
     <ClCompile Include="Logic\MenuCmd.cpp">
       <Filter>Logic</Filter>
     </ClCompile>
-    <ClCompile Include="App.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MainWnd.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ui\App.cpp">
+      <Filter>common\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

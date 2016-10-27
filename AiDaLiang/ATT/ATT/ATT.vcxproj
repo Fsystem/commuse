@@ -83,12 +83,12 @@ xcopy /y  "$(ProjectDir)src\base\*" "$(ProjectDir)..\Interface\"</Command>
     <None Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\common\ui\App.h" />
     <ClInclude Include="ATT.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="src\base\jkDef.h" />
     <ClInclude Include="src\base\jkFactory.h" />
     <ClInclude Include="src\base\jkInterface.h" />
-    <ClInclude Include="src\ctrl\App.h" />
     <ClInclude Include="src\ctrl\TabControl.h" />
     <ClInclude Include="src\jkinc.h" />
     <ClInclude Include="src\menu\MenuMgr.h" />
@@ -118,8 +118,8 @@ xcopy /y  "$(ProjectDir)src\base\*" "$(ProjectDir)..\Interface\"</Command>
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\common\ui\App.cpp" />
     <ClCompile Include="ATT.cpp" />
-    <ClCompile Include="src\ctrl\App.cpp" />
     <ClCompile Include="src\ctrl\TabControl.cpp" />
     <ClCompile Include="src\menu\MenuMgr.cpp" />
     <ClCompile Include="src\render\jkRender.cpp" />

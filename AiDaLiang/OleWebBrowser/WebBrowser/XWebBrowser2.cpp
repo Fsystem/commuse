@@ -138,13 +138,16 @@ HRESULT STDMETHODCALLTYPE CXWebBrowser2::Invoke(DISPID dispIdMember, REFIID riid
 		break;
 	case DISPID_AMBIENT_DLCONTROL:
 		{
+			VARIANT_BOOL b = FALSE;
+			GetWebObject()->get_Silent(&b);
+
 			LONG nFlags;
 
 			nFlags = 0;
 			if (m_Callback2->OnAmbientDownloadControl(nFlags))
 			{
 				pVarResult->vt = VT_I4;
-				pVarResult->lVal = nFlags;
+				pVarResult->lVal = nFlags|(b?DLCTL_SILENT:0);
 			}
 		}
 		break;

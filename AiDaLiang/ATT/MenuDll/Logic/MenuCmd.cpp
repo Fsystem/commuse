@@ -29,7 +29,7 @@ LPJKMenuDataArr MenuCmd::LoadMenu()
 	for (int i=0;i<_countof(mMenus);i++)
 	{
 		std::ostringstream sMenu;
-		sMenu << "menu"<<i;
+		sMenu << szMuName[i];
 		strncpy(mMenus[i].szMenuName , sMenu.str().c_str(),MAX_MENUNAME_LEN-1);
 		mMenus[i].MenuCall = (bool (IJKMenu::*)(const char*,HWND))&MenuCmd::MenuCall;
 		mMenus[i].ReveryfySize = (void (IJKMenu::*)(const char*))&MenuCmd::ReSize;

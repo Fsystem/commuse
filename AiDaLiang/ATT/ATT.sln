@@ -2,13 +2,16 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ATT", "ATT\ATT.vcxproj", "{39E25803-80D1-4590-A888-C52DC418EEFE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MenuDll", "MenuDll\MenuDll.vcxproj", "{53333EBD-C542-40CC-A20C-341A876773F3}"
 	ProjectSection(ProjectDependencies) = postProject
-		{39E25803-80D1-4590-A888-C52DC418EEFE} = {39E25803-80D1-4590-A888-C52DC418EEFE}
+		{53333EBD-C542-40CC-A20C-341A876773F3} = {53333EBD-C542-40CC-A20C-341A876773F3}
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51} = {0C23BEF6-682B-4E67-9C78-531EDA051F51}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MenuDll", "MenuDll\MenuDll.vcxproj", "{53333EBD-C542-40CC-A20C-341A876773F3}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{E2B7064A-4E04-4864-8D8F-39F3DB5DF364}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CreateProcess", "CreateProcessDll\CreateProcessDll.vcxproj", "{0C23BEF6-682B-4E67-9C78-531EDA051F51}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,11 +27,16 @@ Global
 		{53333EBD-C542-40CC-A20C-341A876773F3}.Debug|Win32.Build.0 = Debug|Win32
 		{53333EBD-C542-40CC-A20C-341A876773F3}.Release|Win32.ActiveCfg = Release|Win32
 		{53333EBD-C542-40CC-A20C-341A876773F3}.Release|Win32.Build.0 = Release|Win32
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51}.Debug|Win32.Build.0 = Debug|Win32
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51}.Release|Win32.ActiveCfg = Release|Win32
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{53333EBD-C542-40CC-A20C-341A876773F3} = {E2B7064A-4E04-4864-8D8F-39F3DB5DF364}
+		{0C23BEF6-682B-4E67-9C78-531EDA051F51} = {E2B7064A-4E04-4864-8D8F-39F3DB5DF364}
 	EndGlobalSection
 EndGlobal

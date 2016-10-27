@@ -1,5 +1,8 @@
 #ifndef __MenuCmd_H
 #define __MenuCmd_H
+__declspec(selectany) char* szMuName[]={
+	"创建进程"
+};
 class MenuCmd : public IJKMenu
 {
 public:
@@ -12,7 +15,8 @@ protected:
 	void ReSize(const char* szMenuName);
 	void CloseMenu(const char* szMenuName);
 private:
-	JKMenuData mMenus[10];
+	JKMenuData mMenus[CountArr(szMuName)];
+	char*	mMenuName[CountArr(szMuName)];
 	LPJKMenuDataArr mMenusPtr;
 	MainWnd* mpMainWnd;
 };

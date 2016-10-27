@@ -75,9 +75,6 @@
     <ClInclude Include="src\ctrl\TabControl.h">
       <Filter>src\ctrl</Filter>
     </ClInclude>
-    <ClInclude Include="src\ctrl\App.h">
-      <Filter>src\ctrl</Filter>
-    </ClInclude>
     <ClInclude Include="src\UI\MainClient.h">
       <Filter>src\UI</Filter>
     </ClInclude>
@@ -144,6 +141,9 @@
     <ClInclude Include="src\render\jkRender.h">
       <Filter>src\render</Filter>
     </ClInclude>
+    <ClInclude Include="..\common\ui\App.h">
+      <Filter>src\ctrl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -158,9 +158,6 @@
     <ClCompile Include="src\ctrl\TabControl.cpp">
       <Filter>src\ctrl</Filter>
     </ClCompile>
-    <ClCompile Include="src\ctrl\App.cpp">
-      <Filter>src\ctrl</Filter>
-    </ClCompile>
     <ClCompile Include="src\UI\MainClient.cpp">
       <Filter>src\UI</Filter>
     </ClCompile>
@@ -169,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="src\render\jkRender.cpp">
       <Filter>src\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\ui\App.cpp">
+      <Filter>src\ctrl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

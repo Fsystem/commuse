@@ -2,16 +2,18 @@
 #include "stdafx.h"
 
 MenuCmd* gMenuCmd;
+IJKMenu* gIJKMenu = NULL;
 
 BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-					 )
+	DWORD  ul_reason_for_call,
+	LPVOID lpReserved
+	)
 {
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
 		gMenuCmd = new MenuCmd;
+		gIJKMenu = gMenuCmd;
 		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
@@ -23,4 +25,5 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	return TRUE;
 }
 
-JK_MENU_EXPORT_INSTANCE(gMenuCmd);
+JK_MENU_EXPORT_INSTANCE(gIJKMenu);
+

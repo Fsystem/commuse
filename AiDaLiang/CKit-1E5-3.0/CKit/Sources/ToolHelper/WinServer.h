@@ -16,6 +16,7 @@ public:
 public:
 	virtual void	ServiceStart(DWORD dwArgc, LPSTR *lpszArgv) = 0;
 	virtual void	ServiceStop() = 0;
+	virtual	BOOL	GetServerInfo(std::string &_sz_appname,std::string	&_sz_service_name,std::string	&_sz_service_displayname) = 0;
 };
 
 /**

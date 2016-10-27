@@ -79,6 +79,9 @@
     <Filter Include="Sources\Kernel\mempool">
       <UniqueIdentifier>{fa0899ae-599c-4373-a56b-424b149c3dd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Sources\DBHelper">
+      <UniqueIdentifier>{a0e5508d-59f5-457c-a29b-2284de62ba02}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -237,6 +240,18 @@
     <ClInclude Include="Sources\ToolHelper\WinServer.h">
       <Filter>Sources\ToolHelper</Filter>
     </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\TcpServer.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\Kernel\net\UdpServer.h">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\ToolHelper\DbOper.h">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\DBHelper\yCMysql.h">
+      <Filter>Sources\DBHelper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -364,6 +379,18 @@
     </ClCompile>
     <ClCompile Include="Sources\ToolHelper\WinServer.cpp">
       <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\TcpServer.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Kernel\net\UdpServer.cpp">
+      <Filter>Sources\Kernel\net</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ToolHelper\DbOper.cpp">
+      <Filter>Sources\ToolHelper</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\DBHelper\yCMysql.cpp">
+      <Filter>Sources\DBHelper</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

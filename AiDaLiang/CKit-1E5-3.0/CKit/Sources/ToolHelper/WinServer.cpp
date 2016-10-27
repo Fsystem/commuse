@@ -66,6 +66,8 @@ BOOL CWinServer::StartRun()
 {
 	Init();
 
+	m_server_interface->GetServerInfo(m_sz_appname,m_sz_service_name,m_sz_serviced_displayname);
+
 	char m_server_name[MAX_PATH];
 	memset(m_server_name,0,sizeof(m_server_name));
 	strcpy_s(m_server_name,MAX_PATH,m_sz_service_name.c_str());

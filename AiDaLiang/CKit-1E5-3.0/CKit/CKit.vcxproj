@@ -91,7 +91,7 @@
 mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\lib"
 echo "拷贝链接库..."
 echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
 xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
@@ -116,7 +116,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
 mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\lib"
 echo "拷贝链接库..."
 echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
 xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
@@ -145,7 +145,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
 mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\lib"
 echo "拷贝链接库..."
 echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
 xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
@@ -178,7 +178,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
 mkdir "$(OutDir)..\$(ProjectName)-lib\lib"
 xcopy /s /y "$(ProjectDir)Sources" "$(OutDir)..\$(ProjectName)-lib"
 del /s /q "$(OutDir)..\$(ProjectName)-lib\*.cpp"
-copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\"
+copy "$(OutDir)$(TargetFilename)" "$(OutDir)..\$(ProjectName)-lib\lib"
 echo "拷贝链接库..."
 echo "xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib""
 xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
@@ -194,6 +194,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
   <ItemGroup>
     <ClInclude Include="Sources\CKit.h" />
     <ClInclude Include="Sources\ComnDef\cmndef.h" />
+    <ClInclude Include="Sources\DBHelper\yCMysql.h" />
     <ClInclude Include="Sources\Director\CltDirector.h" />
     <ClInclude Include="Sources\InjectHelper\MemoryLoad.h" />
     <ClInclude Include="Sources\InjectHelper\MemoryModule.h" />
@@ -214,7 +215,9 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     <ClInclude Include="Sources\Kernel\mempool\PoolMemData.h" />
     <ClInclude Include="Sources\Kernel\net\iocp_def.h" />
     <ClInclude Include="Sources\Kernel\net\TcpClient.h" />
+    <ClInclude Include="Sources\Kernel\net\TcpServer.h" />
     <ClInclude Include="Sources\Kernel\net\UdpClient.h" />
+    <ClInclude Include="Sources\Kernel\net\UdpServer.h" />
     <ClInclude Include="Sources\Kernel\net\yCTcp.h" />
     <ClInclude Include="Sources\Kernel\net\yCUdp.h" />
     <ClInclude Include="Sources\Kernel\template\SingletonBase.h" />
@@ -226,6 +229,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     <ClInclude Include="Sources\NetWork\NetTool.h" />
     <ClInclude Include="Sources\NetWork\NetWork.h" />
     <ClInclude Include="Sources\NetWork\P2pTransmission.h" />
+    <ClInclude Include="Sources\ToolHelper\DbOper.h" />
     <ClInclude Include="Sources\ToolHelper\DeviceOper.h" />
     <ClInclude Include="Sources\ToolHelper\DigitSign.h" />
     <ClInclude Include="Sources\ToolHelper\FileMonitor.h" />
@@ -245,6 +249,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\DBHelper\yCMysql.cpp" />
     <ClCompile Include="Sources\Director\CltDirector.cpp" />
     <ClCompile Include="Sources\InjectHelper\MemoryLoad.cpp" />
     <ClCompile Include="Sources\InjectHelper\MemoryModule.cpp" />
@@ -262,7 +267,9 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     <ClCompile Include="Sources\Kernel\downfile\HttpDownFile.cpp" />
     <ClCompile Include="Sources\Kernel\mempool\PoolMemData.cpp" />
     <ClCompile Include="Sources\Kernel\net\TcpClient.cpp" />
+    <ClCompile Include="Sources\Kernel\net\TcpServer.cpp" />
     <ClCompile Include="Sources\Kernel\net\UdpClient.cpp" />
+    <ClCompile Include="Sources\Kernel\net\UdpServer.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCTcp.cpp" />
     <ClCompile Include="Sources\Kernel\net\yCUdp.cpp" />
     <ClCompile Include="Sources\ModuleManager\PlugManager.cpp" />
@@ -271,6 +278,7 @@ xcopy /s /y "$(ProjectDir)lib" "$(OutDir)..\$(ProjectName)-lib\lib"</Command>
     <ClCompile Include="Sources\NetWork\MapToXml.cpp" />
     <ClCompile Include="Sources\NetWork\NetTool.cpp" />
     <ClCompile Include="Sources\NetWork\P2pTransmission.cpp" />
+    <ClCompile Include="Sources\ToolHelper\DbOper.cpp" />
     <ClCompile Include="Sources\ToolHelper\DeviceOper.cpp" />
     <ClCompile Include="Sources\ToolHelper\DigitSign.cpp" />
     <ClCompile Include="Sources\ToolHelper\FileMonitor.cpp" />
